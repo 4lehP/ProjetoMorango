@@ -1,4 +1,3 @@
-//teste do github
 /********************************************************
    CANAL INTERNET E COISAS
    Configuracao com JSON e SPIFFS
