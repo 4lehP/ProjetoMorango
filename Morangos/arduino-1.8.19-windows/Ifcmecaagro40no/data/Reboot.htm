@@ -1,0 +1,68 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=auto">
+    <title>IFC INOVA MECATRÔNICA - NÓ MEDIDOR</title>
+    <link rel="stylesheet" href="Style.css">
+  
+   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">IFC Morangos</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="true" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+    
+        <div class="navbar-collapse collapse show" id="navbarColor02" >
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="Home.htm">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="Config.htm">Configuração</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="Log.htm">Logar</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="Relay.htm">Valvula</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="Reboot.htm">Reiniciar</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="FileList.htm">Arquivos</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+  <script>
+    var t = 15;
+
+    function decT() {
+      t--;
+      document.getElementById("time").innerHTML = t;
+      if (t == 0) {
+        window.location = "/";
+      } else {
+        window.setTimeout("decT()", 1000);
+      }
+    }
+  </script>
+</head>
+
+<body onLoad="decT()">
+  
+  <table class="table table-hover"> 
+    <tr class="table-active">
+      <th colspan="2" class="msg">Reiniciar</th>
+    </tr>
+    <tr>
+      <th >Aguarde</th>
+      <td><span id="time">20</span> segundos</td>
+    </tr>
+
+  </table>
+</body>
+</html>

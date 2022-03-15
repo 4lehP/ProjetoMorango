@@ -1,0 +1,62 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=auto">
+    <title>IFC INOVA MECATRÔNICA - NÓ MEDIDOR</title>
+    <link rel="stylesheet" href="Style2.css">
+   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">IFC Morangos</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="true" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+    
+        <div class="navbar-collapse collapse show" id="navbarColor02">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="Home.htm">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="Config.htm">Configuração</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="Log.htm">Logar</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="Relay.htm">Valvula</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="Reboot.htm">Reiniciar</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="FileList.htm">Arquivos</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  
+  </head>
+<body>
+  
+
+  <table class="table table-hover"> 
+    <tr class="table-active">
+      <th >Log em Memoria </th>
+      <td><a type="button" class="btn btn-outline-dark" href="/logGet">Download</a></td>
+     <td> <a type="button" class="btn btn-outline-dark" href="/logReset" onclick=" confirm('Apagar Log em Memória?')">Apagar</a></td>
+    </tr>
+    <tr class="table-active">
+      <th >Log em Arquivo </th>
+      <td>#logFiles#</td><td><a type="button" class="btn btn-outline-dark" href="/logFileReset" onclick=" confirm('Apagar TODOS os Logs em Arquivo?')">Apagar</a></td>
+    </tr>
+    <tr class="table-active">
+      <th >Espaço </th>
+      <td>#fsSpace#</td><td></td>
+
+    </tr>
+
+
+  </table>
+</body>
+</html>
