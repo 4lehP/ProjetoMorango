@@ -252,12 +252,12 @@ void handleRelaySet() {
   if (!pwdNeeded() || chkWebAuth()) {
     String s = server.arg("set"); // recebe o valor de s
 
-    String Ligar = s.substring(0,1);
+    String LigarDesligar = s.substring(0,1);
     String Porta = s.substring(1);
 
   
-        digitalWrite(Porta.toInt(), Ligar.toInt());
-        lastEvent = Porta + " " + Ligar + " " + dateTimeStr(now());
+        digitalWrite( relayGPIOs[Porta.toInt()]  , LigarDesligar.toInt());
+        lastEvent = relayGPIOs2[Porta.toInt()]  + " " + LigarDesligar + " " + dateTimeStr(now());
   
 
    

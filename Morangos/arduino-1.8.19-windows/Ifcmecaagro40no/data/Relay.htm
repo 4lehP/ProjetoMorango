@@ -63,6 +63,7 @@
         }
       }
     }
+
     function relayStatus() {
       reqStatus.open("GET", "/relayStatus", true);
       reqStatus.send(null);
@@ -75,7 +76,7 @@
       if (this.readyState == 4) {
         if (this.status == 200 && this.responseText != null) {
           var data = this.responseText.split("&");
-          var r = document.getElementById("relay");
+          var r = document.getElementById("relay"); // essa função liga o texto de id realy com a variável r
           if(data[0] == 1) {
             r.innerText = "Ligado";
             r.style.background = "rgb(170, 236, 83)";
@@ -113,10 +114,10 @@
       </thead>
       <tr class="table-active">
         <th >V.Adb1</th>
-        <td>Valvula do adubo 1</td>
+        <td>Valvula do adubo 1</td> 
         <td><span id="relay">  N/D</span>
-        <td><input type="button" id="btnOn" value="Ligar" onClick="setRelay('12')">
-        <input type="button" id="btnOff" value="Desligar" onClick="setRelay('02')">
+        <td><input type="button" id="btnOn1" value="Ligar" onClick="setRelay('12')">
+        <input type="button" id="btnOff1" value="Desligar" onClick="setRelay('02')">
         </td>
         <td id="now">00/00/0000 00:00:00</td>
       </tr>
@@ -124,7 +125,7 @@
         <th >V.Ret Abd1</th>
         <td>Valvula de Retorno adubo 1</td>
         <td><span id="relay">  N/D</span>
-        <td><input type="button" id="btnOn" value="Ligar" onClick="setRelay(113)">
+        <td><input type="button" id="btnOn2" value="Ligar" onClick="setRelay(113)">
         <input type="button" id="btnOff" value="Desligar" onClick="setRelay(013)">
         </td>
         <td id="now">00/00/0000 00:00:00</td>
