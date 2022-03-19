@@ -1,117 +1,177 @@
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=auto">
-    <title>IFC INOVA MECATRÔNICA - NÓ MEDIDOR</title>
-    <!-- O link serve para linkar o css, 
-    no rel vai o tipo do arquivo e no href o local onde ele está -->
-    <link rel="stylesheet" href="Style.css">
-    
-   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">IFC Morangos</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="true" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-    
-        <div class="navbar-collapse collapse show" id="navbarColor02" >
-          <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="Home.htm">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="Config.htm">Configuração</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="Log.htm">Logar</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="Relay.htm">Valvula</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="Reboot.htm">Reiniciar</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="FileList.htm">Arquivos</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-  
-  </head>
-<body>
-  
-  <form name="config" action="ConfigSave" method="post">
-    
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=auto">
+  <title>ESPRelé - Configuração</title>
+  <style type="text/css">
+    body {
+      padding: 0;
+      height: 100vh;
+      margin: 0;
+      
+     }
+     .Cabecario{
+       display: flex;
+       flex-flow: row wrap;
+       text-align: center;
+      font-family: Verdana, Arial, Helvetica, sans-serif;
+      
      
-  <table class="table table-hover">
-    <tr class="table-light">
-     <thead>
-    <tr>
-      <th></th><th scope="row" colspan="2" class="msg">Última atualização: #configDT#</th>
-    </tr>
-  </thead>
+     }
+     .Cabecario>*{
+        padding: 10px;
+        margin: 10px;
+        flex: 1 100%;
+        border-radius: 20px;
+     }
+     .row{
+      background: #d0d0d0;
+      height: 40px;
+       color: #ffffff;
+       width: 100%;
+       display: flex;
+       justify-content: center;
+       flex-wrap: wrap;
+     }
 
-  <tbody>
-      <th>ID de Rede</th>
-      <td>
-        <input type="text" name="id" value="#networkID#" size="25" maxlength="35">.local
-      </td>
-    </tr>
+     .box1{
+        background: #d0d0d0;
+     }
+     .box2{
+      background: #d0d0d0;
+     }
+     .main{
+       text-align: left;
+       background: hsl(0, 9%, 55%);
+       height: 300px;
+       font-size: 24px;
+     }
+     @media all and (min-width:800px){
+       .main{
+         flex:2;
+       }
+        .box1{
+          order:1;
+        }
+        .box2{
+          order:2;
+        }
+     }
+     @media all and(min-width:600px){
+
+        .box1{
+          flex: 1;
+        }
+     }
+     
+    h1 {
+      font-size: 20px;
+      text-align:justify;
+      color: rgb(1, 4, 7);
+      margin: 3px;
+     
+    }
+    h2 {
+      font-size: 12px;
+      text-align:center;
+      color: rgb(60, 153, 234);
+      margin: 10px;
+      height:200px;
+      
+    }
+    h3 {
+      font-size: 12px;
+      text-align: left;
+      font-weight: normal;
+      background: #ffffff;
+      padding: 7px;
+      margin: 0px;
+      border: #787878 solid 2px;
+      border-radius: 0px 0px 7px 7px;
+    }
+    table {
+     
+      width: 100%;
+    }
+    th {
+      font-size: 11px;
+      background: rgb(60, 153, 234);
+      text-align: right;
+      padding: 5px;
+      border-radius: 3px 0px 0px 3px;
+      width: 25%;
+    }
+    td {
+      font-size: 11px;
+      background: #787878;
+      padding: 5px;
+      border-radius: 0px 3px 3px 0px;
+    }
+    a {
+      font-size: 12px;
+      color: #ffffff;
+    }
+    input[type=button] {
+      border: 2px solid #333333;
+      border-radius: 5px;
+      padding: 5px;
+      width: 90px;
+    }
+    span {
+      display: block;
+      text-align: center;
+      border: 2px solid #333333;
+      border-radius: 5px;
+      padding: 5px;
+      width: 170px;
+    }
+  </style>
+</head>
+<body>
+  <div class="Cabecario">
+    <header class="row">
+      <h1>Agro 4.0</h1>
+    <h2>
+         <a href="Home.htm">Home</a> |
+        <a href="Relay.htm">Relé</a> |
+        <a href="FileList.htm">Arquivos</a> |
+        <a href="Config.htm">Configuração</a> |
+        <a href="Log.htm">Log</a> |
+        <a href="Reboot.htm" onclick="return confirm('Reiniciar ESPRelé?')">Reiniciar</a>
+      </h2>
+    </header>
+  <h3>
+  <form name="config" action="/configSave" method="post">
+  <table>
     <tr>
       <th>Referência</th>
-      <td><input type="text" name="referencia" value="#referencia#" size="25" maxlength="35"></td>
-    </tr>
-    <tr>
-      <th>Fuso Horário</th>
-      <td><input type="number" name="fuso" value="#fuso#" min="-12" max="13"><br> Definir como 13 para hora manual</td>
-    </tr>
-	<tr>
-      <th>Hora Manual</th>
-      <td><input type="text" name="horamanual" value="#horamanual#" size="25" maxlength="35"> <br> hr,min,sec,day,mnth,yr</td>
+      <td><input type="text" name="reference" value="#reference#" size="25" maxlength="35"></td>
     </tr>
     <tr>
       <th>Autenticação</th>
       <td>
-        <input type="checkbox" name="autenticacao" value="1"#autenticacao#> Sempre solicitar autenticação.
+        <input type="checkbox" name="aut" value="1"#aut#> Sempre solicitar autenticação.
       </td>
     </tr>
     <tr>
       <th>SoftAP</th>
       <td>
-        <input type="checkbox" name="softap" value="1"#softap#> Modo SoftAP sempre ativo.
+        <input type="checkbox" name="ap" value="1"#ap#> Modo SoftAP sempre ativo.
       </td>
     </tr>
     <tr>
       <th rowspan="2">Wi-Fi</th>
-      <td>SSID: <input type="text" name="ssid" value="#ssid#" size="25" maxlength="35"></td>
+      <td colspan="2">SSID: <input type="text" name="ssid" value="#ssid#" size="25" maxlength="35"></td>
     </tr>
     <tr>
-      <td>Senha:  <input type="password" name="pw" value="#pw#" size="25" maxlength="35"></td>
-    </tr>
-    <thead>
-      <tr>
-        <th></th> <th colspan="2" class="msg">CONFIGURAÇÃO DE OPERAÇÃO</th>
-      </tr>
-    </thead>
-	 
-	<tr>
-      <th>Agendamento</th>
-      <td>
-        <textarea name="agendamento" rows="5" cols="25">#agendamento#</textarea>
-      </td>
+      <td colspan="2">Senha: <input id="pwd" type="password" name="pwd" size="20" maxlength="35"></td>
     </tr>
     <tr>
-      
-      <th></th><th colspan="2" class="msg"><input id="save" type="button" class="btn btn-outline-success" value="Gravar" onClick="confirm('Gravar a configuração?')"></th>
-    
+      <th colspan="3" class="footer"><input id="save" type="submit" value="Gravar"></th>
     </tr>
-	</tr>
-
-  </tbody>
   </table>
   </form>
-  
+  </h3>
+  </div>
 </body>
 </html>

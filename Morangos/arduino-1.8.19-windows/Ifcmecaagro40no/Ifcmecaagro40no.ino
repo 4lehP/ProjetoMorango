@@ -6,17 +6,22 @@
    andremichelon@internetecoisas.com.br
    https://internetecoisas.com.br
 */
+#include <SPIFFS.h>
+#include <FS.h>
+#include <ArduinoJson.h>
 #include "IeCESPReleV4Lib.h"
 // Pino do LED
 #ifdef ESP32
 // ESP32 não possui pino padrão de LED
-const byte      LED_PIN                 = 2;
+const byte      LED_PIN                 = 13;
 #else
 // ESP8266 possui pino padrão de LED
 const byte      LED_PIN                 = LED_BUILTIN;
 #endif
 //#define VAdb1 2
 //#define VRetAbd1 4
+
+
 
 const byte      LED_ON                  = HIGH;
 const byte      LED_OFF                 = LOW;
@@ -31,6 +36,7 @@ String relayGPIOs2[NUM_RELAYS2] = {"Valvula Água", "Valvula Circulação Adubo 
 // Tamanho do Objeto JSON
 //const   size_t    JSON_SIZE            = 404; declarado em def.h
 
+StaticJsonDocument<320> doc;
 
 // Variáveis Globais ------------------------------------
 char              id[30];       // Identificação do dispositivo
@@ -250,7 +256,8 @@ void handleRelayStatus() {
 void handleRelaySet() {
   // Set Relay status
   if (!pwdNeeded() || chkWebAuth()) {
-    String s = server.arg("set"); // recebe o valor de s
+    String s = server.arg("set");
+    /* String s = server.arg("set"); // recebe o valor de s
 
     String LigarDesligar = s.substring(0,1);
     String Porta = s.substring(1);
@@ -280,6 +287,18 @@ void handleRelaySet() {
     server.send(200, F("text/plain"), s);
     log(F("WebRelaySet"), "Cliente: " + ipStr(server.client().remoteIP()) +
         " [" + s + "]");
+        */
+        
+    if (s == "1") {
+      // Set relay on
+      digitalWrite(LED_PIN, HIGH);
+    } else if (s == "0") {
+      // Set relay off
+      digitalWrite(LED_PIN, LOW);
+    }
+    server.send(200, "text/plain", String(digitalRead(RELAY_PIN)));
+    log("WebRelaySet", "Cliente: " + ipStr(server.client().remoteIP()) +
+                        " [" + s + "]");
   }
 }
 

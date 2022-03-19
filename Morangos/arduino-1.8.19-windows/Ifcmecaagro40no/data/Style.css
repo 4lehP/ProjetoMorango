@@ -1,10 +1,5 @@
-<html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=auto">
-  <title>ESPRelé - Listagem de Arquivos</title>
-  <style type="text/css">
-    body {
+
+   body {
       padding: 0;
       height: 100vh;
       margin: 0;
@@ -69,6 +64,7 @@
       text-align:justify;
       color: rgb(1, 4, 7);
       margin: 3px;
+      
      
     }
     h2 {
@@ -90,7 +86,6 @@
       border-radius: 0px 0px 7px 7px;
     }
     table {
-     
       width: 100%;
     }
     th {
@@ -109,49 +104,6 @@
     }
     a {
       font-size: 12px;
-      color: #ffffff;
+      color: #3f3232;
+      text-decoration: double;
     }
-    input[type=button] {
-      border: 2px solid #333333;
-      border-radius: 5px;
-      padding: 5px;
-      width: 90px;
-    }
-    span {
-      display: block;
-      text-align: center;
-      border: 2px solid #333333;
-      border-radius: 5px;
-      padding: 5px;
-      width: 170px;
-    }
-  </style>
-
-</head>
-<body>
-  <div class="Cabecario">
-    <header class="row">
-      <h1>Agro 4.0</h1>
-    <h2>
-         <a href="Home.htm">Home</a> |
-        <a href="Relay.htm">Relé</a> |
-        <a href="FileList.htm">Arquivos</a> |
-        <a href="Config.htm">Configuração</a> |
-        <a href="Log.htm">Log</a> |
-        <a href="Reboot.htm" onclick="return confirm('Reiniciar ESPRelé?')">Reiniciar</a>
-      </h2>
-    </header>
-
-  <h3>
-  <table>
-    <tr>
-      <th>Arquivos</th><td>#files#</td>
-    </tr>
-    <tr>
-      <th>Espaço</th><td>#fsSpace#</td>
-    </tr>
-  </table>
-  </h3>
-  </div>
-</body>
-</html>

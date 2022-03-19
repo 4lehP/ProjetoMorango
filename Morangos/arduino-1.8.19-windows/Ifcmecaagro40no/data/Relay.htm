@@ -1,224 +1,214 @@
 <html>
 <head>
-  
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=auto">
-    <title>IFC INOVA MECATRÔNICA - NÓ MEDIDOR</title>
-    <!-- O link serve para linkar o css, 
-    no rel vai o tipo do arquivo e no href o local onde ele está -->
-    <link rel="stylesheet" href="Style.css">
-    
-   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">IFC Morangos</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="true" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-    
-        <div class="navbar-collapse collapse show" id="navbarColor02">
-          <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="Home.htm">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="Config.htm">Configuração</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="Log.htm">Logar</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="Relay.htm">Valvula</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="Reboot.htm">Reiniciar</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="FileList.htm">Arquivos</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-  
-  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=auto">
+  <title>ESPRelé - Relé</title>
+  <style type="text/css">
+    body {
+      padding: 0;
+      height: 100vh;
+      margin: 0;
+      
+     }
+     .Cabecario{
+       display: flex;
+       flex-flow: row wrap;
+       text-align: center;
+      font-family: Verdana, Arial, Helvetica, sans-serif;
+      
+     
+     }
+     .Cabecario>*{
+        padding: 10px;
+        margin: 10px;
+        flex: 1 100%;
+        border-radius: 20px;
+     }
+     .row{
+      background: #d0d0d0;
+      height: 40px;
+       color: #ffffff;
+       width: 100%;
+       display: flex;
+       justify-content: center;
+       flex-wrap: wrap;
+     }
 
+     .box1{
+        background: #d0d0d0;
+     }
+     .box2{
+      background: #d0d0d0;
+     }
+     .main{
+       text-align: left;
+       background: hsl(0, 9%, 55%);
+       height: 300px;
+       font-size: 24px;
+     }
+     @media all and (min-width:800px){
+       .main{
+         flex:2;
+       }
+        .box1{
+          order:1;
+        }
+        .box2{
+          order:2;
+        }
+     }
+     @media all and(min-width:600px){
+
+        .box1{
+          flex: 1;
+        }
+     }
+     
+    h1 {
+      font-size: 20px;
+      text-align:justify;
+      color: rgb(1, 4, 7);
+      margin: 3px;
+     
+    }
+    h2 {
+      font-size: 12px;
+      text-align:center;
+      color: rgb(60, 153, 234);
+      margin: 10px;
+      height:200px;
+      
+    }
+    h3 {
+      font-size: 12px;
+      text-align: left;
+      font-weight: normal;
+      background: #ffffff;
+      padding: 7px;
+      margin: 0px;
+      border: #787878 solid 2px;
+      border-radius: 0px 0px 7px 7px;
+    }
+    table {
+     
+      width: 100%;
+    }
+    th {
+      font-size: 11px;
+      background: rgb(60, 153, 234);
+      text-align: right;
+      padding: 5px;
+      border-radius: 3px 0px 0px 3px;
+      width: 25%;
+    }
+    td {
+      font-size: 11px;
+      background: #787878;
+      padding: 5px;
+      border-radius: 0px 3px 3px 0px;
+    }
+    a {
+      font-size: 12px;
+      color: #ffffff;
+    }
+    input[type=button] {
+      border: 2px solid #333333;
+      border-radius: 5px;
+      padding: 5px;
+      width: 90px;
+    }
+    span {
+      display: block;
+      text-align: center;
+      border: 2px solid #333333;
+      border-radius: 5px;
+      padding: 5px;
+      width: 170px;
+    }
+  </style>
   <script language="JavaScript">
     var reqStatus = new XMLHttpRequest();
     reqStatus.onreadystatechange = function() {
       if (this.readyState == 4) {
         if (this.status == 200 && this.responseText != null) {
-          var data = this.responseText.split("&");
-          var r = document.getElementById("relay");
-          if(data[0] == 1) {
-            r.innerText = "Ligado";
-            r.style.background = "rgb(170, 236, 83)";
+          if(this.responseText == 1) {
+            document.getElementById("rele").innerText = "Ligado";
+            document.getElementById("rele").style.background = "rgb(170, 236, 83)";
           } else {
-            r.innerText = "Desligado";
-            r.style.background = "rgb(227, 0, 14)";
+            document.getElementById("rele").innerText = "Desligado";
+            document.getElementById("rele").style.background = "rgb(227, 0, 14)";
           }
-          document.getElementById("now"  ).innerText = data[1];
-          document.getElementById("event").innerText = data[2];
         } else {
           alert("Falha obtendo status do relé.");
         }
       }
     }
-
     function relayStatus() {
       reqStatus.open("GET", "/relayStatus", true);
       reqStatus.send(null);
-      window.setTimeout("relayStatus()", 10000);
+      window.setTimeout("relayStatus()", 2000);
     }
-
     var reqSet = new XMLHttpRequest();
     var set = 0;
     reqSet.onreadystatechange = function() {
       if (this.readyState == 4) {
         if (this.status == 200 && this.responseText != null) {
-          var data = this.responseText.split("&");
-          var r = document.getElementById("relay"); // essa função liga o texto de id realy com a variável r
-          if(data[0] == 1) {
-            r.innerText = "Ligado";
-            r.style.background = "rgb(170, 236, 83)";
+          if(this.responseText == 1) {
+            document.getElementById("rele").innerText = "Ligado";
+            document.getElementById("rele").style.background = "rgb(170, 236, 83)";
           } else {
-            r.innerText = "Desligado";
-            r.style.background = "rgb(227, 0, 14)";
+            document.getElementById("rele").innerText = "Desligado";
+            document.getElementById("rele").style.background = "rgb(227, 0, 14)";
           }
-          document.getElementById("now"  ).innerText = data[1];
-          document.getElementById("event").innerText = data[2];
         } else {
-          alert("Falha obtendo status do relé.");
+          alert("Falha definindo status do relé.");
         }
       }
     }
     function setRelay(s) {
-      reqSet.open("GET", "/relaySet?set=" + s , true);  
-      
+      reqSet.open("GET", "/relaySet?set=" + s, true);
       reqSet.send(null);
     }
   </script>
 </head>
-
 <body onLoad="relayStatus()">
-
-
-    <table class="table table-hover">
-      <thead>
+  
+  <div class="Cabecario">
+    <header class="row">
+      <h1>Agro 4.0</h1>
+    <h2>
+         <a href="Home.htm">Home</a> |
+        <a href="Relay.htm">Relé</a> |
+        <a href="FileList.htm">Arquivos</a> |
+        <a href="Config.htm">Configuração</a> |
+        <a href="Log.htm">Log</a> |
+        <a href="Reboot.htm" onclick="return confirm('Reiniciar ESPRelé?')">Reiniciar</a>
+      </h2>
+    </header>
+      <aside class="box1">
+      <table>
         <tr>
-          <th scope="col">Código </th>
-          <th scope="col">Nome das Válvulas</th>
-          <th scope="col">Estado</th>
-          <th scope="col">Botões</th>
-          <th scope="col">Data/Hora</th>
+          <th> Referência</th><td>#reference#</td>
+        
         </tr>
-      </thead>
-      <tr class="table-active">
-        <th >V.Adb1</th>
-        <td>Valvula do adubo 1</td> 
-        <td><span id="relay">  N/D</span>
-        <td><input type="button" id="btnOn1" value="Ligar" onClick="setRelay('12')">
-        <input type="button" id="btnOff1" value="Desligar" onClick="setRelay('02')">
-        </td>
-        <td id="now">00/00/0000 00:00:00</td>
-      </tr>
-      <tr class="table-active">
-        <th >V.Ret Abd1</th>
-        <td>Valvula de Retorno adubo 1</td>
-        <td><span id="relay">  N/D</span>
-        <td><input type="button" id="btnOn2" value="Ligar" onClick="setRelay(113)">
-        <input type="button" id="btnOff" value="Desligar" onClick="setRelay(013)">
-        </td>
-        <td id="now">00/00/0000 00:00:00</td>
-      </tr>
-      <tr class="table-active">
-        <th >V.Adb2</th>
-        <td>Valvula do adubo 2</td>
-        <td><span id="relay">  N/D</span>
-        <td><input type="button" id="btnOn" value="Ligar" onClick="setRelay(1)">
-        <input type="button" id="btnOff" value="Desligar" onClick="setRelay(0)">
-        </td>
-        <td id="now">00/00/0000 00:00:00</td>
-      </tr>
-      <tr class="table-active">
-        <th >V.Ret Adb2</th>
-        <td>Valvula de Retorno do adubo 2</td>
-        <td><span id="relay">  N/D</span>
-        <td><input type="button" id="btnOn" value="Ligar" onClick="setRelay(1)">
-        <input type="button" id="btnOff" value="Desligar" onClick="setRelay(0)">
-        </td>
-        <td id="now">00/00/0000 00:00:00</td>
-      </tr>
-      <tr class="table-active">
-        <th >V.Água</th>
-        <td>Valvula da Água</td>
-        <td><span id="relay">  N/D</span>
-        <td><input type="button" id="btnOn" value="Ligar" onClick="setRelay(1)">
-        <input type="button" id="btnOff" value="Desligar" onClick="setRelay(0)">
-        </td>
-        <td id="now">00/00/0000 00:00:00</td>
-      </tr>
-      <tr class="table-active">
-        <th >VL1</th>
-        <td>Valvula 1 1</td>
-        <td><span id="relay">  N/D</span>
-        <td><input type="button" id="btnOn" value="Ligar" onClick="setRelay(1)">
-        <input type="button" id="btnOff" value="Desligar" onClick="setRelay(0)">
-        </td>
-        <td id="now">00/00/0000 00:00:00</td>
-      </tr>
-      <tr class="table-active">
-        <th >VL2</th>
-        <td>Valvula 2</td>
-        <td><span id="relay">  N/D</span>
-        <td><input type="button" id="btnOn" value="Ligar" onClick="setRelay(1)">
-        <input type="button" id="btnOff" value="Desligar" onClick="setRelay(0)">
-        </td>
-        <td id="now">00/00/0000 00:00:00</td>
-      </tr>
-      <tr class="table-active">
-        <th >VL3</th>
-        <td>Valvula 3</td>
-        <td><span id="relay">  N/D</span>
-        <td><input type="button" id="btnOn" value="Ligar" onClick="setRelay(1)">
-        <input type="button" id="btnOff" value="Desligar" onClick="setRelay(0)">
-        </td>
-        <td id="now">00/00/0000 00:00:00</td>
-      </tr>
-      <tr class="table-active">
-        <th >VL4</th>
-        <td>Valvula 4</td>
-        <td><span id="relay">  N/D</span>
-        <td><input type="button" id="btnOn" value="Ligar" onClick="setRelay(1)">
-        <input type="button" id="btnOff" value="Desligar" onClick="setRelay(0)">
-        </td>
-        <td id="now">00/00/0000 00:00:00</td>
-      </tr>
-      <tr class="table-active">
-        <th >VL5</th>
-        <td>Valvula 5</td>
-        <td><span id="relay">  N/D</span>
-        <td><input type="button" id="btnOn" value="Ligar" onClick="setRelay(1)">
-        <input type="button" id="btnOff" value="Desligar" onClick="setRelay(0)">
-        </td>
-        <td id="now">00/00/0000 00:00:00</td>
-      </tr>
-      <tr class="table-active">
-        <th >VL6</th>
-        <td>Valvula 6</td>
-        <td><span id="relay">  N/D</span>
-        <td><input type="button" id="btnOn" value="Ligar" onClick="setRelay(1)">
-        <input type="button" id="btnOff" value="Desligar" onClick="setRelay(0)">
-        </td>
-        <td id="now">00/00/0000 00:00:00</td>
-      </tr>
-      
+      </table>
+      </aside>
+      <aside class="box2">
+          <table>
 
-    <tbody>
+          <th>Estado</th><td><span id="rele">N/D</span></td>
+          <td>
+            <input type="button" id="btnOn" value="Ligar" onClick="setRelay(1)">
+            <input type="button" id="btnOff" value="Desligar" onClick="setRelay(0)">
+          </td>
+          </table>
 
+      </aside>
+   
+    </div>
+  
 
-    </tbody>
-  </table>
-  </table>
-  </h3>
+  </div>
+  
 </body>
 </html>
