@@ -1,0 +1,9 @@
+VAdb1flexSwitch.addEventListener('click', function () {
+    if(VAdb1flexSwitch.checked){
+        alert('Ligando Válvula!');
+        AttDigitais("VAdb1","Ligado") ;
+    }else{
+        AttDigitais("VAdb1","Desligado");
+    }
+ 
+});

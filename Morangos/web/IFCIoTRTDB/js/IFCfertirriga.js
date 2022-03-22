@@ -4,8 +4,9 @@ var ageInput = document.getElementById('ageInput');
 var addButton = document.getElementById('addButton');
 var VAdb1flexSwitch = document.getElementById('VAdb1flexSwitch');
 var Vadb1label = document.getElementById('Vadb1label');
+var tbody = document.getElementById('tbody');
 
-setInterval(VerDigitais, 4*1000);
+//setInterval(VerDigitais, 4*1000);
 
 
 
@@ -30,36 +31,53 @@ function AttDigitais(name, status) {
       
        
       firebase.database().ref('Digitais/VAdb1').on('value', (snapshot) => {
-    
-            
+               
              Vadb1label.innerHTML = snapshot.val().Estado;
           
         });
-       /*
-
-
-        firebase.database().ref('Digitais/VAdb1').on('value', (snapshot) => {
-    
-            snapshot.forEach( function childSnapshot (item) {
-             console.log(item.val().Descrição+ " " + item.val().Estado);
-             Vadb1label.innerHTML = item.val().Estado;
-            });
-    
-        });*/
-       
+              
     };
    
    
    
-VAdb1flexSwitch.addEventListener('click', function () {
-    if(VAdb1flexSwitch.checked){
-        alert('Ligando Válvula!');
-        AttDigitais("VAdb1","Ligado") ;
-    }else{
-        AttDigitais("VAdb1","Desligado");
-    }
- 
-});
+
+
+function SelectAllDataFrom(colection){
+    firebase.database().ref(colection).once('value',
+    function (AllRecords){
+        AllRecords.forEach(
+            function(CurrentRecord){
+                var Nome = CurrentRecord.val().Nome;
+                var Descrição = CurrentRecord.val().Descrição;
+                var Estado =CurrentRecord.val().Estado;
+                AddItemsToTable(Nome,Descrição,Estado);
+            }
+        );
+    });
+};
+
+window.onload= SelectAllDataFrom('Digitais/');
+
+function AddItemsToTable(Nome,Descrição,Estado){
+    var tbody = document.getElementById('tbody');
+    var trow = document.createElement('tr');
+   //trow.setAttribute("table-active") ;
+       var td1 = document.createElement('td');
+    var td2 = document.createElement('td');
+    var td3 = document.createElement('td');
+    var td4 = document.createElement('td');
+    td1.innerHTML = Nome;
+    td2.innerHTML = Descrição;
+    td3.innerHTML = "botaozinho";
+    td4.innerHTML = Estado;
+    trow.appendChild(td1); 
+    trow.appendChild(td2); 
+    trow.appendChild(td3); 
+    trow.appendChild(td4); 
+    tbody.appendChild(trow);
+
+}
+
 
 
 
