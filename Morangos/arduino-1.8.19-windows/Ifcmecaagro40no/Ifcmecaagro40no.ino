@@ -22,7 +22,9 @@ const byte      LED_PIN                 = LED_BUILTIN;
 //#define VAdb1 2
 //#define VRetAbd1 4
 
+#define LED  2
 
+int LED_PIN[LED] = {2, 13};
 
 const byte      LED_ON                  = HIGH;
 const byte      LED_OFF                 = LOW;
@@ -245,12 +247,16 @@ void handleRelay() {
 void handleRelayStatus() {
   // Relay status
   if (!pwdNeeded() || chkWebAuth()) {
+    
+  
     String s = String(digitalRead(LED_PIN)) + "&" +
                dateTimeStr(now())            + "&" +
                lastEvent;
     server.send(200, F("text/plain"), s);
     log(F("WebRelayStatus"), "Cliente: " + ipStr(server.client().remoteIP()) +
         " [" + s + "]");
+        //enviar todos reles em uma msg
+        
   }
 }
 
