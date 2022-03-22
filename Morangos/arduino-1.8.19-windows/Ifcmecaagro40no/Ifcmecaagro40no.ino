@@ -13,7 +13,8 @@
 // Pino do LED
 #ifdef ESP32
 // ESP32 não possui pino padrão de LED
-const byte      LED_PIN                 = 13;
+const byte      LED_PIN                 = 2;
+const byte      LED_PIN1                 = 13;
 #else
 // ESP8266 possui pino padrão de LED
 const byte      LED_PIN                 = LED_BUILTIN;
@@ -244,7 +245,7 @@ void handleRelay() {
 void handleRelayStatus() {
   // Relay status
   if (!pwdNeeded() || chkWebAuth()) {
-    String s = String(digitalRead(RELAY_PIN)) + "&" +
+    String s = String(digitalRead(LED_PIN)) + "&" +
                dateTimeStr(now())            + "&" +
                lastEvent;
     server.send(200, F("text/plain"), s);
@@ -288,18 +289,37 @@ void handleRelaySet() {
     log(F("WebRelaySet"), "Cliente: " + ipStr(server.client().remoteIP()) +
         " [" + s + "]");
         */
-        
-    if (s == "1") {
-      // Set relay on
-      digitalWrite(LED_PIN, HIGH);
-    } else if (s == "0") {
-      // Set relay off
-      digitalWrite(LED_PIN, LOW);
-    }
-    server.send(200, "text/plain", String(digitalRead(RELAY_PIN)));
+      
+       String LigarDesligar = s.substring(1,2);
+       String Porta = s.substring(2);
+         Serial.println(s);
+      Serial.println(LigarDesligar);
+      Serial.println(Porta);
+
+      digitalWrite( Porta.toInt()  , LigarDesligar.toInt());
+       lastEvent = Porta.toInt()  + " " + LigarDesligar + " " + dateTimeStr(now());
+      
+//    if (s == "1") {
+//      // Set relay on
+//      digitalWrite(LED_PIN, HIGH);
+//      lastEvent = "Ligado - " + dateTimeStr(now());
+//    } else if (s == "0") {
+//      // Set relay off
+//      digitalWrite(LED_PIN, LOW);
+//      lastEvent = "Desligado - " + dateTimeStr(now());
+//    }
+    server.send(200, "text/plain", String(digitalRead(Porta.toInt())));
     log("WebRelaySet", "Cliente: " + ipStr(server.client().remoteIP()) +
                         " [" + s + "]");
   }
+  // Reset Schedule intervals
+//    scheduleChk("", 0);
+//    s = String(digitalRead(Porta.toInt()))  + "&" +
+//        dateTimeStr(now())              + "&" +
+//        lastEvent;
+//    server.send(200, F("text/plain"), s);
+//    log(F("WebRelaySet"), "Cliente: " + ipStr(server.client().remoteIP()) +
+//        " [" + s + "]");
 }
 
 
@@ -629,6 +649,7 @@ void setup() {
 
   // LED
   pinMode(LED_PIN, OUTPUT);
+  pinMode(LED_PIN1, OUTPUT);
   ledSet();
 
 

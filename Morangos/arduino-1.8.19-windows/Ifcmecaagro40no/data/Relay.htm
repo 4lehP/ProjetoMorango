@@ -127,17 +127,21 @@
     }
   </style>
   <script language="JavaScript">
-    var reqStatus = new XMLHttpRequest();
+     var reqStatus = new XMLHttpRequest();
     reqStatus.onreadystatechange = function() {
       if (this.readyState == 4) {
         if (this.status == 200 && this.responseText != null) {
-          if(this.responseText == 1) {
-            document.getElementById("rele").innerText = "Ligado";
-            document.getElementById("rele").style.background = "rgb(170, 236, 83)";
+          var data = this.responseText.split("&");
+          var r = document.getElementById("relay");
+          if(data[0] == 1) {
+            r.innerText = "Ligado";
+            r.style.background = "rgb(170, 236, 83)";
           } else {
-            document.getElementById("rele").innerText = "Desligado";
-            document.getElementById("rele").style.background = "rgb(227, 0, 14)";
+            r.innerText = "Desligado";
+            r.style.background = "rgb(227, 0, 14)";
           }
+          document.getElementById("now"  ).innerText = data[1];
+          document.getElementById("event").innerText = data[2];
         } else {
           alert("Falha obtendo status do relé.");
         }
@@ -148,20 +152,25 @@
       reqStatus.send(null);
       window.setTimeout("relayStatus()", 2000);
     }
+
     var reqSet = new XMLHttpRequest();
     var set = 0;
     reqSet.onreadystatechange = function() {
       if (this.readyState == 4) {
         if (this.status == 200 && this.responseText != null) {
-          if(this.responseText == 1) {
-            document.getElementById("rele").innerText = "Ligado";
-            document.getElementById("rele").style.background = "rgb(170, 236, 83)";
+          var data = this.responseText.split("&");
+          var r = document.getElementById("relay");
+          if(data[0] == 1) {
+            r.innerText = "Ligado";
+            r.style.background = "rgb(170, 236, 83)";
           } else {
-            document.getElementById("rele").innerText = "Desligado";
-            document.getElementById("rele").style.background = "rgb(227, 0, 14)";
+            r.innerText = "Desligado";
+            r.style.background = "rgb(227, 0, 14)";
           }
+          document.getElementById("now"  ).innerText = data[1];
+          document.getElementById("event").innerText = data[2];
         } else {
-          alert("Falha definindo status do relé.");
+          alert("Falha obtendo status do relé.");
         }
       }
     }
@@ -195,12 +204,18 @@
       </aside>
       <aside class="box2">
           <table>
-
-          <th>Estado</th><td><span id="rele">N/D</span></td>
+          <th>Estado</th><td><span id="relay">N/D</span></td>
           <td>
-            <input type="button" id="btnOn" value="Ligar" onClick="setRelay(1)">
-            <input type="button" id="btnOff" value="Desligar" onClick="setRelay(0)">
+            <input type="button" id="btnOn" value="Ligar" onClick="setRelay(912)">
+            <input type="button" id="btnOff" value="Desligar" onClick="setRelay(902)">
           </td>
+          <tr>
+          <th>Estado</th><td><span id="relay1">N/D</span></td>
+          <td>
+            <input type="button" id="btnOn" value="Ligar" onClick="setRelay(9113)">
+            <input type="button" id="btnOff" value="Desligar" onClick="setRelay(9013)">
+          </td>
+        </tr>
           </table>
 
       </aside>
