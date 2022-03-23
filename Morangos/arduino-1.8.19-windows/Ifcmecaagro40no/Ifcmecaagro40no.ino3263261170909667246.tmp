@@ -248,23 +248,20 @@ void handleRelayStatus() {
   // Relay status
   if (!pwdNeeded() || chkWebAuth()) {
 
-      String s = dateTimeStr(now())   + "&" ;
-      
-      for(int i=0;i< TamanhoVetorPortas; i++){
-               s+=String(digitalRead(VetorPortas[i]))  + "&" ; 
-                  
+  
+    String s = "ifc" + "&" +
+               dateTimeStr(now())            + "&" +
+               lastEvent;
+               for(int i=0;i< TamanhoVetorPortas; i++){
+                s = s+ "&" + String(digitalRead(VetorPortas[i] ));
                }
-               s+= lastEvent;
                
     server.send(200, F("text/plain"), s);
-    
     log(F("WebRelayStatus"), "Cliente: " + ipStr(server.client().remoteIP()) +
         " [" + s + "]");
     //enviar todos reles em uma msg
 
   }
- 
-  
 }
 
 void handleRelaySet() {
@@ -310,9 +307,9 @@ void handleRelaySet() {
     Serial.println(Porta);
 
     
-    digitalWrite(Porta.toInt() , LigarDesligar.toInt());
-    lastEvent = " " + dateTimeStr(now())+ " " + Porta.toInt()  + " " + LigarDesligar + " ";
-    handleRelayStatus();
+    digitalWrite(Porta.toInt()  , LigarDesligar.toInt());
+    lastEvent = Porta.toInt()  + " " + LigarDesligar + " " + dateTimeStr(now());
+
     //    if (s == "1") {
     //      // Set relay on
     //      digitalWrite(LED_PIN, HIGH);
@@ -662,10 +659,9 @@ void setup() {
   configSave();
 
   // LED
-  
-  for (int i = 1; i <=TamanhoVetorPortas; i++) {
-    pinMode(VetorPortas[i], OUTPUT);
-    digitalWrite(VetorPortas[i], LOW);
+  for (int i = 1; i <= LED; i++) {
+    pinMode(ledPin[i], OUTPUT);
+    digitalWrite(ledPin[i], LOW);
   }
   pinMode(LED_PIN,OUTPUT);
   pinMode(LED_PIN1,OUTPUT);
