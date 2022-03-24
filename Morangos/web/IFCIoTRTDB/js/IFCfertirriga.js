@@ -71,26 +71,25 @@ function AddItemsToTable(Nome,Descrição,Estado){
     var td2 = document.createElement('td');
     var td3 = document.createElement('td');
     var td4 = document.createElement('td');
-    var ControlDiv = document.createElement("td");
+    var td5 = document.createElement("td");
     valveList.push([Nome, Descrição]);
     
     td1.innerHTML = Nome;
     td2.innerHTML = Descrição;
-    td3.innerHTML = 'botãozinho';
+    td3.innerHTML = '<div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault"></div>';
     td4.innerHTML = Estado;
 
-    ControlDiv.innerHTML = '<button type="button" class="btn btn-primary my-2" data-toggle="modal" data-target="#exampleModalCenter" onclick="FillTboxes(null)">Adicionar</button>'
-    ControlDiv.innerHTML += '<button type="button" class="btn btn-warning my-2 ml-2" data-toggle="modal" data-target="#exampleModalCenter" onclick="FillTboxes('+code+')">Editar</button>'
     
+    td5.innerHTML = '<button type="button" class="btn btn-primary my-2" data-toggle="modal" data-target="#exampleModalCenter" onclick="FillTboxes(null)">Adicionar</button>'
+    td5.innerHTML += '<button type="button" class="btn btn-warning my-2 ml-2" data-toggle="modal" data-target="#exampleModalCenter" onclick="FillTboxes('+code+')">Editar</button>'
+    
+
     trow.appendChild(td1); 
     trow.appendChild(td2); 
     trow.appendChild(td3); 
     trow.appendChild(td4); 
 
-    
-    
-
-    trow.appendChild(ControlDiv);
+    trow.appendChild(td5);
     tbody.appendChild(trow);
 
 }
@@ -122,7 +121,6 @@ function FillTboxes(index){
     }
 
 }
-
 
 /*
 function Ready(){
