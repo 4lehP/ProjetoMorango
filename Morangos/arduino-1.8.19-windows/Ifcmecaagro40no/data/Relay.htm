@@ -145,14 +145,14 @@
     }
   </style>
   <script language="JavaScript">
-    var NUM_RELAYS = 12;
-    var IDreles = ["Rele1", "Rele2", "Rele3", "Rele4", "Rele5", "Rele6", "Rele7", "Rele8", "Rele9", "Rele10", "Rele11", "Rele12"];
+    var NUM_RELAYS = 12; //Numeros de Reles
+    var IDreles = ["Rele1", "Rele2", "Rele3", "Rele4", "Rele5", "Rele6", "Rele7", "Rele8", "Rele9", "Rele10", "Rele11", "Rele12"]; //Vetor com o ID de cada Rele
     var reqStatus = new XMLHttpRequest();
     reqStatus.onreadystatechange = function () {
       if (this.readyState == 4) {
         if (this.status == 200 && this.responseText != null) {
           var data = this.responseText.split("&");
-          for (var i = 0; i < NUM_RELAYS; i++) {
+          for (var i = 0; i < NUM_RELAYS; i++) { //Um for que ira pegar o estado de cada Rele no Arduino
             var r = document.getElementById(IDreles[i]);
             if (data[1+i] == 1) {
               r.innerText = "Ligado";
@@ -171,8 +171,8 @@
 
       }
     }
-    function relayStatus() {
-      reqStatus.open("GET", "/relayStatus", true);
+    function relayStatus() { // Função que pega o estado dos Reles
+      reqStatus.open("GET", "/relayStatus", true); 
       reqStatus.send(null);
       window.setTimeout("relayStatus()", 5000);
     }
@@ -183,7 +183,7 @@
       if (this.readyState == 4) {
         if (this.status == 200 && this.responseText != null) {
           var data = this.responseText.split("&");
-          for (var i = 0; i < NUM_RELAYS; i++) {
+          for (var i = 0; i < NUM_RELAYS; i++) { //Um for que ira pegar o estado de cada Rele no Arduino
             var r = document.getElementById(IDreles[i]);
             if (data[1+i] == 1) {
               r.innerText = "Ligado";
@@ -200,14 +200,14 @@
         }
       }
     }
-    function setRelay(s) {
+    function setRelay(s) { // Função que manda ligar ou desligar os Reles
       reqSet.open("GET", "/relaySet?set=" + s, true);
       reqSet.send(null);
     }
   </script>
 </head>
 
-<body onLoad="relayStatus()">
+<body onLoad="relayStatus()"> 
 
   <div class="Cabecario">
     <header class="row">
