@@ -22,9 +22,9 @@ const byte      LED_PIN                 = LED_BUILTIN;
 //#define VAdb1 2
 //#define VRetAbd1 4
 
-#define TamanhoVetorPortas  2
-
-int VetorPortas[TamanhoVetorPortas] = {2, 13};
+//#define TamanhoVetorIndexReles  2
+//
+//int VetorIndexReles[TamanhoVetorIndexReles] = {2, 13};
 
 const byte      LED_ON                  = HIGH;
 const byte      LED_OFF                 = LOW;
@@ -32,8 +32,8 @@ const byte      LED_OFF                 = LOW;
 #define NUM_RELAYS  12
 #define NUM_RELAYS2  12
 
-int relayGPIOs[NUM_RELAYS] = {2, 13, 14, 27, 26, 25, 33, 32, 16, 17, 4, 15};
-String relayGPIOs2[NUM_RELAYS2] = {"Valvula Água", "Valvula Circulação Adubo 1", "Valvula Adubo 1", "Valvula Circulção Adubo 2", "Valvula Adubo 2", "VALVULA GERAL", "Valvula Canteiro 1", "Valvula Canteiro 2", "Valvula Canteiro 3", "Valvula Canteiro 4", "Valvula Canteiro 5", "Bomba 1"};
+int relayGPIOs[NUM_RELAYS] = {2,13,14,27,26,25,33,32,16,17,4,15};
+String relayLABEL[NUM_RELAYS2] = {"Valvula Água", "Valvula Circulação Adubo 1", "Valvula Adubo 1", "Valvula Circulção Adubo 2", "Valvula Adubo 2", "VALVULA GERAL", "Valvula Canteiro 1", "Valvula Canteiro 2", "Valvula Canteiro 3", "Valvula Canteiro 4", "Valvula Canteiro 5", "Bomba 1"};
 
 
 // Tamanho do Objeto JSON
@@ -250,8 +250,8 @@ void handleRelayStatus() {
 
       String s = dateTimeStr(now())   + "&" ;
       
-      for(int i=0;i< TamanhoVetorPortas; i++){
-               s+=String(digitalRead(VetorPortas[i]))  + "&" ; 
+      for(int i=0;i< NUM_RELAYS; i++){
+               s+=String(digitalRead(relayGPIOs[i]))  + "&" ; 
                   
                }
                s+= lastEvent;
@@ -274,11 +274,11 @@ void handleRelaySet() {
     /* String s = server.arg("set"); // recebe o valor de s
 
       String LigarDesligar = s.substring(0,1);
-      String Porta = s.substring(1);
+      String IndexRele = s.substring(1);
 
 
-        digitalWrite( relayGPIOs[Porta.toInt()]  , LigarDesligar.toInt());
-        lastEvent = relayGPIOs2[Porta.toInt()]  + " " + LigarDesligar + " " + dateTimeStr(now());
+        digitalWrite( relayGPIOs[IndexRele.toInt()]  , LigarDesligar.toInt());
+        lastEvent = relayGPIOs2[IndexRele.toInt()]  + " " + LigarDesligar + " " + dateTimeStr(now());
 
 
 
@@ -295,7 +295,7 @@ void handleRelaySet() {
       //    }
       // Reset Schedule intervals
       scheduleChk("", 0);
-      s = String(digitalRead(Porta.toInt()))  + "&" +
+      s = String(digitalRead(IndexRele.toInt()))  + "&" +
         dateTimeStr(now())              + "&" +
         lastEvent;
       server.send(200, F("text/plain"), s);
@@ -304,15 +304,24 @@ void handleRelaySet() {
     */
 
     String LigarDesligar = s.substring(1, 2);
-    String Porta = s.substring(2);
+    String IndexRele = s.substring(2);
     Serial.println(s);
     Serial.println(LigarDesligar);
-    Serial.println(Porta);
+    Serial.println(IndexRele);
+      Serial.println(IndexRele.toInt());
 
+   if(LigarDesligar=="0"){
+      digitalWrite(relayGPIOs[IndexRele.toInt()] ,LOW);
+      lastEvent = " " + dateTimeStr(now())+ " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
+       handleRelayStatus();
+   }
+    if(LigarDesligar=="1"){
+      digitalWrite(relayGPIOs[IndexRele.toInt()] ,HIGH);
+      lastEvent = " " + dateTimeStr(now())+ " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
+       handleRelayStatus();
+   }
+    //digitalWrite(relayGPIOs[IndexRele.toInt()] , LigarDesligar.toInt());
     
-    digitalWrite(Porta.toInt() , LigarDesligar.toInt());
-    lastEvent = " " + dateTimeStr(now())+ " " + Porta.toInt()  + " " + LigarDesligar + " ";
-    handleRelayStatus();
     //    if (s == "1") {
     //      // Set relay on
     //      digitalWrite(LED_PIN, HIGH);
@@ -322,13 +331,13 @@ void handleRelaySet() {
     //      digitalWrite(LED_PIN, LOW);
     //      lastEvent = "Desligado - " + dateTimeStr(now());
     //    }
-    server.send(200, "text/plain", String(digitalRead(Porta.toInt())));
+    server.send(200, "text/plain", String(digitalRead (relayGPIOs[IndexRele.toInt()])));
     log("WebRelaySet", "Cliente: " + ipStr(server.client().remoteIP()) +
         " [" + s + "]");
   }
   // Reset Schedule intervals
   //    scheduleChk("", 0);
-  //    s = String(digitalRead(Porta.toInt()))  + "&" +
+  //    s = String(digitalRead(IndexRele.toInt()))  + "&" +
   //        dateTimeStr(now())              + "&" +
   //        lastEvent;
   //    server.send(200, F("text/plain"), s);
@@ -663,12 +672,10 @@ void setup() {
 
   // LED
   
-  for (int i = 1; i <=TamanhoVetorPortas; i++) {
-    pinMode(VetorPortas[i], OUTPUT);
-    digitalWrite(VetorPortas[i], LOW);
+  for (int i = 0; i <=NUM_RELAYS; i++) {
+   pinMode(relayGPIOs[i], OUTPUT);
+    //digitalWrite(relayGPIOs[i], LOW);
   }
-  pinMode(LED_PIN,OUTPUT);
-  pinMode(LED_PIN1,OUTPUT);
   ledSet();
 
 
