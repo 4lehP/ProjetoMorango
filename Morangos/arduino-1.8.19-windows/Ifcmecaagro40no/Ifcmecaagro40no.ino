@@ -1,3 +1,5 @@
+
+
 /********************************************************
    CANAL INTERNET E COISAS
    Configuracao com JSON e SPIFFS
@@ -6,26 +8,18 @@
    andremichelon@internetecoisas.com.br
    https://internetecoisas.com.br
 */
+
+#include <IOXhop_FirebaseESP32.h>
 #include <SPIFFS.h>
 #include <FS.h>
 #include <ArduinoJson.h>
 #include "IeCESPReleV4Lib.h"
-// Pino do LED
-#ifdef ESP32
-// ESP32 não possui pino padrão de LED
-const byte      LED_PIN                 = 2;
-const byte      LED_PIN1                 = 13;
-#else
+
 // ESP8266 possui pino padrão de LED
 const byte      LED_PIN                 = LED_BUILTIN;
-#endif
-//#define VAdb1 2
-//#define VRetAbd1 4
 
-//#define TamanhoVetorIndexReles  2
-//
-//int VetorIndexReles[TamanhoVetorIndexReles] = {2, 13};
 
+//---------PARTE DAS CONFIGURAÇÕES DAS ENTRADAS DAS VÁLVULAS----------//
 const byte      LED_ON                  = HIGH;
 const byte      LED_OFF                 = LOW;
 
@@ -35,9 +29,20 @@ const byte      LED_OFF                 = LOW;
 int relayGPIOs[NUM_RELAYS] = {2,13,14,27,26,25,33,32,16,17,4,15};
 String relayLABEL[NUM_RELAYS2] = {"Valvula Água", "Valvula Circulação Adubo 1", "Valvula Adubo 1", "Valvula Circulção Adubo 2", "Valvula Adubo 2", "VALVULA GERAL", "Valvula Canteiro 1", "Valvula Canteiro 2", "Valvula Canteiro 3", "Valvula Canteiro 4", "Valvula Canteiro 5", "Bomba 1"};
 
+//---------------------------------------------------------------------//
 
 // Tamanho do Objeto JSON
 //const   size_t    JSON_SIZE            = 404; declarado em def.h
+
+
+//--------------------FIREBASE-----------------------------------------//
+#define FIREBASE_HOST "https://cursofb-d8836-default-rtdb.firebaseio.com/"             // o endereço do nome do projeto a partir da ID do Firebase
+#define FIREBASE_AUTH "BIcBAhezSHlG0xtoeJqCPa6zmSWySypFjLPowkeh"      // a chave secreta gerada a partir do firebase
+
+String fireStatus1 = "";  
+String fireStatus2 = "";  
+
+//---------------------------------------------------------------------//
 
 StaticJsonDocument<320> doc;
 
@@ -88,8 +93,8 @@ void ledSet() {
 void  configReset() {
   // Define configuração padrão
   strlcpy(id, "IeC Device", sizeof(id));
-  strlcpy(ssid, "Unifique_WIFI_345208", sizeof(ssid));
-  strlcpy(pw, "43052971", sizeof(pw));
+  strlcpy(ssid, "IF_CATARINENSE", sizeof(ssid));
+  strlcpy(pw, "ifcatarinense", sizeof(pw));
   strlcpy(referencia, "00,00,00,00,00,0000", sizeof(referencia));
   ledOn     = false;
   bootCount = 0;
@@ -251,7 +256,7 @@ void handleRelayStatus() {
       String s = dateTimeStr(now())   + "&" ;
       
       for(int i=0;i< NUM_RELAYS; i++){
-               s+=String(digitalRead(relayGPIOs[i]))  + "&" ; 
+               s+=String(digitalRead(relayGPIOs[i]))  + "&" ; //Leitura de todas as Valvulas
                   
                }
                s+= lastEvent;
@@ -259,8 +264,9 @@ void handleRelayStatus() {
     server.send(200, F("text/plain"), s);
     
     log(F("WebRelayStatus"), "Cliente: " + ipStr(server.client().remoteIP()) +
-        " [" + s + "]");
-    //enviar todos reles em uma msg
+        " [" + s + "]"); //enviar todos reles em uma msg
+
+   
 
   }
  
@@ -271,66 +277,52 @@ void handleRelaySet() {
   // Set Relay status
   if (!pwdNeeded() || chkWebAuth()) {
     String s = server.arg("set");
-    /* String s = server.arg("set"); // recebe o valor de s
 
-      String LigarDesligar = s.substring(0,1);
-      String IndexRele = s.substring(1);
-
-
-        digitalWrite( relayGPIOs[IndexRele.toInt()]  , LigarDesligar.toInt());
-        lastEvent = relayGPIOs2[IndexRele.toInt()]  + " " + LigarDesligar + " " + dateTimeStr(now());
-
-
-
-
-      //
-      //    if (s == "1") {
-      //      // Set relay on
-      //      digitalWrite(RELAY_PIN, HIGH);
-      //      lastEvent = "Ligado - " + dateTimeStr(now());
-      //    } else if (s == "0") {
-      //      // Set relay off
-      //      digitalWrite(RELAY_PIN, LOW);
-      //      lastEvent = "Desligado - " + dateTimeStr(now());
-      //    }
-      // Reset Schedule intervals
-      scheduleChk("", 0);
-      s = String(digitalRead(IndexRele.toInt()))  + "&" +
-        dateTimeStr(now())              + "&" +
-        lastEvent;
-      server.send(200, F("text/plain"), s);
-      log(F("WebRelaySet"), "Cliente: " + ipStr(server.client().remoteIP()) +
-        " [" + s + "]");
-    */
-
-    String LigarDesligar = s.substring(1, 2);
-    String IndexRele = s.substring(2);
-    Serial.println(s);
-    Serial.println(LigarDesligar);
-    Serial.println(IndexRele);
-      Serial.println(IndexRele.toInt());
-
+    String LigarDesligar = s.substring(1, 2);//primeira parte para liga/desliga = 0 e 1
+    String IndexRele = s.substring(2); //Qual a posição do vetor 
+      
+//    fireStatus1 = Firebase.getString("Digitais/ VAdb1 / Estado"); 
+//    fireStatus2 = Firebase.getString("Digitais/ VRetAdb1 / Estado");
+    
    if(LigarDesligar=="0"){
       digitalWrite(relayGPIOs[IndexRele.toInt()] ,LOW);
       lastEvent = " " + dateTimeStr(now())+ " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
-       handleRelayStatus();
+      handleRelayStatus();
+      
+      Firebase.setString("LED_STATUS", "OFF");   
    }
     if(LigarDesligar=="1"){
       digitalWrite(relayGPIOs[IndexRele.toInt()] ,HIGH);
       lastEvent = " " + dateTimeStr(now())+ " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
        handleRelayStatus();
    }
-    //digitalWrite(relayGPIOs[IndexRele.toInt()] , LigarDesligar.toInt());
-    
-    //    if (s == "1") {
-    //      // Set relay on
-    //      digitalWrite(LED_PIN, HIGH);
-    //      lastEvent = "Ligado - " + dateTimeStr(now());
-    //    } else if (s == "0") {
-    //      // Set relay off
-    //      digitalWrite(LED_PIN, LOW);
-    //      lastEvent = "Desligado - " + dateTimeStr(now());
-    //    }
+
+   
+   /*//----------Parte da comunicação com Firebase---------------------------//
+   if(LigarDesligar=="0"||fireStatus1 == "Desligado"){
+    digitalWrite(relayGPIOs[0],LOW);
+    lastEvent = " " + dateTimeStr(now())+ " " + relayGPIOs[0]  + " " + LigarDesligar + " ";
+    handleRelayStatus();
+   }
+   if(LigarDesligar=="1"||fireStatus1 == "Ligado"){
+    digitalWrite(relayGPIOs[0],HIGH);
+    lastEvent = " " + dateTimeStr(now())+ " " + relayGPIOs[0]  + " " + LigarDesligar + " ";
+    handleRelayStatus();
+   }
+   if(LigarDesligar=="0"||fireStatus2 == "Desligado"){
+    digitalWrite(relayGPIOs[1],LOW);
+    lastEvent = " " + dateTimeStr(now())+ " " + relayGPIOs[0]  + " " + LigarDesligar + " ";
+    handleRelayStatus();
+   }
+   if(LigarDesligar=="1"||fireStatus2 == "Ligado"){
+    digitalWrite(relayGPIOs[1],HIGH);
+    lastEvent = " " + dateTimeStr(now())+ " " + relayGPIOs[0]  + " " + LigarDesligar + " ";
+    handleRelayStatus();
+   }
+   //----------Parte da comunicação com Firebase---------------------------//
+
+*/
+   
     server.send(200, "text/plain", String(digitalRead (relayGPIOs[IndexRele.toInt()])));
     log("WebRelaySet", "Cliente: " + ipStr(server.client().remoteIP()) +
         " [" + s + "]");
@@ -655,6 +647,8 @@ void setup() {
   // Velocidade para ESP32
   Serial.begin(115200);
 
+  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);            //conectar ao firebase
+  
   // SPIFFS                     SPI Flash File System
   if (!SPIFFS.begin()) {
     log(F("SPIFFS ERRO"));
@@ -689,8 +683,8 @@ void setup() {
   dnsServer.start(DNSSERVER_PORT, "*", WiFi.softAPIP());
 
   // WiFi Station
-  WiFi.begin(ssid, pw);
-  log("Conectando WiFi " + String(ssid));
+  WiFi.begin("IF_CATARINENSE", "ifcatarinense");
+  log("Conectando WiFi " + String("IF_CATARINENSE"));
   byte b = 0;
   while (WiFi.status() != WL_CONNECTED && b < 20) {
     b++;
