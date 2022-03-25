@@ -78,10 +78,9 @@ function AddItemsToTable(Nome,Descrição,Estado){
     td2.innerHTML = Descrição;
     td3.innerHTML = '<div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault"></div>';
     td4.innerHTML = Estado;
-
-    
-    td5.innerHTML = '<button type="button" class="btn btn-primary my-2" data-toggle="modal" data-target="#exampleModalCenter" onclick="FillTboxes(null)">Adicionar</button>'
-    td5.innerHTML += '<button type="button" class="btn btn-warning my-2 ml-2" data-toggle="modal" data-target="#exampleModalCenter" onclick="FillTboxes('+code+')">Editar</button>'
+       
+    td5.innerHTML = '<button type="button" class="btn btn-primary my-2" data-toggle="modal" data-target="#exampleModalCenter" onclick="FillTboxes(null)">Opções</button>'
+    //td5.innerHTML += '<button type="button" class="btn btn-warning my-2 ml-2" data-toggle="modal" data-target="#exampleModalCenter" onclick="FillTboxes('+code+')">Editar</button>'
     
 
     trow.appendChild(td1); 
@@ -94,35 +93,6 @@ function AddItemsToTable(Nome,Descrição,Estado){
 
 }
 
-function FillTboxes(index){
-    if(index==null){
-        code.value = "";
-        description.value = "";
-        addButton.style.display='inline-block';
-        updButton.style.display='none';
-        delButton.style.display='none';
-    }
-    else{
-        --index;
-        code.value = valveList[index][1];
-        description.value = valveList[index][2];
-        addButton.style.display='none';
-        updButton.style.display='inline-block';
-        delButton.style.display='inline-block';
-    }
-
-    function addButton(){
-        firebase.database().ref("Digitais/"+code.value).set(
-        {
-            Descrição: description,
-            Estado: 'Desligado',
-            Nome: code
-        });
-    }
-
-}
-
-/*
 function Ready(){
     code = document.getElementById('code').value;
     description = document.getElementById('description').value;
@@ -142,9 +112,9 @@ document.getElementById('addButton').onclick = function(){
 document.getElementById("selButton").onclick = function(){
     Ready();
     firebase.database().ref('Digitais/'+code).once('value', function(snapshot){
-        snapshot.forEach(function(childSnapsht){
-            code = document.getElementById('code').value = snapshot.val().Nome;
-             description = document.getElementById('description').value = snapshot.val().Descrição;
+        snapshot.forEach(function(childsnapshot){
+            code= document.getElementById('code').value = snapshot.val().Nome;
+            description= document.getElementById('description').value= snapshot.val().Descrição;
         });
         
     });
@@ -157,5 +127,5 @@ document.getElementById('delButton').onclick = function(){
 
     });
 }
-*/
+
 
