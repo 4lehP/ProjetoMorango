@@ -36,11 +36,10 @@ String relayLABEL[NUM_RELAYS2] = {"Valvula Água", "Valvula Circulação Adubo 1
 
 //--------------------FIREBASE-----------------------------------------//
 FirebaseData firebaseData;
-//const char* ssid = "IF_CATARINENSE";
-//const char* password = "ifcatarinense";
-
-String fireStatus[NUM_RELAYS2] = {"Desligado","Desligado"};
-String statusAnterior[NUM_RELAYS2];
+FirebaseJson json;
+bool releSetFlag=0;
+String fireStatus[NUM_RELAYS2] = {"Desligado", "Desligado"};
+String statusAnterior[NUM_RELAYS2] = {"Desligado", "Desligado"};
 String fireMandaStatus1 = "";
 String fireMandaStatus2 = "";
 
@@ -88,10 +87,10 @@ String longTimeStr(const time_t &t) {
 
 void ledSet() {
   // Define estado do LED
-    for(int i=0; i<NUM_RELAYS; i++){
-     digitalWrite(relayGPIOs[i], ledOn ? LED_ON : LED_OFF);
+  for (int i = 0; i < NUM_RELAYS; i++) {
+    digitalWrite(relayGPIOs[i], ledOn ? LED_ON : LED_OFF);
   }
- 
+
 }
 
 // Funções de Configuração ------------------------------
@@ -286,136 +285,148 @@ void handleRelaySet() {
     String IndexRele = s.substring(2); //Qual a posição do vetor
 
     digitalWrite(relayGPIOs[IndexRele.toInt()] , LigarDesligar.toInt());
-    if(LigarDesligar.toInt()==0){
-       statusAnterior[IndexRele.toInt()]= "Desligado"; 
-    }else{
-      statusAnterior[IndexRele.toInt()]= "Ligado"; 
-    }
-    
-    lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
-  
-  
-//   if(fireStatus1=="Desligado"){
-//    digitalWrite(relayGPIOs[0],LOW);
-//  }
-//  if(fireStatus1=="Ligado"){
-//    digitalWrite(relayGPIOs[0],HIGH);
-//  }
-//  
-//  if(fireStatus2=="Desligado"){
-//    digitalWrite(relayGPIOs[1],LOW);
-//  }
-//  if(fireStatus2=="Ligado"){
-//    digitalWrite(relayGPIOs[1],HIGH);
-//  } 
-//  
 
-//          
-//            if(fireStatus1=="Desligado"){
-//              digitalWrite(relayGPIOs[0] , LOW);
-//              lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[0]  + " " + LigarDesligar + " ";
-//              handleRelayStatus();
-//            } 
-//            else if(fireStatus1=="Ligado"){
-//              digitalWrite(relayGPIOs[0] , HIGH);
-//              lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[0]  + " " + LigarDesligar + " ";
-//              handleRelayStatus();
-//            } 
-//          
-//          
-//              if(fireStatus2=="Desligado"){
-//              digitalWrite(relayGPIOs[1] , LOW);
-//             lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[1]  + " " + LigarDesligar + " ";
-//              handleRelayStatus();
-//            } 
-//            else if(fireStatus2=="Ligado"){
-//              digitalWrite(relayGPIOs[1] , HIGH);
-//              lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[1]  + " " + LigarDesligar + " ";
-//              handleRelayStatus();
-//            } 
-          
-         
-  
+    lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
+
+    
+    
+    if(digitalRead(relayGPIOs[0])==0){
+      json.set("Estado/", "Desligado");
+      Firebase.updateNode(firebaseData, "/Digitais/VAdb1/", json);
+      }else{json.set("Estado/", "Ligado");
+      Firebase.updateNode(firebaseData, "/Digitais/VAdb1/", json);
+      }
+        
+       
+//    }
+//    if(digitalRead(relayGPIOs[1]==0)){
+//      Firebase.set(firebaseData, "/Digitais/VRetAdb1/Estado/", "Desligado");
+//    }else{
+//       Firebase.set(firebaseData,"/Digitais/VRetAdb1/Estado/", "Ligado");
+//    }
+    releSetFlag=1;
+
+    //   if(fireStatus1=="Desligado"){
+    //    digitalWrite(relayGPIOs[0],LOW);
+    //  }
+    //  if(fireStatus1=="Ligado"){
+    //    digitalWrite(relayGPIOs[0],HIGH);
+    //  }
+    //
+    //  if(fireStatus2=="Desligado"){
+    //    digitalWrite(relayGPIOs[1],LOW);
+    //  }
+    //  if(fireStatus2=="Ligado"){
+    //    digitalWrite(relayGPIOs[1],HIGH);
+    //  }
+    //
+
+    //
+    //            if(fireStatus1=="Desligado"){
+    //              digitalWrite(relayGPIOs[0] , LOW);
+    //              lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[0]  + " " + LigarDesligar + " ";
+    //              handleRelayStatus();
+    //            }
+    //            else if(fireStatus1=="Ligado"){
+    //              digitalWrite(relayGPIOs[0] , HIGH);
+    //              lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[0]  + " " + LigarDesligar + " ";
+    //              handleRelayStatus();
+    //            }
+    //
+    //
+    //              if(fireStatus2=="Desligado"){
+    //              digitalWrite(relayGPIOs[1] , LOW);
+    //             lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[1]  + " " + LigarDesligar + " ";
+    //              handleRelayStatus();
+    //            }
+    //            else if(fireStatus2=="Ligado"){
+    //              digitalWrite(relayGPIOs[1] , HIGH);
+    //              lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[1]  + " " + LigarDesligar + " ";
+    //              handleRelayStatus();
+    //            }
+
+
+
     //    fireStatus1 = Firebase.getString("Digitais/ VAdb1 / Estado");
     //    fireStatus2 = Firebase.getString("Digitais/ VRetAdb1 / Estado");
 
-//    if (LigarDesligar == "0") {
-//      digitalWrite(relayGPIOs[IndexRele.toInt()] , LOW);
-//      lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
-//      handleRelayStatus();
-//        if(digitalRead(relayGPIOs[0])){
-//           Firebase.setString(firebaseData,F("/Digitais/VAdb1/Estado"), "Desligado");
-//        }
-//        if(digitalRead(relayGPIOs[1])){
-//           Firebase.setString(firebaseData,F("/Digitais/ VRetAdb1 / Estado"), "Desligado");
-//        }
-//
-//    }
-//    if (LigarDesligar == "1") {
-//      digitalWrite(relayGPIOs[IndexRele.toInt()] , HIGH);
-//      lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
-//      handleRelayStatus();
-//       if(digitalRead(relayGPIOs[1])){
-//           Firebase.setString(firebaseData,F("/Digitais/VAdb1/Estado"), "Ligado");
-//        }
-//        if(digitalRead(relayGPIOs[1])){
-//           Firebase.setString(firebaseData,F("/Digitais/ VRetAdb1 / Estado"), "Ligado");
-//        }
-//    }
-  //----------Parte da comunicação com Firebase---------------------------//
-//  do{
-//      if(LigarDesligar=="0"||fireStatus1 == "Desligado" && ){
-//      digitalWrite(relayGPIOs[0],LOW);
-//      lastEvent = " " + dateTimeStr(now())+ " " + relayGPIOs[0]  + " " + LigarDesligar + " ";
-//      handleRelayStatus();
-//      }
-//      if(LigarDesligar=="1"||fireStatus1 == "Ligado"){
-//      digitalWrite(relayGPIOs[0],HIGH);
-//      lastEvent = " " + dateTimeStr(now())+ " " + relayGPIOs[0]  + " " + LigarDesligar + " ";
-//      handleRelayStatus();
-//      }
-//      if(LigarDesligar=="0"||fireStatus2 == "Desligado"){
-//      digitalWrite(relayGPIOs[1],LOW);
-//      lastEvent = " " + dateTimeStr(now())+ " " + relayGPIOs[0]  + " " + LigarDesligar + " ";
-//      handleRelayStatus();
-//      }
-//      if(LigarDesligar=="1"||fireStatus2 == "Ligado"){
-//      digitalWrite(relayGPIOs[1],HIGH);
-//      lastEvent = " " + dateTimeStr(now())+ " " + relayGPIOs[0]  + " " + LigarDesligar + " ";
-//      handleRelayStatus();
-//      }
-//  }while(IndexRele.toInt()<2);
-//
-//  if(IndexRele.toInt()<2){
-//
-//    if (LigarDesligar == "1") {
-//      digitalWrite(relayGPIOs[IndexRele.toInt()] , HIGH);
-//      lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
-//      handleRelayStatus();
-//    }
-//    if (LigarDesligar == "0") {
-//      digitalWrite(relayGPIOs[IndexRele.toInt()] , LOW);
-//      lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
-//      handleRelayStatus();
-//    }
-//   }
-    
+    //    if (LigarDesligar == "0") {
+    //      digitalWrite(relayGPIOs[IndexRele.toInt()] , LOW);
+    //      lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
+    //      handleRelayStatus();
+    //        if(digitalRead(relayGPIOs[0])){
+    //           Firebase.setString(firebaseData,F("/Digitais/VAdb1/Estado"), "Desligado");
+    //        }
+    //        if(digitalRead(relayGPIOs[1])){
+    //           Firebase.setString(firebaseData,F("/Digitais/ VRetAdb1 / Estado"), "Desligado");
+    //        }
+    //
+    //    }
+    //    if (LigarDesligar == "1") {
+    //      digitalWrite(relayGPIOs[IndexRele.toInt()] , HIGH);
+    //      lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
+    //      handleRelayStatus();
+    //       if(digitalRead(relayGPIOs[1])){
+    //           Firebase.setString(firebaseData,F("/Digitais/VAdb1/Estado"), "Ligado");
+    //        }
+    //        if(digitalRead(relayGPIOs[1])){
+    //           Firebase.setString(firebaseData,F("/Digitais/ VRetAdb1 / Estado"), "Ligado");
+    //        }
+    //    }
+    //----------Parte da comunicação com Firebase---------------------------//
+    //  do{
+    //      if(LigarDesligar=="0"||fireStatus1 == "Desligado" && ){
+    //      digitalWrite(relayGPIOs[0],LOW);
+    //      lastEvent = " " + dateTimeStr(now())+ " " + relayGPIOs[0]  + " " + LigarDesligar + " ";
+    //      handleRelayStatus();
+    //      }
+    //      if(LigarDesligar=="1"||fireStatus1 == "Ligado"){
+    //      digitalWrite(relayGPIOs[0],HIGH);
+    //      lastEvent = " " + dateTimeStr(now())+ " " + relayGPIOs[0]  + " " + LigarDesligar + " ";
+    //      handleRelayStatus();
+    //      }
+    //      if(LigarDesligar=="0"||fireStatus2 == "Desligado"){
+    //      digitalWrite(relayGPIOs[1],LOW);
+    //      lastEvent = " " + dateTimeStr(now())+ " " + relayGPIOs[0]  + " " + LigarDesligar + " ";
+    //      handleRelayStatus();
+    //      }
+    //      if(LigarDesligar=="1"||fireStatus2 == "Ligado"){
+    //      digitalWrite(relayGPIOs[1],HIGH);
+    //      lastEvent = " " + dateTimeStr(now())+ " " + relayGPIOs[0]  + " " + LigarDesligar + " ";
+    //      handleRelayStatus();
+    //      }
+    //  }while(IndexRele.toInt()<2);
+    //
+    //  if(IndexRele.toInt()<2){
+    //
+    //    if (LigarDesligar == "1") {
+    //      digitalWrite(relayGPIOs[IndexRele.toInt()] , HIGH);
+    //      lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
+    //      handleRelayStatus();
+    //    }
+    //    if (LigarDesligar == "0") {
+    //      digitalWrite(relayGPIOs[IndexRele.toInt()] , LOW);
+    //      lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
+    //      handleRelayStatus();
+    //    }
+    //   }
 
-      server.send(200, "text/plain", String(digitalRead (relayGPIOs[IndexRele.toInt()])));
+
+    server.send(200, "text/plain", String(digitalRead (relayGPIOs[IndexRele.toInt()])));
     log("WebRelaySet", "Cliente: " + ipStr(server.client().remoteIP()) +
-        " [" + s + "]");   
-    }
+        " [" + s + "]");
   }
+}
 
-  // Reset Schedule intervals
-  //    scheduleChk("", 0);
-  //    s = String(digitalRead(IndexRele.toInt()))  + "&" +
-  //        dateTimeStr(now())              + "&" +
-  //        lastEvent;
-  //    server.send(200, F("text/plain"), s);
-  //    log(F("WebRelaySet"), "Cliente: " + ipStr(server.client().remoteIP()) +
-  //        " [" + s + "]");
-  
+// Reset Schedule intervals
+//    scheduleChk("", 0);
+//    s = String(digitalRead(IndexRele.toInt()))  + "&" +
+//        dateTimeStr(now())              + "&" +
+//        lastEvent;
+//    server.send(200, F("text/plain"), s);
+//    log(F("WebRelaySet"), "Cliente: " + ipStr(server.client().remoteIP()) +
+//        " [" + s + "]");
+
 
 
 
@@ -720,6 +731,58 @@ void handleCSS() {
   }
 }
 
+//--------------------------------
+
+void FireBaseSet() {
+
+  if (WiFi.status() == WL_CONNECTED) {
+    if (Firebase.getString(firebaseData, "/Digitais/VAdb1/Estado")) {
+      fireStatus[0] = firebaseData.stringData();
+      if (fireStatus[0] == "Desligado") {
+        digitalWrite(relayGPIOs[0] , LOW);
+      } else if (fireStatus[0] == "Ligado") {
+        digitalWrite(relayGPIOs[0] , HIGH);
+      }
+
+      if (Firebase.getString(firebaseData, "/Digitais/VRetAdb1/Estado")) {
+        fireStatus[1] = firebaseData.stringData();
+        if (fireStatus[1] == "Desligado") {
+          digitalWrite(relayGPIOs[1] , LOW);
+        } else if (fireStatus[1] == "Ligado") {
+          digitalWrite(relayGPIOs[1] , HIGH);
+        }
+      }
+    }
+  }
+}
+
+   void  FireBaseStatus() {
+ if (WiFi.status() == WL_CONNECTED && releSetFlag==1) {
+      String p;
+
+      if (digitalRead(relayGPIOs[1] == 1)) {
+      p = "Ligado";
+    } else {
+      p = "Desligado";
+    }
+  
+
+  Firebase.setString(firebaseData, F("/Digitais/ VRetAdb1 / Estado"), p);
+
+    if (digitalRead(relayGPIOs[0] == 1)) {
+    p = "Ligado";
+  } else {
+    p = "Desligado";
+  }
+  Firebase.setString(firebaseData, F("/Digitais/ VAdb1 / Estado"), p);
+  releSetFlag=0;
+  }
+}
+
+
+
+
+
 
 // Setup -------------------------------------------
 void setup() {
@@ -728,8 +791,8 @@ void setup() {
   Serial.begin(115200);
 
   Firebase.setDoubleDigits(5);
-  
- // Configura WiFi para ESP32
+
+  // Configura WiFi para ESP32
   WiFi.setHostname(deviceID().c_str());
   WiFi.softAP(deviceID().c_str(), "ESP32ESP32");
   log("WiFi AP " + deviceID() + " - IP " + ipStr(WiFi.softAPIP()));
@@ -756,7 +819,7 @@ void setup() {
     Serial.println(WiFi.localIP());
     Firebase.begin("https://cursofb-d8836-default-rtdb.firebaseio.com/", "BIcBAhezSHlG0xtoeJqCPa6zmSWySypFjLPowkeh");
     log("WiFi conectado (" + String(WiFi.RSSI()) + ") IP " + ipStr(WiFi.localIP()));
-    
+
   } else {
     log(F("WiFi não conectado"));
   }
@@ -786,7 +849,7 @@ void setup() {
   ledSet();
 
 
- 
+
   // WebServer
   server.on(F("/Relay.htm")       , handleRelay);
   server.on(F("/relayStatus") , handleRelayStatus);
@@ -816,7 +879,7 @@ void setup() {
 }
 
 // Loop --------------------------------------------
-void loop() {
+void loop(){
   // WatchDog ----------------------------------------
   yield();
 
@@ -827,44 +890,17 @@ void loop() {
   server.handleClient();
 
   //Firebase pegando os status-----------------------
-  
- if (WiFi.status() == WL_CONNECTED) {
-   if(Firebase.getString(firebaseData, "/Digitais/VAdb1/Estado")){
-    fireStatus[0]=firebaseData.stringData();
-      }
 
-    if(Firebase.getString(firebaseData, "/Digitais/VRetAdb1/Estado")){
-    fireStatus[1] =firebaseData.stringData();  
-     }
 
-     if(fireStatus[0]=="Desligado" &&  statusAnterior[0]=="Ligado"){
-              digitalWrite(relayGPIOs[0] , LOW);
-              lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[0]  + " " + "0" + " ";
-              handleRelayStatus();
-              statusAnterior[0]=="Desligado";
-             }
-     if(fireStatus[0]=="Ligado" && statusAnterior[0]=="Desligado" ){
-              digitalWrite(relayGPIOs[0] , HIGH);
-              lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[0]  + " " + "1" + " ";
-              handleRelayStatus();
-              statusAnterior[0]=="Ligado";
-            } 
-              
-          
-          
-              if(fireStatus[1]=="Desligado" &&  statusAnterior[1]=="Ligado"){
-              digitalWrite(relayGPIOs[1] , LOW);
-              lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[1]  + " " + "0" + " ";
-              handleRelayStatus();
-              statusAnterior[1]=="Desligado";
-             }else if(fireStatus[1]=="Ligado" && statusAnterior[1]=="Desligado" ){
-              digitalWrite(relayGPIOs[1] , HIGH);
-              lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[1]  + " " + "1" + " ";
-              handleRelayStatus();
-              statusAnterior[1]=="Ligado";
-            } 
-              
- }
-  //----------------------------------------------------
+  FireBaseStatus();
+  FireBaseSet();
   
+
+ 
+  //      if (LigarDesligar.toInt() == 0) {
+  //        statusAnterior[IndexRele.toInt()] = "Desligado";
+  //      } else {
+  //        statusAnterior[IndexRele.toInt()] = "Ligado";
+  //      }
+
 }
