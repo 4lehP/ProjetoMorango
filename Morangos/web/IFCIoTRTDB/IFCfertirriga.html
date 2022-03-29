@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>Feritirrigação IFC</title>
+    <title>Fertirrigação IFC</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel="stylesheet" href="https://bootswatch.com/5/lumen/bootstrap.min.css">
@@ -16,7 +16,7 @@
 </head>
 
 <body>
-    <h1>Feritirrigação IFC</h1>
+    <h1>Fertirrigação IFC</h1>
     <hr>
     <img src="Imagens/Diagrama.jpg" alt="some text" width=80% height= 80%>
 
@@ -31,7 +31,6 @@
             <th scope="col">Descrição</th>
             <th scope="col">Chave</th>
             <th scope="col">Estado</th>
-            <th scope="col">Comandos</th>
           </tr>
         </thead>
         <tbody id="tbody">
@@ -42,66 +41,16 @@
           
         </tbody>
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.2.10/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
-<script  src="js/app.js"></script>
-<script  src="js/IFCfertirriga.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.10/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-firestore.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
+        <script  src="js/app.js"></script>
+        <script  src="js/IFCfertirriga.js"></script>
 
       </table>
 
-<!--
-    <div class="col-md-4">
-        <form>
-            <div class="form-group">
-                <label for="code">Código</label>
-                <input type="text" class="form-control" id="code" placeholder="Código">
-            </div>
-            <div class="form-group">
-                <label for="description">Descrição</label>
-                <input type="text" class="form-control" id="description" placeholder="Descrição">
-            </div>
-            <div class="d-grid">
-                <br>
-               <button class="btn btn-lg btn-block btn-primary" id="addButton">Adicionar</button>
-            </div>
-            <div class="d-grid">
-                <br>
-               <button class="btn btn-lg btn-block btn-success" id="selButton">Selecionar</button>
-            </div>
-            <div class="d-grid">
-                <br>
-               <button class="btn btn-lg btn-block btn-danger" id="delButton">Deletar</button>
-            </div>
-        </form>
-    </div> -->
 
-
-  <!-- Modal Bootstrap -->
-  <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLongTitle">Centro de Comandos</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <label class="labs">Código: </label> 
-          <input type="text" id="code"> <br>
-          <label class="labs">Descrição: </label> 
-          <input type="text" id="description"> <br>
-        </div>
-        <div class="modal-footer">
-          <button id="addButton" type="button" class="btn btn-primary" onclick="addButton()">Novo</button>
-          <button id="updButton" type="button" class="btn btn-success"onclick="updButton()">Atualizar</button>
-          <button id="delButton" type="button" class="btn btn-danger"onclick="delButton()">Deletar</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
 
  

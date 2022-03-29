@@ -3,9 +3,6 @@ var valveList = [];
 var IndexTable = 0;
 var code = document.getElementById('code');
 var description = document.getElementById('description');
-var addButton = document.getElementById('addButton');
-var updButton = document.getElementById('updButton');
-var delButton = document.getElementById('delButton');
 var SwitchEstado = document.getElementById('SwitchEstado'); 
 var Vadb1label = document.getElementById('Vadb1label');
 var tbody = document.getElementById('tbody');
@@ -106,25 +103,20 @@ function AddItemsToTable(Nome, Descrição, Estado) {
     var td2 = document.createElement('td');
     var td3 = document.createElement('td');
     var td4 = document.createElement('td');
-    var td5 = document.createElement("td");
-    
+        
     valveList.push([Nome, Descrição, Estado]);
  
     td1.innerHTML = Nome;
     td2.innerHTML = Descrição;
-    td3.innerHTML = '<button type="button" class="btn btn-primary my-2"   onclick="AttDigitais('+IndexTable+')">Troca</button>';
+    td3.innerHTML = '<button type="button" class="btn btn-primary my-2"   onclick="AttDigitais('+IndexTable+')">On/Off</button>';
     td4.innerHTML = Estado;
     IndexTable++
-    td5.innerHTML = '<button type="button" class="btn btn-primary my-2" data-toggle="modal" data-target="#exampleModalCenter" onclick="FillTboxes(null)">Opções</button>'
-    //td5.innerHTML += '<button type="button" class="btn btn-warning my-2 ml-2" data-toggle="modal" data-target="#exampleModalCenter" onclick="FillTboxes('+code+')">Editar</button>'
-
 
     trow.appendChild(td1);
     trow.appendChild(td2);
     trow.appendChild(td3);
     trow.appendChild(td4);
 
-    trow.appendChild(td5);
     tbody.appendChild(trow);
 
 }
@@ -203,35 +195,5 @@ function AttDigitais(IndexTable) {
 
 
 
-        //------------- Adicionar ------------------------------------------
-        document.getElementById('addButton').onclick = function () {
-            Ready();
-            firebase.database().ref('Digitais/' + code).set({
-                Descrição: description,
-                Estado: 'Desligado',
-                Nome: code
-            });
-        }
-
-        //------------- Selecionar ------------------------------------------
-        /*
-        document.getElementById("selButton").onclick = function () {
-            Ready();
-            firebase.database().ref('Digitais/' + code).once('value', function (snapshot) {
-                snapshot.forEach(function (childsnapshot) {
-                    code = document.getElementById('code').value = snapshot.val().Nome;
-                    description = document.getElementById('description').value = snapshot.val().Descrição;
-                });
-
-            });
-        }
-*/
-        //------------- Deletar ------------------------------------------
-        document.getElementById('delButton').onclick = function () {
-            Ready();
-            firebase.database().ref('Digitais/' + code).remove({
-
-            });
-        }
 
 
