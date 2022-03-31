@@ -290,12 +290,7 @@ void handleRelaySet() {
 
     
     
-    if(digitalRead(relayGPIOs[0])==0){
-      json.set("Estado/", "Desligado");
-      Firebase.updateNode(firebaseData, "/Digitais/VAdb1/", json);
-      }else{json.set("Estado/", "Ligado");
-      Firebase.updateNode(firebaseData, "/Digitais/VAdb1/", json);
-      }
+  
         
        
 //    }
@@ -760,21 +755,19 @@ void FireBaseSet() {
  if (WiFi.status() == WL_CONNECTED && releSetFlag==1) {
       String p;
 
-      if (digitalRead(relayGPIOs[1] == 1)) {
-      p = "Ligado";
-    } else {
-      p = "Desligado";
-    }
-  
+       if(digitalRead(relayGPIOs[0])==0){
+      json.set("Estado/", "Desligado");
+      Firebase.updateNode(firebaseData, "/Digitais/VAdb1/", json);
+      }else{json.set("Estado/", "Ligado");
+      Firebase.updateNode(firebaseData, "/Digitais/VAdb1/", json);
+      }
 
-  Firebase.setString(firebaseData, F("/Digitais/ VRetAdb1 / Estado"), p);
-
-    if (digitalRead(relayGPIOs[0] == 1)) {
-    p = "Ligado";
-  } else {
-    p = "Desligado";
-  }
-  Firebase.setString(firebaseData, F("/Digitais/ VAdb1 / Estado"), p);
+   if(digitalRead(relayGPIOs[1])==0){
+      json.set("Estado/", "Desligado");
+      Firebase.updateNode(firebaseData, "/Digitais/VRetAdb1/", json);
+      }else{json.set("Estado/", "Ligado");
+      Firebase.updateNode(firebaseData, "/Digitais/VRetAdb1/", json);
+      }
   releSetFlag=0;
   }
 }
