@@ -6,9 +6,6 @@ var description = document.getElementById('description');
 var SwitchEstado = document.getElementById('SwitchEstado'); 
 var Vadb1label = document.getElementById('Vadb1label');
 var tbody = document.getElementById('tbody');
-
-
-
 window.onload = SelectAllDataFrom('Digitais/');
 
 
