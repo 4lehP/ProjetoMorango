@@ -93,7 +93,7 @@ function SelectAllDataToValveList(colection) {
 
 var senha = window.prompt("Insira a senha");
 
-if (senha == 'inovamorago') {
+if (senha == 'inovamorango') {
     function AddItemsToTable(Nome, Descrição, Estado) {
         var tbody = document.getElementById('tbody');
         
