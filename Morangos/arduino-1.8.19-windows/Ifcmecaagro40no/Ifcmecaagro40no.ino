@@ -1,7 +1,6 @@
 
 
-/********************************************************
-   CANAL INTERNET E COISAS
+/*************ln("sream begin error, %s\n\n", stream.errorReason().c_str());E COISAS
    Configuracao com JSON e SPIFFS
    Multiplataforma ESP32 e ESP8266
    12/2019 - Andre Michelon
@@ -14,6 +13,13 @@
 #include <FS.h>
 #include <ArduinoJson.h>
 #include "IeCESPReleV4Lib.h"
+
+//Provide the token generation process info.
+#include <addons/TokenHelper.h>
+
+//Provide the RTDB payload printing info and other helper functions.
+#include <addons/RTDBHelper.h>
+
 
 //------------------------------------------------------------------------//
 // ESP8266 possui pino padrão de LED
@@ -39,11 +45,19 @@ String relayCodigo[NUM_RELAYS] =       {"VAgua", "VRetAdb1", "VAdb1", "VRetAdb2"
 
 //--------------------FIREBASE-----------------------------------------//
 FirebaseData firebaseData;
+FirebaseData stream;
 FirebaseJson jsonL;
 FirebaseJson jsonD;
 FirebaseJson json;
-bool releSetFlag = 0;
+
+int releSetFlag = 99;
 String fireStatus[NUM_RELAYS2] = {"Desligado", "Desligado"};
+unsigned long sendDataPrevMillis = 0;
+
+int count = 0;
+
+uint32_t idleTimeForStream = 15000;
+FirebaseConfig config;
 
 //---------------------------------------------------------------------//
 
@@ -291,7 +305,7 @@ void handleRelaySet() {   //Mudança de acordo com o botão
     lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
 
 
-    releSetFlag = 1;
+    releSetFlag = IndexRele.toInt();
 
     server.send(200, "text/plain", String(digitalRead (relayGPIOs[IndexRele.toInt()])));
     log("WebRelaySet", "Cliente: " + ipStr(server.client().remoteIP()) +
@@ -617,45 +631,75 @@ void handleCSS() {
 
 void FireBaseSet() {
 
-  if (WiFi.status() == WL_CONNECTED) {
+  if (Firebase.ready() && (millis() - sendDataPrevMillis > idleTimeForStream || sendDataPrevMillis == 0))
+  {
+    sendDataPrevMillis = millis();
+    count++;
+  }
+  if (Firebase.ready())
+  {
+    if (!Firebase.readStream(stream)) Serial.printf("sream read error, %s\n\n", stream.errorReason().c_str());
 
+    if (stream.streamTimeout())
+    {
+      Serial.println("stream timed out, resuming...\n");
 
-    for (int i = 0; i < NUM_RELAYS; i++) {
-      String s =   "/Digitais/" + relayCodigo[i] + "/Estado";
+      if (!stream.httpConnected()) {
+        Serial.printf("error code: %d, reason: %s\n\n", stream.httpCode(), stream.errorReason().c_str());
+      }
 
-      delay(1000);
-      if (Firebase.getString(firebaseData, s)) {
-        fireStatus[i] = firebaseData.stringData();
-        if (fireStatus[i] == "Desligado") {
-          digitalWrite(relayGPIOs[i] , LOW);
-        } else if (fireStatus[i] == "Ligado") {
-          digitalWrite(relayGPIOs[i] , HIGH);
-        }
+    }
+    if (stream.streamAvailable())
+    {
+
+      Serial.printf("sream path, %s\nevent path, %s\ndata type, %s\nevent type, %s\nvalue, %s\n\n",
+                    stream.streamPath().c_str(),
+                    stream.dataPath().c_str(),
+                    stream.dataType().c_str(),
+                    stream.eventType().c_str(),
+                    stream.stringData().c_str());
+
+      String estado = stream.stringData();
+      int i; // "VAgua", "VRetAdb1", "VAdb1", "VRetAdb2", "VAdb2", "VL6", "VL1", "VL2", "VL3", "VL4", "VL5", "VBomba",};
+
+      if (estado.length() < 40) {
+        for ( int i = 0; i < NUM_RELAYS; i++) {
+          if (estado.indexOf(relayCodigo[i]) > 0) {
+            if (estado.indexOf("Desligado") > 0)digitalWrite(relayGPIOs[i] , LOW);
+            else if (estado.indexOf("Ligado") > 0)digitalWrite(relayGPIOs[i] , HIGH);
+
+          }
       }
     }
+    }
+
   }
 }
 
 
 void  FireBaseStatus() {
-  if (WiFi.status() == WL_CONNECTED && releSetFlag == 1) {
+  if (WiFi.status() == WL_CONNECTED && releSetFlag < 12) {
     String p;
 
     jsonD.set("Estado/", "Desligado");
     jsonL.set("Estado/", "Ligado");
 
 
-    for (int i = 0; i < NUM_RELAYS; i++) {
+  int i =releSetFlag;
+ 
+    
       if (digitalRead(relayGPIOs[i]) == 0) {
         Firebase.updateNode(firebaseData, "/Digitais/" + relayCodigo[i] , jsonD);
       } else {
         Firebase.updateNode(firebaseData, "/Digitais/" + relayCodigo[i], jsonL);
       }
-    }
+    
 
-    releSetFlag = 0;
+    releSetFlag = 99;
   }
 }
+
+
 
 //---------------------------------------------------------------------------
 
@@ -695,7 +739,8 @@ void setup() {
     Serial.println(WiFi.localIP());
     Firebase.begin("https://cursofb-d8836-default-rtdb.firebaseio.com/", "BIcBAhezSHlG0xtoeJqCPa6zmSWySypFjLPowkeh");
     log("WiFi conectado (" + String(WiFi.RSSI()) + ") IP " + ipStr(WiFi.localIP()));
-
+    /* Assign the callback function for the long running token generation task */
+    config.token_status_callback = tokenStatusCallback; //see addons/TokenHelper.h
   } else {
     log(F("WiFi não conectado"));
   }
@@ -724,7 +769,16 @@ void setup() {
   }
   ledSet();
 
+  //---------------------FIREBASE---------------------------
 
+
+  if (!Firebase.beginStream(stream, "/Digitais/")) {
+    Serial.printf("sream begin error, %s\n\n", stream.errorReason().c_str());
+  } else {
+    Serial.println("sream begin complete");
+  }
+
+  //-------------------------------------------------------
 
   // WebServer
   server.on(F("/Relay.htm")       , handleRelay);
@@ -768,6 +822,7 @@ void loop() {
 
   //Firebase pegando os status-----------------------
   FireBaseStatus();
-  //FireBaseSet();
+  FireBaseSet();
 
+ 
 }
