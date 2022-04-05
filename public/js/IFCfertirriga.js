@@ -10,6 +10,7 @@ window.onload = SelectAllDataFrom('Digitais/');
 
 
 
+
 timer = setInterval(ftimer , 10000);//location.reload()
 function ftimer(){
     //console.log("timer");
@@ -242,7 +243,5 @@ firebase.database().ref('.info/connected').on('value', function(snapshot) {
         userStatusDatabaseRef.set(isOnlineForDatabase);
     });
 });
-
-
 
 
