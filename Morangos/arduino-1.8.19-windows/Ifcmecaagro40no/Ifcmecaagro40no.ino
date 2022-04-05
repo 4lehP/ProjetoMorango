@@ -22,9 +22,6 @@
 
 
 //------------------------------------------------------------------------//
-// ESP8266 possui pino padrão de LED
-
-
 
 //---------PARTE DAS CONFIGURAÇÕES DAS ENTRADAS DAS VálvulaS----------//
 const byte      LED_ON                  = HIGH;
@@ -46,8 +43,10 @@ String relayCodigo[NUM_RELAYS] =       {"VAgua", "VRetAdb1", "VAdb1", "VRetAdb2"
 //--------------------FIREBASE-----------------------------------------//
 FirebaseData firebaseData;
 FirebaseData stream;
+FirebaseData streamStatus;
 FirebaseJson jsonL;
 FirebaseJson jsonD;
+FirebaseJson jsonS;
 FirebaseJson json;
 
 int releSetFlag = 99;
@@ -61,6 +60,22 @@ FirebaseConfig config;
 
 //---------------------------------------------------------------------//
 
+//----------------WATCHDOG---------------------------------------------//
+
+hw_timer_t *timer = NULL;
+
+void IRAM_ATTR resetModule() {
+  ets_printf("(watchdog) reiniciar\n"); //imprime no log
+  esp_restart(); //reinicia o chip
+}
+void configureWatchdog()
+{
+  timer = timerBegin(0, 80, true);
+  timerAttachInterrupt(timer, &resetModule, true);
+  timerAlarmWrite(timer, 3000000, true);
+  timerAlarmEnable(timer);
+}
+//---------------------------------------------------------------------//
 StaticJsonDocument<320> doc;
 
 // Variáveis Globais ------------------------------------
@@ -669,14 +684,12 @@ void FireBaseSet() {
             else if (estado.indexOf("Ligado") > 0)digitalWrite(relayGPIOs[i] , HIGH);
 
           }
+        }
       }
-    }
-    }
 
+    }
   }
 }
-
-
 void  FireBaseStatus() {
   if (WiFi.status() == WL_CONNECTED && releSetFlag < 12) {
     String p;
@@ -685,15 +698,15 @@ void  FireBaseStatus() {
     jsonL.set("Estado/", "Ligado");
 
 
-  int i =releSetFlag;
- 
-    
-      if (digitalRead(relayGPIOs[i]) == 0) {
-        Firebase.updateNode(firebaseData, "/Digitais/" + relayCodigo[i] , jsonD);
-      } else {
-        Firebase.updateNode(firebaseData, "/Digitais/" + relayCodigo[i], jsonL);
-      }
-    
+    int i = releSetFlag;
+
+
+    if (digitalRead(relayGPIOs[i]) == 0) {
+      Firebase.updateNode(firebaseData, "/Digitais/" + relayCodigo[i] , jsonD);
+    } else {
+      Firebase.updateNode(firebaseData, "/Digitais/" + relayCodigo[i], jsonL);
+    }
+
 
     releSetFlag = 99;
   }
@@ -703,6 +716,55 @@ void  FireBaseStatus() {
 
 //---------------------------------------------------------------------------
 
+void ConexaoFireBase() {
+  if (WiFi.status() == WL_CONNECTED) {
+    jsonS.set("state", "online");
+
+    if (Firebase.ready() && (millis() - sendDataPrevMillis > idleTimeForStream || sendDataPrevMillis == 0))
+    {
+      sendDataPrevMillis = millis();
+      count++;
+    }
+    if (Firebase.ready())
+    {
+      if (!Firebase.readStream(streamStatus)) Serial.printf("sream read error, %s\n\n", streamStatus.errorReason().c_str());
+
+      if (streamStatus.streamTimeout())
+      {
+        Serial.println("stream timed out, resuming...\n");
+
+        if (!streamStatus.httpConnected()) {
+          Serial.printf("error code: %d, reason: %s\n\n", streamStatus.httpCode(), streamStatus.errorReason().c_str());
+        }
+
+      }
+      if (streamStatus.streamAvailable())
+      {
+
+        Serial.printf("sream path, %s\nevent path, %s\ndata type, %s\nevent type, %s\nvalue, %s\n\n",
+                      streamStatus.streamPath().c_str(),
+                      streamStatus.dataPath().c_str(),
+                      streamStatus.dataType().c_str(),
+                      streamStatus.eventType().c_str(),
+                      streamStatus.stringData().c_str());
+
+        String caminho = streamStatus.streamPath().c_str();
+        String mudanca = streamStatus.dataPath().c_str();
+        String estado = streamStatus.stringData().c_str();
+
+
+        if (mudanca.indexOf("ESP32") > 0) {
+          Firebase.updateNode(firebaseData, "/status/ESP32/", jsonS);
+        }
+        else if (estado.indexOf("offline") > 0) {
+          Firebase.updateNode(firebaseData, "/status/ESP32/", jsonS);
+        }
+
+
+      }
+    }
+  }
+}
 
 
 // ---------------------Setup -------------------------------------------
@@ -712,7 +774,7 @@ void setup() {
   // Velocidade para ESP32
   Serial.begin(115200);
 
-  // Configura WiFi para ESP32
+  //------------------ Configura WiFi para ESP32---------------------//
   WiFi.setHostname(deviceID().c_str());
   WiFi.softAP(deviceID().c_str(), "ESP32ESP32");
   log("WiFi AP " + deviceID() + " - IP " + ipStr(WiFi.softAPIP()));
@@ -741,10 +803,15 @@ void setup() {
     log("WiFi conectado (" + String(WiFi.RSSI()) + ") IP " + ipStr(WiFi.localIP()));
     /* Assign the callback function for the long running token generation task */
     config.token_status_callback = tokenStatusCallback; //see addons/TokenHelper.h
+
+
+
+
   } else {
     log(F("WiFi não conectado"));
   }
 
+  //---------------------------------------------------------------------------//
 
   // SPIFFS                     SPI Flash File System
   if (!SPIFFS.begin()) {
@@ -773,12 +840,22 @@ void setup() {
 
 
   if (!Firebase.beginStream(stream, "/Digitais/")) {
-    Serial.printf("sream begin error, %s\n\n", stream.errorReason().c_str());
+    Serial.printf("sream válvulas begin error, %s\n\n", stream.errorReason().c_str());
   } else {
-    Serial.println("sream begin complete");
+    Serial.println("sream válvulas begin complete");
   }
-
+  if (!Firebase.beginStream(streamStatus, "/status/")) {
+    Serial.printf("sream status begin error, %s\n\n", streamStatus.errorReason().c_str());
+  } else {
+    Serial.println("sream status begin complete");
+  }
   //-------------------------------------------------------
+
+  //---------------------------------WATCHDOG---------------------------//
+  configureWatchdog();
+
+
+
 
   // WebServer
   server.on(F("/Relay.htm")       , handleRelay);
@@ -808,11 +885,26 @@ void setup() {
 
 }
 
+void WatchDog() {
+  
+  yield();
+  if (WiFi.status() == WL_CONNECTED && !Firebase.beginStream(stream, "/Digitais/") && !Firebase.beginStream(streamStatus, "/status/") && !Firebase.ready() ) {
+    while (1);
+  } else if (!server.begin();) {
+    while (1);
+  }
+
+
+}
+
 // ------------------Loop --------------------------------------------
 
 void loop() {
+
+  timerWrite(timer, 0);
+
   // WatchDog ----------------------------------------
-  yield();
+  
 
   // DNS ---------------------------------------------
   dnsServer.processNextRequest();
@@ -820,9 +912,12 @@ void loop() {
   // Web ---------------------------------------------
   server.handleClient();
 
+  ConexaoFireBase();
+
   //Firebase pegando os status-----------------------
   FireBaseStatus();
   FireBaseSet();
 
- 
+
+
 }
