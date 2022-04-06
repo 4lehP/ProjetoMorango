@@ -10,14 +10,14 @@ var tbody = document.getElementById('tbody');
 var UsuarioAtivo = document.getElementById('UsuarioAtivo');
 var ControladorAtivo = document.getElementById('ControladorAtivo');    
 var primeiro = true;
-window.onload = SelectDataToTable('Digitais/',primeiro);
-window.onload = AtualizaStatusDispositivo('status/ESP32/state') ;
-window.onload = SetDispOffline('status/ESP32/state');
+window.onload = SelectDataToTable('Digitais/',1);
+window.onload = AtualizaStatusDispositivo('Dispositivos/ESP32/') ;
+window.onload = SetDispOffline('Dispositivos/ESP32');
 
 
-const user = firebase.auth().currentUser;
-timerUser = setInterval(ftimer , 2000);//location.reload()
-timerDisp = setInterval(ftimerDisp , 10000);//
+var user = firebase.auth().currentUser;
+timerUser = setInterval(ftimer , 2000);
+
 function ftimer(){
     const user = firebase.auth().currentUser;
     if(user.uid){
@@ -28,9 +28,10 @@ function ftimer(){
     }
    
 }
-
+timerDisp = setInterval(ftimerDisp , 10000);//
 function ftimerDisp(){
-    SetDispOffline('status/ESP32/state'); 
+    SetDispOffline('Dispositivos/ESP32/'); 
+
 }
 
 function SelectDataToTable(colection, first) {
@@ -68,13 +69,19 @@ function SelectDataToTable(colection, first) {
 function AtualizaStatusDispositivo(colection) {
     firebase.database().ref(colection).on('value',    //  .on() define que a função ocorrerá sepre que um dado for alterado na tabela
         function (Record) {
-             var Estado = Record.val();
+             var Estado = Record.val().Estado;
                     ControladorAtivo.innerText= 'Dispositivo ESP32 está '+Estado+'. ';
                     console.log(Estado);   
         });
 };
 function SetDispOffline(colection) {
-    firebase.database().ref(colection).set('Offline');
+    
+    var isOfflineForDatabase = {
+        Estado: 'Offline',
+        last_changed: firebase.database.ServerValue.TIMESTAMP,
+    };
+    firebase.database().ref(colection).set(isOfflineForDatabase);
+    
 };
 
 
