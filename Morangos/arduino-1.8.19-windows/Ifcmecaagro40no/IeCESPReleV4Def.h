@@ -9,6 +9,7 @@
 *******************************************************************************/
   // Bibliotecas para ESP32
 #include <WiFi.h>
+#include <FirebaseESP32.h>
 #include <WebServer.h>
 #include <SPIFFS.h>
 #include <FS.h>

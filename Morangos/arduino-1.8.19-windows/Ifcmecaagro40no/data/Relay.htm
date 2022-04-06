@@ -1,84 +1,96 @@
 <html>
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=auto">
-  <title>ESPRelé - Relé</title>
+  <title>ESPRelé - Relé vrelr</title>
   <style type="text/css">
     body {
       padding: 0;
       height: 100vh;
       margin: 0;
-      
-     }
-     .Cabecario{
-       display: flex;
-       flex-flow: row wrap;
-       text-align: center;
+
+    }
+
+    .Cabecario {
+      display: flex;
+      flex-flow: row wrap;
+      text-align: center;
       font-family: Verdana, Arial, Helvetica, sans-serif;
-      
-     
-     }
-     .Cabecario>*{
-        padding: 10px;
-        margin: 10px;
-        flex: 1 100%;
-        border-radius: 20px;
-     }
-     .row{
+
+
+    }
+
+    .Cabecario>* {
+      padding: 10px;
+      margin: 10px;
+      flex: 1 100%;
+      border-radius: 20px;
+    }
+
+    .row {
       background: #d0d0d0;
       height: 40px;
-       color: #ffffff;
-       width: 100%;
-       display: flex;
-       justify-content: center;
-       flex-wrap: wrap;
-     }
+      color: #ffffff;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
 
-     .box1{
-        background: #d0d0d0;
-     }
-     .box2{
+    .box1 {
       background: #d0d0d0;
-     }
-     .main{
-       text-align: left;
-       background: hsl(0, 9%, 55%);
-       height: 300px;
-       font-size: 24px;
-     }
-     @media all and (min-width:800px){
-       .main{
-         flex:2;
-       }
-        .box1{
-          order:1;
-        }
-        .box2{
-          order:2;
-        }
-     }
-     @media all and(min-width:600px){
+    }
 
-        .box1{
-          flex: 1;
-        }
-     }
-     
+    .box2 {
+      background: #d0d0d0;
+    }
+
+    .main {
+      text-align: left;
+      background: hsl(0, 9%, 55%);
+      height: 300px;
+      font-size: 24px;
+    }
+
+    @media all and (min-width:800px) {
+      .main {
+        flex: 2;
+      }
+
+      .box1 {
+        order: 1;
+      }
+
+      .box2 {
+        order: 2;
+      }
+    }
+
+    @media all and(min-width:600px) {
+
+      .box1 {
+        flex: 1;
+      }
+    }
+
     h1 {
       font-size: 20px;
-      text-align:justify;
+      text-align: justify;
       color: rgb(1, 4, 7);
       margin: 3px;
-     
+
     }
+
     h2 {
       font-size: 12px;
-      text-align:center;
+      text-align: center;
       color: rgb(60, 153, 234);
       margin: 10px;
-      height:200px;
-      
+      height: 200px;
+
     }
+
     h3 {
       font-size: 12px;
       text-align: left;
@@ -89,10 +101,12 @@
       border: #787878 solid 2px;
       border-radius: 0px 0px 7px 7px;
     }
+
     table {
-     
+
       width: 100%;
     }
+
     th {
       font-size: 11px;
       background: rgb(60, 153, 234);
@@ -101,22 +115,26 @@
       border-radius: 3px 0px 0px 3px;
       width: 25%;
     }
+
     td {
       font-size: 11px;
       background: #787878;
       padding: 5px;
       border-radius: 0px 3px 3px 0px;
     }
+
     a {
       font-size: 12px;
       color: #ffffff;
     }
+
     input[type=button] {
       border: 2px solid #333333;
       border-radius: 5px;
       padding: 5px;
       width: 90px;
     }
+
     span {
       display: block;
       text-align: center;
@@ -127,57 +145,75 @@
     }
   </style>
   <script language="JavaScript">
+    var NUM_RELAYS = 12; //Numeros de Reles
+    var IDreles = ["Rele1", "Rele2", "Rele3", "Rele4", "Rele5", "Rele6", "Rele7", "Rele8", "Rele9", "Rele10", "Rele11", "Rele12"]; //Vetor com o ID de cada Rele
     var reqStatus = new XMLHttpRequest();
-    reqStatus.onreadystatechange = function() {
+    reqStatus.onreadystatechange = function () {
       if (this.readyState == 4) {
         if (this.status == 200 && this.responseText != null) {
-          if(this.responseText == 1) {
-            document.getElementById("rele").innerText = "Ligado";
-            document.getElementById("rele").style.background = "rgb(170, 236, 83)";
-          } else {
-            document.getElementById("rele").innerText = "Desligado";
-            document.getElementById("rele").style.background = "rgb(227, 0, 14)";
+          var data = this.responseText.split("&");
+          for (var i = 0; i < NUM_RELAYS; i++) { //Um for que ira pegar o estado de cada Rele no Arduino
+            var r = document.getElementById(IDreles[i]);
+            if (data[1+i] == 1) {
+              r.innerText = "Ligado";
+              r.style.background = "rgb(170, 236, 83)";
+            } else {
+              r.innerText = "Desligado";
+              r.style.background = "rgb(227, 0, 14)";
+            }
+            //document.getElementById("now").innerText = data[0];
+            //document.getElementById("event").innerText = data[3];
+          }
+        }
+        else {
+          alert("Falha obtendo status do relé.");
+        }
+
+      }
+    }
+    function relayStatus() { // Função que pega o estado dos Reles
+      reqStatus.open("GET", "/relayStatus", true); 
+      reqStatus.send(null);
+      window.setTimeout("relayStatus()", 5000);
+    }
+
+    var reqSet = new XMLHttpRequest();
+    var set = 0;
+    reqSet.onreadystatechange = function () {
+      if (this.readyState == 4) {
+        if (this.status == 200 && this.responseText != null) {
+          var data = this.responseText.split("&");
+          for (var i = 0; i < NUM_RELAYS; i++) { //Um for que ira pegar o estado de cada Rele no Arduino
+            var r = document.getElementById(IDreles[i]);
+            if (data[1+i] == 1) {
+              r.innerText = "Ligado";
+              r.style.background = "rgb(170, 236, 83)";
+            } else {
+              r.innerText = "Desligado";
+              r.style.background = "rgb(227, 0, 14)";
+            }
+            //document.getElementById("now").innerText = data[0];
+            //document.getElementById("event").innerText = data[3];
           }
         } else {
           alert("Falha obtendo status do relé.");
         }
       }
     }
-    function relayStatus() {
-      reqStatus.open("GET", "/relayStatus", true);
-      reqStatus.send(null);
-      window.setTimeout("relayStatus()", 2000);
-    }
-    var reqSet = new XMLHttpRequest();
-    var set = 0;
-    reqSet.onreadystatechange = function() {
-      if (this.readyState == 4) {
-        if (this.status == 200 && this.responseText != null) {
-          if(this.responseText == 1) {
-            document.getElementById("rele").innerText = "Ligado";
-            document.getElementById("rele").style.background = "rgb(170, 236, 83)";
-          } else {
-            document.getElementById("rele").innerText = "Desligado";
-            document.getElementById("rele").style.background = "rgb(227, 0, 14)";
-          }
-        } else {
-          alert("Falha definindo status do relé.");
-        }
-      }
-    }
-    function setRelay(s) {
+    function setRelay(s) { // Função que manda ligar ou desligar os Reles
       reqSet.open("GET", "/relaySet?set=" + s, true);
       reqSet.send(null);
     }
   </script>
 </head>
-<body onLoad="relayStatus()">
-  
+
+<body onLoad="relayStatus()"> 
+
   <div class="Cabecario">
     <header class="row">
       <h1>Agro 4.0</h1>
-    <h2>
-         <a href="Home.htm">Home</a> |
+      <h2>
+        <a href="Home.htm">Home</a> |
         <a href="Relay.htm">Relé</a> |
         <a href="FileList.htm">Arquivos</a> |
         <a href="Config.htm">Configuração</a> |
@@ -185,30 +221,120 @@
         <a href="Reboot.htm" onclick="return confirm('Reiniciar ESPRelé?')">Reiniciar</a>
       </h2>
     </header>
-      <aside class="box1">
+    <aside class="box1">
       <table>
         <tr>
-          <th> Referência</th><td>#reference#</td>
-        
+          <th> Referência</th>
+          <td>#reference#</td>
+
         </tr>
       </table>
-      </aside>
-      <aside class="box2">
-          <table>
-
-          <th>Estado</th><td><span id="rele">N/D</span></td>
+    </aside>
+    <aside class="box2">
+      <table>
+        <th>Válvula da Água </th>
+        <td><span id="Rele1">N/D</span></td>
+        <td>
+          <input type="button" id="btnOn" value="Ligar" onClick="setRelay(910)">
+          <input type="button" id="btnOff" value="Desligar" onClick="setRelay(900)">
+        </td>
+        <tr>
+          <th>Válvula de Circulação do Adubo 1</th>
+          <td><span id="Rele2">N/D</span></td>
           <td>
-            <input type="button" id="btnOn" value="Ligar" onClick="setRelay(1)">
-            <input type="button" id="btnOff" value="Desligar" onClick="setRelay(0)">
+            <input type="button" id="btnOn" value="Ligar" onClick="setRelay(911)">
+            <input type="button" id="btnOff" value="Desligar" onClick="setRelay(901)">
           </td>
-          </table>
+        </tr>
+        <tr>
+          <th>Válvula do Adubo 1 </th>
+          <td><span id="Rele3">N/D</span></td>
+          <td>
+            <input type="button" id="btnOn" value="Ligar" onClick="setRelay(912)">
+            <input type="button" id="btnOff" value="Desligar" onClick="setRelay(902)">
+          </td>
+        </tr>
+        <tr>
+          <th>Válvula de Circulação do Adubo 2</th>
+          <td><span id="Rele4">N/D</span></td>
+          <td>
+            <input type="button" id="btnOn" value="Ligar" onClick="setRelay(913)">
+            <input type="button" id="btnOff" value="Desligar" onClick="setRelay(903)">
+          </td>
+        </tr>
+        <tr>
+          <th>Válvula do Adubo 2</th>
+          <td><span id="Rele5">N/D</span></td>
+          <td>
+            <input type="button" id="btnOn" value="Ligar" onClick="setRelay(914)">
+            <input type="button" id="btnOff" value="Desligar" onClick="setRelay(904)">
+          </td>
+        </tr>
+        <tr>
+          <th>Válvula Geral</th>
+          <td><span id="Rele6">N/D</span></td>
+          <td>
+            <input type="button" id="btnOn" value="Ligar" onClick="setRelay(915)">
+            <input type="button" id="btnOff" value="Desligar" onClick="setRelay(905)">
+          </td>
+        </tr>
+        <tr>
+          <th>Válvula do Canteiro 1</th>
+          <td><span id="Rele7">N/D</span></td>
+          <td>
+            <input type="button" id="btnOn" value="Ligar" onClick="setRelay(916)">
+            <input type="button" id="btnOff" value="Desligar" onClick="setRelay(906)">
+          </td>
+        </tr>
+        <tr>
+          <th>Válvula do Canteiro 2</th>
+          <td><span id="Rele8">N/D</span></td>
+          <td>
+            <input type="button" id="btnOn" value="Ligar" onClick="setRelay(917)">
+            <input type="button" id="btnOff" value="Desligar" onClick="setRelay(907)">
+          </td>
+        </tr>
+        <tr>
+          <th>Válvula do Canteiro 3</th>
+          <td><span id="Rele9">N/D</span></td>
+          <td>
+            <input type="button" id="btnOn" value="Ligar" onClick="setRelay(918)">
+            <input type="button" id="btnOff" value="Desligar" onClick="setRelay(908)">
+          </td>
+        </tr>
+        <tr>
+          <th>Válvula do Canteiro 4</th>
+          <td><span id="Rele10">N/D</span></td>
+          <td>
+            <input type="button" id="btnOn" value="Ligar" onClick="setRelay(919)">
+            <input type="button" id="btnOff" value="Desligar" onClick="setRelay(909)">
+          </td>
+        </tr>
+        <tr>
+          <th>Válvula do Canteiro 5</th>
+          <td><span id="Rele11">N/D</span></td>
+          <td>
+            <input type="button" id="btnOn" value="Ligar" onClick="setRelay(9110)">
+            <input type="button" id="btnOff" value="Desligar" onClick="setRelay(9010)">
+          </td>
+        </tr>
+        <tr>
+          <th>Geral</th>
+          <td><span id="Rele12">N/D</span></td>
+          <td>
+            <input type="button" id="btnOn" value="Ligar" onClick="setRelay(9111)">
+            <input type="button" id="btnOff" value="Desligar" onClick="setRelay(9011)">
+          </td>
+        </tr>
+      </table>
 
-      </aside>
-   
-    </div>
-  
+    </aside>
 
   </div>
-  
+
+
+  </div>
+
 </body>
+
 </html>

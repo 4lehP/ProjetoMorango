@@ -1,0 +1,51 @@
+    var reqSet = new XMLHttpRequest();
+    var set = 0;
+    reqSet.onreadystatechange = function() {
+      if (this.readyState == 4) {
+        if (this.status == 200 && this.responseText != null) {
+          var data = this.responseText.split("&");
+          var r = document.getElementById("rele"); // essa função liga o texto de id realy com a variável r
+          if(data[0] == 1) {
+            r.innerText = "Ligado";
+            r.style.background = "rgb(170, 236, 83)";
+          if(this.responseText == 1) {
+            document.getElementById("rele").innerText = "Ligado";
+            document.getElementById("rele").style.background = "rgb(170, 236, 83)";
+          } else {
+            r.innerText = "Desligado";
+            r.style.background = "rgb(227, 0, 14)";
+            document.getElementById("rele").innerText = "Desligado";
+            document.getElementById("rele").style.background = "rgb(227, 0, 14)";
+          }
+          document.getElementById("now"  ).innerText = data[1];
+          document.getElementById("event").innerText = data[2];
+        } else {
+          alert("Falha obtendo status do relé.");
+        }
+      }
+    }
+     var reqStatus = new XMLHttpRequest();
+    reqStatus.onreadystatechange = function() {
+      if (this.readyState == 4) {
+        if (this.status == 200 && this.responseText != null) {
+          var data = this.responseText.split("&");
+          var r = document.getElementById("relay");
+          if(data[0] == 1) {
+            r.innerText = "Ligado";
+            r.style.background = "rgb(170, 236, 83)";
+          if(this.responseText == 1) {
+            document.getElementById("rele").innerText = "Ligado";
+            document.getElementById("rele").style.background = "rgb(170, 236, 83)";
+          } else {
+            r.innerText = "Desligado";
+            r.style.background = "rgb(227, 0, 14)";
+            document.getElementById("rele").innerText = "Desligado";
+            document.getElementById("rele").style.background = "rgb(227, 0, 14)";
+          }
+          document.getElementById("now"  ).innerText = data[1];
+          document.getElementById("event").innerText = data[2];
+        } else {
+          alert("Falha obtendo status do relé.");
+        }
+      }
+    }
