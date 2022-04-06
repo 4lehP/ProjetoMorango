@@ -718,7 +718,7 @@ void  FireBaseStatus() {
 
 void ConexaoFireBase() {
   if (WiFi.status() == WL_CONNECTED) {
-    jsonS.set("state", "online");
+    jsonS.set("Estado", "Online");
 
     if (Firebase.ready() && (millis() - sendDataPrevMillis > idleTimeForStream || sendDataPrevMillis == 0))
     {
@@ -753,11 +753,11 @@ void ConexaoFireBase() {
         String estado = streamStatus.stringData().c_str();
 
 
-        if (mudanca.indexOf("ESP32") > 0) {
-          Firebase.updateNode(firebaseData, "/status/ESP32/", jsonS);
-        }
-        else if (estado.indexOf("offline") > 0) {
-          Firebase.updateNode(firebaseData, "/status/ESP32/", jsonS);
+       // if (mudanca.indexOf("ESP32") > 0) {
+       //   Firebase.updateNode(firebaseData, "Dispositivos/ESP32/", jsonS);
+       // }
+        if (estado=="Offline"){
+          Firebase.updateNode(firebaseData, "Dispositivos/ESP32/", jsonS);
         }
 
 
@@ -844,7 +844,7 @@ void setup() {
   } else {
     Serial.println("sream válvulas begin complete");
   }
-  if (!Firebase.beginStream(streamStatus, "/status/")) {
+  if (!Firebase.beginStream(streamStatus, "Dispositivos/ESP32/Estado")) {
     Serial.printf("sream status begin error, %s\n\n", streamStatus.errorReason().c_str());
   } else {
     Serial.println("sream status begin complete");
@@ -885,17 +885,17 @@ void setup() {
 
 }
 
-void WatchDog() {
-  
-  yield();
-  if (WiFi.status() == WL_CONNECTED && !Firebase.beginStream(stream, "/Digitais/") && !Firebase.beginStream(streamStatus, "/status/") && !Firebase.ready() ) {
-    while (1);
-  } else if (!server.begin();) {
-    while (1);
-  }
-
-
-}
+//void WatchDog() {
+//  
+//  yield();
+//  if (WiFi.status() == WL_CONNECTED && !Firebase.beginStream(stream, "/Digitais/") && !Firebase.beginStream(streamStatus, "/status/") && !Firebase.ready() ) {
+//    while (1);
+//  } else if (!server.begin();) {
+//    while (1);
+//  }
+//
+//
+//}
 
 // ------------------Loop --------------------------------------------
 
