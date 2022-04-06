@@ -16,27 +16,7 @@
   <link rel="stylesheet" href="https://bootswatch.com/5/lumen/bootstrap.min.css">
   <link rel="stylesheet" href="css/styles.css">
 
-  <!--colocar para o css -->
-  <style>
-    .cat {
-      width: 80%;
-      text-align: center;
-      padding: 40px;
-      border: 3px solid #158cba;
-    }
-
-    img {
-      max-width: 80%;
-      height: auto;
-    }
-
-    .labs {
-      display: inline-block;
-      width: 100px;
-    }
-  </style>
-
-</head>
+ </head>
 
 <body>
   <table class="table table-hover">
@@ -66,42 +46,49 @@
     <h1>Comandos Individuais</h1>
     <hr>
     <table class="table table-hover">
-      <thead>
-        <tr>
-          <th scope="col">Código</th>
-          <th scope="col">Descrição</th>
-          <th scope="col">Chave</th>
-          <th scope="col">Estado</th>
-        </tr>
-      </thead>
-      <tbody id="tbody">
+        <thead>
+          <tr>
+            <th scope="col">Código</th>
+            <th scope="col">Descrição</th>
+            <th scope="col">Chave</th>
+            <th scope="col">Estado</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          
+               
+          
+          
+          
+        </tbody>
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.10/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-auth.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-firestore.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
+        <script  src="js/app.js"></script>
+        <script src="js/authentication.js"></script>
+        <script  src="js/IFCfertirriga.js"></script>
+
+      </table>
 
 
 
 
-
-      </tbody>
-      <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-      <script src="https://www.gstatic.com/firebasejs/8.2.10/firebase-app.js"></script>
-      <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-auth.js"></script>
-      <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-firestore.js"></script>
-      <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
-      <script src="js/app.js"></script>
-      <!--<script src="js/authentication.js"></script>-->
-      <script src="js/IFCfertirriga.js"></script>
-
-    </table>
-
-
-
-
-
+ 
+      <div class="resetaresp">
+        <li id="resetar" class="btn btn-warning">Resetar ESP</a></li>
+      </div>
 
     <br><br>
-
-    <a href="index.html">Voltar para Home</a>
-
+    
+    
+    <dbreadcrumb class="breadcrumb">
+      <li class="breadcrumb-item "><a href="index.html">Voltar para Home</a></li>
+    </breadcrumb>
+    
+    
 
 
 
@@ -119,6 +106,7 @@
 
 
 </body>
+
 
 
 </html>
