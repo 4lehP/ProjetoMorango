@@ -28,7 +28,7 @@ function ftimer(){
     }
    
 }
-timerDisp = setInterval(ftimerDisp , 5000);//
+timerDisp = setInterval(ftimerDisp , 10000);//
 function ftimerDisp(){
     SetDispOffline('Dispositivos/ESP32/'); 
 }
