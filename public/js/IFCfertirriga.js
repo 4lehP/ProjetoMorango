@@ -6,89 +6,76 @@ var description = document.getElementById('description');
 var SwitchEstado = document.getElementById('SwitchEstado'); 
 var Vadb1label = document.getElementById('Vadb1label');
 var tbody = document.getElementById('tbody');
-window.onload = SelectAllDataFrom('Digitais/');
+
+var UsuarioAtivo = document.getElementById('UsuarioAtivo');
+var ControladorAtivo = document.getElementById('ControladorAtivo');    
+var primeiro = true;
+window.onload = SelectDataToTable('Digitais/',primeiro);
+window.onload = AtualizaStatusDispositivo('status/ESP32/state') ;
+window.onload = SetDispOffline('status/ESP32/state');
 
 
-
-timer = setInterval(ftimer , 10000);//location.reload()
+const user = firebase.auth().currentUser;
+timerUser = setInterval(ftimer , 2000);//location.reload()
+timerDisp = setInterval(ftimerDisp , 10000);//
 function ftimer(){
-    //console.log("timer");
-    SelectAllDataToValveList('Digitais/'); /// da pra reduzir
-    SelectAllEstados('Digitais/');
+    const user = firebase.auth().currentUser;
+    if(user.uid){
+       UsuarioAtivo.innerText= 'Usuário: '+user.displayName+'.';
+    console.log(user.uid);
+    console.log(user.displayName); 
+    clearInterval(timerUser); 
+    }
+   
 }
 
-//var db = firebase.database()
-// Pega o objeto para manipular os dados
-//var db = firebase.firestore();
-var database = firebase.database();
+function ftimerDisp(){
+    SetDispOffline('status/ESP32/state'); 
+}
 
-//firebase.database().ref().child('users').push(data);
-/*
-firebase.database().ref('Digitais/VAdb1').on('value', (snapshot) => {
+function SelectDataToTable(colection, first) {
     
-    snapshot.forEach( function childSnapshot (item) {
-     console.log(item.val().Descrição+ " " + item.val().Estado);
-     Vadb1label.innerHTML = item.val().Estado;
-    });
-
-});
-*/
-
-function VerDigitais() {
-    // alert("10 seg");
-
-
-    firebase.database().ref('Digitais/').on('value', (snapshot) => {
-        var tbody = document.getElementById('tbody');
-        tbody ="";
-        Vadb1label.innerHTML = snapshot.val().Estado;
-        
-    });
-
-};
-
-
-
-
-
-function SelectAllDataFrom(colection) {
-    //document.getElementById("tbody1").innerHTML="";
-
-    firebase.database().ref(colection).once('value',
+    firebase.database().ref(colection).on('value',    //  .on() define que a função ocorrerá sepre que um dado for alterado na tabela
         function (AllRecords) {
-            AllRecords.forEach(
-                function (CurrentRecord) {
-                    var Nome = CurrentRecord.val().Nome;
-                    var Descrição = CurrentRecord.val().Descrição;
-                    var Estado = CurrentRecord.val().Estado;
-                    AddItemsToTable(Nome, Descrição, Estado);
-                }
-            );
-        });
-};
-
-
-function SelectAllDataToValveList(colection) {
-    //document.getElementById("tbody1").innerHTML="";
-    
-    firebase.database().ref(colection).once('value',
-        function (AllRecords) {
-            
-            while(valveList.length) {
+            while(valveList.length) {// Limpa a lista de válvulas para os botões poderem se atualizar
                 valveList.pop();
               }
+            var i=0;
             AllRecords.forEach(
                 function (CurrentRecord) {
                     var Nome = CurrentRecord.val().Nome;
                     var Descrição = CurrentRecord.val().Descrição;
                     var Estado = CurrentRecord.val().Estado;
-                    valveList.push([Nome, Descrição, Estado]);
+                    if(first){
+                    AddItemsToTable(Nome, Descrição, Estado) // Cria a tabela pela 
+                    }else{valveList.push([Nome, Descrição, Estado]);
+                        
+
+                    }
+                    document.querySelectorAll("tbody td:nth-child(4)")[i].innerText = Estado;
+                             
+                             console.log(i +" "+Estado);
+                             i++;
+                        
                 }
             );
+            first =false
         });
 };
 
 
+
+function AtualizaStatusDispositivo(colection) {
+    firebase.database().ref(colection).on('value',    //  .on() define que a função ocorrerá sepre que um dado for alterado na tabela
+        function (Record) {
+             var Estado = Record.val();
+                    ControladorAtivo.innerText= 'Dispositivo ESP32 está '+Estado+'. ';
+                    console.log(Estado);   
+        });
+};
+function SetDispOffline(colection) {
+    firebase.database().ref(colection).set('Offline');
+};
 
 
 //var senha = window.prompt("Insira a senha");
@@ -125,47 +112,6 @@ function SelectAllDataToValveList(colection) {
 //    window.alert("Senha Incorreta!");
 //}
 
-function SelectAllEstados(colection) {
-    firebase.database().ref(colection).once('value',
-        function (AllRecords) {
-            var i=0;
-            AllRecords.forEach(
-                
-                function (CurrentRecord, posição) {
-                    var Estado = CurrentRecord.val().Estado;
-                     document.querySelectorAll("tbody td:nth-child(4)")[i].innerText = Estado;
-                     
-                     console.log(i +" "+Estado);
-                     i++;
-                }
-            );
-        });
-};
-
-
-function AttEstados(Estado) {
-    var tbody = document.getElementById('tbody');
-    document.querySelectorAll("tbody td:nth-child(1)")[1].innerText = Estado;
-   // document.querySelectorAll("tbody td:nth-child(1)")[1].innerHTML.style.color = 'blue'; //tentativa de colcar cor
-   
-}
-
-function ReloadTable(){
-    tbody.innerHTML = "";
-    SelectAllDataFrom('Digitais/');
-    //alert("table ReloadTable");
-   
-
-}
-
-function Ready() {
-    code = document.getElementById('code').value;
-    description = document.getElementById('description').value;
-}
-
-
-
-
 function AttDigitais(IndexTable) {
     // var newPostKey = firebase.database().ref().child('Digitais/').push().key;
     name = valveList[IndexTable][0];
@@ -185,25 +131,18 @@ function AttDigitais(IndexTable) {
   var updates = {};
   updates['Digitais/' + name +'/Estado'] = status;
   firebase.database().ref().update(updates);
-  SelectAllDataToValveList('Digitais/');
-  SelectAllEstados('Digitais/');
-  return 0;//ReloadTable()
   
+  return 0;
      
 
 }  
-    
 
-       
 
-// Fetch the current user's ID from Firebase Authentication.
-var uid = firebase.auth().currentUser.uid;
 
-console.log(uid);
 
 // Create a reference to this user's specific status node.
 // This is where we will store data about being online/offline.
-var userStatusDatabaseRef = firebase.database().ref('/status/' + uid);
+var userStatusDatabaseRef = firebase.database().ref('/status/' + user.uid);
 
 // We'll create two constants which we will write to
 // the Realtime database when this device is offline

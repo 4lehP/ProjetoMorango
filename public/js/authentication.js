@@ -15,7 +15,20 @@ var displayName = document.getElementById('displayName');
 
 // Initialize the FirebaseUI Widget using Firebase.
 //var ui = new firebaseui.auth.AuthUI(firebase.auth());
+var user;
+timerUser = setInterval(ftimer , 2000);//location.reload()
 
+function ftimer(){
+    user = firebase.auth().currentUser;
+    if(user.uid){
+        LinkFertirriga.innerHTML='  <a class="text-center" id="LinkFertirriga" href="IFCfertirriga.html">Acesso Liberado ao Controle de Válvulas</a> '; 
+        displayName.innerText = 'Bem vindo, ' + user.displayName;
+    console.log(user.uid);
+    console.log(user.displayName); 
+    clearInterval(timerUser); 
+    }
+   
+}
 
 
 // Criar novo usuário
@@ -29,7 +42,7 @@ createUserButton.addEventListener('click',(e)=> {
             var user = userCredential.user;
            
             alert('Bem vindo ' + emailInput.value);
-            LinkFertirriga.innerHTML='  <a class="text-center" id="LinkFertirriga" href="IFCfertirriga.html">Acesso Liberado ao Controle de Válvulas</a> '; 
+           // LinkFertirriga.innerHTML='  <a class="text-center" id="LinkFertirriga" href="IFCfertirriga.html">Acesso Liberado ao Controle de Válvulas</a> '; 
         })
         .catch(function (error) {
             console.error(error.code);
@@ -46,11 +59,11 @@ authEmailPassButton.addEventListener('click',(e)=> {
         .signInWithEmailAndPassword(emailInput.value, passwordInput.value)
         .then((userCredential) => {
             // Signed in
-            var user = userCredential.user;
+            user = userCredential.user;
             console.log(user);
             displayName.innerText = 'Bem vindo, ' + emailInput.value ;
             //inserir link Fertirriga
-            LinkFertirriga.innerHTML='  <a class="text-center" id="LinkFertirriga" href="IFCfertirriga.html">Acesso Liberado ao Controle de Válvulas</a> '; 
+            //LinkFertirriga.innerHTML='  <a class="text-center" id="LinkFertirriga" href="IFCfertirriga.html">Acesso Liberado ao Controle de Válvulas</a> '; 
 
             alert('Autenticado ' + emailInput.value);
         })
@@ -88,7 +101,7 @@ authAnonymouslyButton.addEventListener('click', () => {
         .then(() => {
             
             displayName.innerText = 'Bem vindo, Autenticado Anonimamente';
-            LinkFertirriga.innerHTML='  <a class="text-center" id="LinkFertirriga" href="IFCfertirriga.html">Acesso Liberado ao Controle de Válvulas</a> '; 
+           // LinkFertirriga.innerHTML='  <a class="text-center" id="LinkFertirriga" href="IFCfertirriga.html">Acesso Liberado ao Controle de Válvulas</a> '; 
             alert('Autenticado Anonimamente');
         })
         .catch((error) => {
@@ -102,13 +115,30 @@ authAnonymouslyButton.addEventListener('click', () => {
 
 // Autenticar com Google
 authGoogleButton.addEventListener('click', () => {
-    
-    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
-        .then(() => {// Providers
-            var provider = new firebase.auth.GoogleAuthProvider();
-            signIn(provider);
-            
 
+    // Providers
+    var provider = new firebase.auth.GoogleAuthProvider();
+    signIn(provider);
+    const user = firebase.auth().currentUser;
+    console.log(user.uid);
+
+    LinkFertirriga.innerHTML = '  <a class="text-center" id="LinkFertirriga" href="IFCfertirriga.html">Acesso Liberado ao Controle de Válvulas</a> ';
+});
+
+function signIn(provider) {
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+        .then(() => {
+            firebase.auth()
+                .signInWithPopup(provider)
+                .then((result) => {
+                    console.log(result);
+                    var token = result.credential.accessToken;
+                    //displayName.innerText = 'Bem vindo, ' + result.user.displayName;
+                    console.log(result.user.uid);
+                }).catch(function (error) {
+                    console.log(error);
+                    alert('Falha na autenticação');
+                });
         })
         .catch((error) => {
             // Handle Errors here.
@@ -117,22 +147,8 @@ authGoogleButton.addEventListener('click', () => {
             console.log(errorCode);
             console.log(errorMessage);
         });
-        console.log(firebase.auth().User);
-    LinkFertirriga.innerHTML = '  <a class="text-center" id="LinkFertirriga" href="IFCfertirriga.html">Acesso Liberado ao Controle de Válvulas</a> ';
-});
+    
 
-
-function signIn(provider) {
-    firebase.auth()
-        .signInWithPopup(provider)
-        .then((result)=> {
-            console.log(result);
-            var token = result.credential.accessToken;
-            displayName.innerText = 'Bem vindo, ' + result.user.displayName;
-        }).catch(function (error) {
-            console.log(error);
-            alert('Falha na autenticação');
-        });
 }
 
 
