@@ -28,10 +28,9 @@ function ftimer(){
     }
    
 }
-timerDisp = setInterval(ftimerDisp , 10000);//
+timerDisp = setInterval(ftimerDisp , 5000);//
 function ftimerDisp(){
     SetDispOffline('Dispositivos/ESP32/'); 
-
 }
 
 function SelectDataToTable(colection, first) {
@@ -65,12 +64,24 @@ function SelectDataToTable(colection, first) {
 };
 
 
+var contOFFLINE=0;
 
 function AtualizaStatusDispositivo(colection) {
     firebase.database().ref(colection).on('value',    //  .on() define que a função ocorrerá sepre que um dado for alterado na tabela
         function (Record) {
              var Estado = Record.val().Estado;
+             if(Estado=="Offline")contOFFLINE++;
+             if(Estado=="Online"){
+                 contOFFLINE=0;
+                 
+                 ControladorAtivo.innerText= 'Dispositivo ESP32 está '+Estado+'. ';
+             }
+             if(contOFFLINE>2){
+                    
+                    contOFFLINE=0;
                     ControladorAtivo.innerText= 'Dispositivo ESP32 está '+Estado+'. ';
+             }
+            
                     console.log(Estado);   
         });
 };
