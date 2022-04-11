@@ -116,13 +116,6 @@ String longTimeStr(const time_t &t) {
   return s;
 }
 
-void ledSet() {
-  // Define estado do LED
-  for (int i = 0; i < NUM_RELAYS; i++) {
-    digitalWrite(relayGPIOs[i], ledOn ? LED_ON : LED_OFF);
-  }
-
-}
 
 // Funções de Configuração ------------------------------
 void  configReset() {
@@ -314,8 +307,13 @@ void handleRelaySet() {   //Mudança de acordo com o botão
     String s = server.arg("set");
     String LigarDesligar = s.substring(1, 2);//primeira parte para liga/desliga = 0 e 1
     String IndexRele = s.substring(2); //Qual a posição do vetor
-
-    digitalWrite(relayGPIOs[IndexRele.toInt()] , LigarDesligar.toInt());
+    if(LigarDesligar.toInt()){
+    digitalWrite(relayGPIOs[IndexRele.toInt()] , 0);
+    }else{
+      digitalWrite(relayGPIOs[IndexRele.toInt()] , 1);
+    
+      
+    }
 
     lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
 
@@ -435,8 +433,7 @@ void handleConfigSave() {
     // Grava ledOn
     ledOn = server.arg("led").toInt();
 
-    // Atualiza LED
-    ledSet();
+    
 
     // Grava configuração
     if (configSave()) {
@@ -455,8 +452,7 @@ void handleReconfig() {
   // Reinicia Config
   configReset();
 
-  // Atualiza LED
-  ledSet();
+  
 
   // Grava configuração
   if (configSave()) {
@@ -680,8 +676,8 @@ void FireBaseSet() {
       if (estado.length() < 40) {
         for ( int i = 0; i < NUM_RELAYS; i++) {
           if (estado.indexOf(relayCodigo[i]) > 0) {
-            if (estado.indexOf("Desligado") > 0)digitalWrite(relayGPIOs[i] , LOW);
-            else if (estado.indexOf("Ligado") > 0)digitalWrite(relayGPIOs[i] , HIGH);
+            if (estado.indexOf("Desligado") > 0)digitalWrite(relayGPIOs[i] , HIGH);
+            else if (estado.indexOf("Ligado") > 0)digitalWrite(relayGPIOs[i] , LOW);
 
           }
         }
@@ -826,15 +822,20 @@ void setup() {
   bootCount++;
   //configReset(); // testes
   // Salva configuração
-  configSave();
 
   // LED
 
   for (int i = 0; i <= NUM_RELAYS; i++) {
     pinMode(relayGPIOs[i], OUTPUT);
-    //digitalWrite(relayGPIOs[i], LOW);
+    
   }
-  ledSet();
+  delay(500);
+ for (int i = 0; i <= NUM_RELAYS; i++) {
+    digitalWrite(relayGPIOs[i],HIGH); //Inicia todas portas em HIGH pro sistema desligar os reles. HIGH relé DESLIGADO
+    
+  }
+  
+  
 
   //---------------------FIREBASE---------------------------
 
