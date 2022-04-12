@@ -103,7 +103,7 @@ function SetDispOffline(colection) {
         var tbody = document.getElementById('tbody');
         
         var trow = document.createElement('tr');
-        //trow.setAttribute("table-active") ;
+       
         var td1 = document.createElement('td');
         var td2 = document.createElement('td');
         var td3 = document.createElement('td');
