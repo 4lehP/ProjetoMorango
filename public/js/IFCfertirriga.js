@@ -19,7 +19,7 @@ var user = firebase.auth().currentUser;
 timerUser = setInterval(ftimer , 2000);
 
 function ftimer(){
-    const user = firebase.auth().currentUser;
+     user = firebase.auth().currentUser;
     if(user.uid){
        UsuarioAtivo.innerText= 'Usuário: '+user.displayName+'.';
     console.log(user.uid);
@@ -109,23 +109,23 @@ function SetDispOffline(colection) {
         var td3 = document.createElement('td');
         var td4 = document.createElement('td');
             
-        valveList.push([Nome, Descrição, Estado]);
+    valveList.push([Nome, Descrição, Estado]);
      
-        td1.innerHTML = Nome;
-        td2.innerHTML = Descrição;
-        td3.innerHTML = '<button type="button" class="btn btn-primary my-2"   onclick="AttDigitais('+IndexTable+')">On/Off</button>';
-        td4.innerHTML = Estado;
-        IndexTable++
+    td1.innerHTML = Nome;
+    td2.innerHTML = Descrição;
+    td3.innerHTML = '<button type="button" class="btn btn-primary my-2"   onclick="AttDigitais('+IndexTable+')">On/Off</button>';
+    td4.innerHTML = Estado;
+    IndexTable++
     
-        trow.appendChild(td1);
-        trow.appendChild(td2);
-        trow.appendChild(td3);
-        trow.appendChild(td4);
+    trow.appendChild(td1);
+    trow.appendChild(td2);
+    trow.appendChild(td3);
+    trow.appendChild(td4);
     
-        tbody.appendChild(trow);
+    tbody.appendChild(trow);
     
     }
-//}
+}
 //else{
 //    window.alert("Senha Incorreta!");
 //}
