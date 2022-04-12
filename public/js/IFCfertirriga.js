@@ -19,12 +19,12 @@ var user = firebase.auth().currentUser;
 timerUser = setInterval(ftimer , 2000);
 
 function ftimer(){
-     user = firebase.auth().currentUser;
+    user = firebase.auth().currentUser;
     if(user.uid){
        UsuarioAtivo.innerText= 'Usuário: '+user.displayName+'.';
-    console.log(user.uid);
-    console.log(user.displayName); 
-    clearInterval(timerUser); 
+        console.log(user.uid);
+        console.log(user.displayName); 
+        clearInterval(timerUser); 
     }
    
 }
@@ -95,40 +95,36 @@ function SetDispOffline(colection) {
     
 };
 
-
-//var senha = window.prompt("Insira a senha");
-
-//if (senha == 'inovamorango') {
-    function AddItemsToTable(Nome, Descrição, Estado) {
+function AddItemsToTable(Nome, Descrição, Estado) {
+    user = firebase.auth().currentUser;
+    if (user.uid) {
         var tbody = document.getElementById('tbody');
-        
+
         var trow = document.createElement('tr');
-       
+
         var td1 = document.createElement('td');
         var td2 = document.createElement('td');
         var td3 = document.createElement('td');
         var td4 = document.createElement('td');
-            
-    valveList.push([Nome, Descrição, Estado]);
-     
-    td1.innerHTML = Nome;
-    td2.innerHTML = Descrição;
-    td3.innerHTML = '<button type="button" class="btn btn-primary my-2"   onclick="AttDigitais('+IndexTable+')">On/Off</button>';
-    td4.innerHTML = Estado;
-    IndexTable++
-    
-    trow.appendChild(td1);
-    trow.appendChild(td2);
-    trow.appendChild(td3);
-    trow.appendChild(td4);
-    
-    tbody.appendChild(trow);
-    
+
+        valveList.push([Nome, Descrição, Estado]);
+
+        td1.innerHTML = Nome;
+        td2.innerHTML = Descrição;
+        td3.innerHTML = '<button type="button" class="btn btn-primary my-2"   onclick="AttDigitais(' + IndexTable + ')">On/Off</button>';
+        td4.innerHTML = Estado;
+        IndexTable++
+
+        trow.appendChild(td1);
+        trow.appendChild(td2);
+        trow.appendChild(td3);
+        trow.appendChild(td4);
+
+        tbody.appendChild(trow);
     }
+    
 }
-//else{
-//    window.alert("Senha Incorreta!");
-//}
+
 
 function AttDigitais(IndexTable) {
     // var newPostKey = firebase.database().ref().child('Digitais/').push().key;
