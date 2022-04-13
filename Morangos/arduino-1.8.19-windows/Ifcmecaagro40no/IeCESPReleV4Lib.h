@@ -206,6 +206,30 @@ String wifiPwd() {
   return sFn;
 }
 
+String emailAtualiza() {
+  // Return WiFi SSID config parameter
+  String sFn = "";
+  for (byte bFn = CFG_EMAIL; bFn < CFG_SENHA; bFn++) {
+    if (EEPROM.read(bFn) == 0) {
+      break;
+    }
+    sFn += char(EEPROM.read(bFn));
+  }
+  return sFn;
+}
+
+String senhaAtualiza() {
+  // Return WiFi SSID config parameter
+  String sFn = "";
+  for (byte bFn = CFG_SENHA ; bFn < CFG_TOTAL_LENGHT; bFn++) {
+    if (EEPROM.read(bFn) == 0) {
+      break;
+    }
+    sFn += char(EEPROM.read(bFn));
+  }
+  return sFn;
+}
+
 void getSPIFFSBuild() {
   // Inicialize SPIFFS build variable
   File file = SPIFFS.open(F("/SPIFFSBuild.txt"), "r");
@@ -447,7 +471,7 @@ void logFile(const String &type, const String &msg, const boolean flReboot = fal
     reboot();
   }
 }
-//
+
 //String configStr() {
 //  // Return Config parameters
 //  return "ID="      + networkID()               +
@@ -457,6 +481,8 @@ void logFile(const String &type, const String &msg, const boolean flReboot = fal
 //          " AP="    + (softAPOn()  ? "S" : "N") +
 //          " SSID="  + wifiSSID()                +
 //          " Log="   + String(logDay())          +
+//          " Adress=" + emailAtualiza()          +
+//          " Senha=" + senhaAtualiza()           + 
 //          " "       + configLastSavedStr();
 //}
 

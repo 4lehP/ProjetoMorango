@@ -88,9 +88,7 @@ char              referencia[30];//referencia Nome do dispositivo
 bool              autenticacao; //Senpre solicitar Autenticação HIGH
 bool              softap;       // Modo SoftAP sempre ativo HIGH
 char              ssid[30];     // Rede WiFi
-char              email[30];     // Rede email
 char              pw[30];       // Senha da Rede WiFi
-char              senha[30];       // Senha da Rede email
 char              agendamento[30];  //#sched# adendamento de rotinas
 
 // Funções Genéricas ------------------------------------
@@ -129,11 +127,9 @@ void ledSet() {
 // Funções de Configuração ------------------------------
 void  configReset() {
   // Define configuração padrão
-  strlcpy(id, " ", sizeof(id));
-  strlcpy(ssid, " ", sizeof(ssid));
-  strlcpy(pw, " ", sizeof(pw));
-  strlcpy(email, " ", sizeof(email));
-  strlcpy(senha, " ", sizeof(senha));
+  strlcpy(id, "IeC Device", sizeof(id));
+  strlcpy(ssid, "IF_CATARINENSE", sizeof(ssid));
+  strlcpy(pw, "ifcatarinense", sizeof(pw));
   strlcpy(referencia, "00,00,00,00,00,0000", sizeof(referencia));
   ledOn     = false;
   bootCount = 0;
@@ -183,9 +179,7 @@ boolean configRead() {
     // Sucesso na leitura
     strlcpy(id, jsonConfig["id"]      | "", sizeof(id));
     strlcpy(ssid, jsonConfig["ssid"]  | "", sizeof(ssid));
-    strlcpy(email, jsonConfig["email"]  | "", sizeof(email));
     strlcpy(pw, jsonConfig["pw"]      | "", sizeof(pw));
-    strlcpy(senha, jsonConfig["senha"]      | "", sizeof(senha));
     strlcpy(referencia, jsonConfig["referencia"]      | "", sizeof(referencia));
     ledOn     = jsonConfig["led"]     | false;
     bootCount = jsonConfig["boot"]    | 0;
@@ -216,9 +210,7 @@ boolean configSave() {
     jsonConfig["led"]   = ledOn;
     jsonConfig["boot"]  = bootCount;
     jsonConfig["ssid"]  = ssid;
-    jsonConfig["email"]  = email;
     jsonConfig["pw"]    = pw;
-    jsonConfig["senha"]    = senha;
     jsonConfig["referencia"]    = referencia;
     jsonConfig["fuso"]  = fuso;
     jsonConfig["horamanual"]  =  horamanual;
@@ -317,33 +309,8 @@ void handleRelayStatus() {   // Atualização dos status a cada 5 segundos no si
 
 void handleEmailSet() {
   String s = server.arg("set");
-  if(s.indexOf("adress")>0){
-     s.trim();
-    strlcpy(email, s.c_str(), sizeof(email));
-  }
-  if(s.indexOf("senha")>0){
-     s.trim();
-    strlcpy(senha, s.c_str(), sizeof(senha));
-  }
-  if(s.indexOf("pw")>0){
-     s.trim();
-    strlcpy(pw, s.c_str(), sizeof(pw));
-  }
-  if(s.indexOf("ssid")>0){
-     s.trim();
-    strlcpy(ssid, s.c_str(), sizeof(ssid));
-  }
-    Serial.println(s);
-    if (configSave()) {
-      server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Configuração salva.');history.back()</script></html>"));
-      log("ConfigSave - Cliente: " + ipStr(server.client().remoteIP()));
-    } else {
-      server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Falha salvando configuração.');history.back()</script></html>"));
-      log(F("ConfigSave - ERRO salvando Config"));
-    }
+      Serial.println(s);
 }
-
-//--------------------------------------------------------------------------//
 
 void handleRelaySet() {   //Mudança de acordo com o botão
   // Set Relay status
@@ -899,7 +866,7 @@ void setup() {
   server.on(F("/relayStatus") , handleRelayStatus);
   server.on(F("/relaySet")    , handleRelaySet);
   
-  server.on(F("/atualizacaoSet")    , handleEmailSet);
+  server.on(F("/emailSet")    , handleEmailSet);
   
   server.on(F("/Config.htm")    , handleConfig);
   server.on(F("/FileList.htm")    , handleFileList);
