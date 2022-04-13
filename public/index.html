@@ -21,7 +21,8 @@
   <header>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">Navbar</a>
+        <img id="morangologo" src="Imagens/morango.png" > 
+        <a class="navbar-brand" href="#"> </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
           aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -54,10 +55,14 @@
                 <a class="dropdown-item" href="#">Separated link</a>
               </div>
             </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="authentication.html">Login</a>
+            </li>
           </ul>
+          
           <form class="d-flex">
-            <input class="form-control me-sm-2" type="text" placeholder="Search">
-            <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+            <input class="form-control my-2 my-sm-1" type="text" placeholder="Search">
+            <button class="btn btn-secondary my-2 my-sm-1" type="submit">Search</button>
           </form>
         </div>
       </div>
@@ -65,27 +70,52 @@
 
 
   </header>
+  <main>
+    <div class="container-fluid">
+      <div id="mainSlider" class="carousel slide" data-ride="carousel"> 
+        <ol class="carousel-indicators">
+          <li data-target="#mainSlider" data-slide-to="0" class="active"></li>
+          <li data-target="#mainSlider" data-slide-to="1" ></li>
+          <li data-target="#mainSlider" data-slide-to="2" ></li>
+        </ol>
+        <div class="carousel-inner">
+          <div class="carousel-item  active">
+            <img src="Imagens/Banner2.jpeg" class="d-block w-100" alt="Projeto Fertirrigação IFC">
+            <div class="carousel-caption d-none d-md-block">
+              <h2>Bem Vindo ao Projeto Fertirrigação IFC</h2>
+              <h3>Faça login para acessar os comandos </h3>
+              <a href="#" class="main-btn"> </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <!--
   <div id="area_do_home">
     <div class="container">
       <div class="row justify-content-md-center">
         <div class="col-md-8 text-center">
           <br>
           <br>
-          <h1>Bem vindo Sistema do IFCfertirriga</h1>
+          <h1>Bem vindo ao Sistema do IFCfertirriga</h1>
           <br>
           <br>
 
           <p id="Logo1"><img src="Imagens/Logo1.png" class="img-fluid img-thumbnail"  style="max-width: 50%"></p>
-<br>
+          <br>
+           
           <h1>Faça a Autenticação</h1>
 
-
+         
           <div class="text-center text-light">
             <button type="button" class="btn btn-secondary btn-lg "><a href="authentication.html">Autenticação</button>
           </div>
+         
         </div>
       </div>
     </div>
+     -->
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.3.0/firebase.js"></script>
 
