@@ -1,7 +1,7 @@
 <html>
 
 <head>
-  <title>Título da página</title>
+  <title>Config Dispositivo</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -71,16 +71,50 @@
         <div class="col-md-8 text-center">
           <br>
           <br>
-          <h1>Bem vindo Sistema do IFCfertirriga</h1>
-          <br>
-          <br>
+          
+          <form>
+              <fieldset>
+                <legend>Config Dispositivo</legend>
+                
+                
+                  <div class="col-sm-10">
+                    
+                  </div>
+                
+                <div class="form-group">
+                  <label for="exampleTextarea" class="form-label mt-4">Vetor de Descrição</label>
+                  <textarea class="form-control" id="exampleTextarea" rows="1"></textarea>
+                </div>
+               
+              
+              <div class="form-group">
+                <label for="exampleTextarea" class="form-label mt-4">Vetor de código</label>
+                <textarea class="form-control" id="exampleTextarea" rows="1"></textarea>
+              </div>
+              
+              <div class="form-group">
+                  <label for="exampleTextarea" class="form-label mt-4">Agendamento</label>
+                  <textarea class="form-control" id="exampleTextarea" rows="5"></textarea>
+                </div>
+                
+                </fieldset>
+                <fieldset class="form-group">
+                  <legend class="mt-4">Ranges</legend>
+                    <label for="customRange1" class="form-label">Example range</label>
+                    <input type="range" class="form-range" id="customRange1">
+                    <label for="disabledRange" class="form-label">Disabled range</label>
+                    <input type="range" class="form-range" id="disabledRange" disabled="">
+                    <label for="customRange3" class="form-label">Example range</label>
+                    <input type="range" class="form-range" min="0" max="5" step="0.5" id="customRange3">
+                </fieldset>
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </fieldset>
+            </form>
 
-          <p id="Logo1"><img src="Imagens/Logo1.png" class="img-fluid img-thumbnail" style="max-width: 50%"></p>
-          <br>
-          <h1>Faça a Autenticação</h1>
 
 
-          <div class="text-center text-light">
+
+
             <button type="button" class="btn btn-secondary btn-lg "><a href="authentication.html">Autenticação</button>
           </div>
         </div>
