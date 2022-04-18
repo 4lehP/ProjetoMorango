@@ -127,16 +127,23 @@
     }
   </style>
   <script language="JavaScript">
+      var reqSetP = new XMLHttpRequest();
       var reqSet = new XMLHttpRequest();
-      var NUM_RELAYS = 4; //Numeros de Reles
-    var IAtualizacao = ["ssid", "pw", "adress", "senha"];
+     // var NUM_RELAYS = 4; //Numeros de Reles
+   // var IAtualizacao = ["ssid", "pw", "adress", "senha"];
+    //var email =[];
       function levarinformações(){
-        for(var i =0; i<NUM_RELAYS; i++){
-        var email= document.getElementById(IAtualizacao[i]).value;
-        reqSet.open("GET", "/atualizacaoSet?set=" + email+"", true);
+      //  for(var i =0; i<NUM_RELAYS; i++){
+        var email= document.getElementById("adress").value;
+        reqSet.open("GET", "/atualizacaoSet?setEmail=" + email+ "", true);
         reqSet.send(null);
-        console.log("levarinformações");
-        }
+        console.log("levarinformaçõesEmail");
+
+        var senha= document.getElementById("senha").value;
+        reqSetP.open("GET", "/atualizacaoSet?setSenha=" + senha+ "", true);
+        reqSetP.send(null);
+        console.log("levarinformaçõesSenha");
+       // }
       }
     
   </script>

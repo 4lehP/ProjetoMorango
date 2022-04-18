@@ -49,15 +49,11 @@ FirebaseJson jsonL;
 FirebaseJson jsonD;
 FirebaseJson jsonS;
 FirebaseJson json;
-FirebaseData fbdo;
-
 #define API_KEY "AIzaSyCFP1bDEksR8fngan_7pxTB7ktvqx51pGo"
-#define DATABASE_URL "https://morango-fe899-default-rtdb.firebaseio.com/"
 
 int releSetFlag = 99;
 String fireStatus[NUM_RELAYS2] = {"Desligado", "Desligado"};
 unsigned long sendDataPrevMillis = 0;
-#define DATABASE_SECRET "y5zCQN4SCRCYQNFhizbuR9J1zLBCI6BiCNRiHpNF"
 
 int count = 0;
 
@@ -65,11 +61,7 @@ uint32_t idleTimeForStream = 15000;
 FirebaseConfig config;
 String uid;
 
-bool signupSuccess = false;
 //---------------------------------------------------------------------//
-//----------------PROTÓTIPO DAS FUNÇÕES---------------------------------------------//
-String softwareStr(); 
-
 
 //----------------WATCHDOG---------------------------------------------//
 
@@ -327,30 +319,30 @@ void handleRelayStatus() {   // Atualização dos status a cada 5 segundos no si
 }
 
 void handleEmailSet() {
+  
 
+ // Grava ssid
+   String s = server.arg("setEmail");
+    s.trim();
+    if (s != "") {
+      strlcpy(email, s.c_str(), sizeof(email));
+    }
 
-  // Grava ssid
-  String s = server.arg("setEmail");
-  s.trim();
-  if (s != "") {
-    strlcpy(email, s.c_str(), sizeof(email));
-  }
-
-  // Grava pw
-  String m = server.arg("setSenha");
-  m.trim();
-  if (m != "") {
-    strlcpy(senha, m.c_str(), sizeof(senha));
-  }
-  //  String s = server.arg("");
-  //  s.trim();
-  //  strlcpy(email, s.c_str(), sizeof(email));
-  //  Serial.println(email);
-  //
-  //  String m = server.arg("");
-  //  m.trim();
-  //  strlcpy(senha, m.c_str(), sizeof(senha));
-  //  Serial.println(senha);
+    // Grava pw
+   String m = server.arg("setSenha");
+    m.trim();
+    if (m != "") {
+      strlcpy(senha, m.c_str(), sizeof(senha));
+    }
+//  String s = server.arg("");
+//  s.trim();
+//  strlcpy(email, s.c_str(), sizeof(email));
+//  Serial.println(email);
+//
+//  String m = server.arg("");
+//  m.trim();
+//  strlcpy(senha, m.c_str(), sizeof(senha));
+//  Serial.println(senha);
 
   //  if(s.indexOf("adress")>0){
   //     s.trim();
@@ -370,7 +362,7 @@ void handleEmailSet() {
   //  }
   //    Serial.println(s);
 
-  //ReconfigurarFirebase();
+  ReconfigurarFirebase();
   if (configSave()) {
     server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Configuração salva.');history.back()</script></html>"));
     log("ConfigSave - Cliente: " + ipStr(server.client().remoteIP()));
@@ -839,16 +831,16 @@ void ConexaoFireBase() {
     }
   }
 }
-void ReconfigurarFirebase() {
-
-  auth.user.email = "alepfleger16@gmail.com";
-  auth.user.password = "051095ale";
+void ReconfigurarFirebase(){
+  
+  auth.user.email = email;
+  auth.user.password = senha;
   Firebase.reconnectWiFi(true);
   firebaseData.setResponseSize(4096);
   Firebase.begin(&config, &auth);
   uid = auth.token.uid.c_str();
-  Serial.print("User UID: ");
-  Serial.print(uid);
+    Serial.print("User UID: ");
+    Serial.print(uid); 
 }
 
 // ---------------------Setup -------------------------------------------
@@ -869,6 +861,14 @@ void setup() {
   }
   Serial.println();
 
+  //------As informações para login no FireBase----------//
+
+  config.api_key = API_KEY;
+  auth.user.email = email;
+  auth.user.password = senha;
+  Firebase.reconnectWiFi(true);
+  firebaseData.setResponseSize(4096);
+
 
 
 
@@ -887,30 +887,20 @@ void setup() {
     Serial.println("");
     Serial.print("WiFi conected. IP: ");
     Serial.println(WiFi.localIP());
-
+    Firebase.begin(&config, &auth);
     //Firebase.begin("https://morango-fe899-default-rtdb.firebaseio.com/", "y5zCQN4SCRCYQNFhizbuR9J1zLBCI6BiCNRiHpNF");
     log("WiFi conectado (" + String(WiFi.RSSI()) + ") IP " + ipStr(WiFi.localIP()));
-
+    /* Assign the callback function for the long running token generation task */
     config.token_status_callback = tokenStatusCallback; //see addons/TokenHelper.h
-
-    //------As informações para login no FireBase----------//
-
-    config.api_key = API_KEY;
-    config.database_url = DATABASE_URL;
-    auth.user.email = email;
-    auth.user.password = senha;
-
-    Firebase.reconnectWiFi(true);
-    firebaseData.setResponseSize(4096);
-    config.max_token_generation_retry = 5;
-    Firebase.begin(&config, &auth);
-    Serial.println("Getting User UID");
-   
+    Serial.println("Getting User UID"); //---------Vai printar o UID do User---
     // Print user UID
     uid = auth.token.uid.c_str();
     Serial.print("User UID: ");
-    Serial.println(uid);
-    
+    Serial.print(uid);
+
+
+
+
   } else {
     log(F("WiFi não conectado"));
   }
@@ -1023,7 +1013,6 @@ void loop() {
   //Firebase pegando os status-----------------------
   FireBaseStatus();
   FireBaseSet();
-
 
 
 
