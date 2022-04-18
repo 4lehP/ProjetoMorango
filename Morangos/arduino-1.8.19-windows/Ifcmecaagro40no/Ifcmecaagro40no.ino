@@ -52,15 +52,52 @@ FirebaseJson json;
 int releSetFlag = 99;
 String fireStatus[NUM_RELAYS2] = {"Desligado", "Desligado"};
 unsigned long sendDataPrevMillis = 0;
-
+unsigned long dataMillis = 0;
 int count = 0;
 
 uint32_t idleTimeForStream = 15000;
 FirebaseConfig config;
 
-//---------------------------------------------------------------------//
+#define API_KEY "AIzaSyB5BAbxcc0IemgmzU0yILI3OAiv5JQbj1I"
 
-//----------------WATCHDOG---------------------------------------------//
+/* 3. Define the user Email and password that already registerd or added in your project */
+#define USER_EMAIL " "
+#define USER_PASSWORD " "
+
+/* 4. If work with RTDB, define the RTDB URL */
+#define DATABASE_URL "https://cursofb-d8836-default-rtdb.firebaseio.com/" //<databaseName>.firebaseio.com or <databaseName>.<region>.firebasedatabase.app
+#define DATABASE_SECRET "DATABASE_SECRET"
+FirebaseData fbdo;
+FirebaseAuth auth;
+
+//----------------PROTÓTIPO DAS FUNÇÕES---------------------------------------------//
+
+String softwareStr(); // Retorna nome do software
+void  configReset(); // As configurações padrão
+boolean configRead(); // Ler as configurações
+boolean configSave(); // Salvar as mudanças de configurações
+void handleHome(); // As info que vai ser mostradas na pagina Home
+void handleRelay(); //
+void handleEmailSet(); // Recebimento das mudanças das configurações
+void handleRelayStatus(); //Leitura dos estados dos Reles
+void handleRelaySet(); //Recebimento da mudança de estado dos reles
+void handleConfig(); //Era aonde acontecia a atualização dos dados da configuração
+void handleConfigSave(); //Grava as configurações
+void handleReconfig(); // Reinicia a config
+void handleReboot(); //Le o tanto de reboot que foi dado
+void handleFileList();// Abre o arquivo pra ler
+void handleLog(); //
+void handleLogGet(); // Via baixar o arquivo
+void handleLogFileGet(); //
+void handleLogReset(); //
+void handleLogFileReset(); //
+void handleCSS(); //
+void FireBaseSet();// A cada pedido de mudança no FireBase é atualizado os estados dos reles
+void  FireBaseStatus();//Atualização do estado dos reles
+void ConexaoFireBase(); //Atualizado quando o esp32 esta online
+void WatchDog(); // As condições de acionamento do Watchdog
+
+//-----------------------------WATCHDOG---------------------------------------------//
 
 hw_timer_t *timer = NULL;
 
@@ -75,7 +112,10 @@ void configureWatchdog()
   timerAlarmWrite(timer, 3000000, true);
   timerAlarmEnable(timer);
 }
+
 //---------------------------------------------------------------------//
+
+
 StaticJsonDocument<320> doc;
 
 // Variáveis Globais ------------------------------------
@@ -88,10 +128,15 @@ char              referencia[30];//referencia Nome do dispositivo
 bool              autenticacao; //Senpre solicitar Autenticação HIGH
 bool              softap;       // Modo SoftAP sempre ativo HIGH
 char              ssid[30];     // Rede WiFi
+char              email[30];     // Rede email
+char              senha[30];       // Senha do email
 char              pw[30];       // Senha da Rede WiFi
 char              agendamento[30];  //#sched# adendamento de rotinas
 
+
+
 // Funções Genéricas ------------------------------------
+
 
 String softwareStr() {
   // Retorna nome do software
@@ -120,9 +165,11 @@ String longTimeStr(const time_t &t) {
 // Funções de Configuração ------------------------------
 void  configReset() {
   // Define configuração padrão
-  strlcpy(id, "IeC Device", sizeof(id));
-  strlcpy(ssid, "IF_CATARINENSE", sizeof(ssid));
-  strlcpy(pw, "ifcatarinense", sizeof(pw));
+  strlcpy(id, " ", sizeof(id));
+  strlcpy(ssid, " ", sizeof(ssid));
+  strlcpy(pw, " ", sizeof(pw));
+  strlcpy(email, " ", sizeof(email));
+  strlcpy(senha, " ", sizeof(senha));
   strlcpy(referencia, "00,00,00,00,00,0000", sizeof(referencia));
   ledOn     = false;
   bootCount = 0;
@@ -172,7 +219,9 @@ boolean configRead() {
     // Sucesso na leitura
     strlcpy(id, jsonConfig["id"]      | "", sizeof(id));
     strlcpy(ssid, jsonConfig["ssid"]  | "", sizeof(ssid));
+    strlcpy(email, jsonConfig["email"]  | "", sizeof(email));
     strlcpy(pw, jsonConfig["pw"]      | "", sizeof(pw));
+    strlcpy(senha, jsonConfig["senha"]      | "", sizeof(senha));
     strlcpy(referencia, jsonConfig["referencia"]      | "", sizeof(referencia));
     ledOn     = jsonConfig["led"]     | false;
     bootCount = jsonConfig["boot"]    | 0;
@@ -203,7 +252,9 @@ boolean configSave() {
     jsonConfig["led"]   = ledOn;
     jsonConfig["boot"]  = bootCount;
     jsonConfig["ssid"]  = ssid;
+    jsonConfig["email"]  = email;
     jsonConfig["pw"]    = pw;
+    jsonConfig["senha"]    = senha;
     jsonConfig["referencia"]    = referencia;
     jsonConfig["fuso"]  = fuso;
     jsonConfig["horamanual"]  =  horamanual;
@@ -233,6 +284,7 @@ void handleHome() {
     file.close();
 
     // Atualiza conteúdo dinâmico
+    s.replace(F("#reference#")       , referencia);
     s.replace(F("#id#")       , id);
     s.replace(F("#led#")      , ledOn ? F("Ligado") : F("Desligado"));
     s.replace(F("#bootCount#"), String(bootCount));
@@ -278,6 +330,55 @@ void handleRelay() {
     }
   }
 }
+void handleEmailSet() {
+
+
+  // Grava email
+  String s = server.arg("setEmail");
+  s.trim();
+  if (s != "") {
+    strlcpy(email, s.c_str(), sizeof(email));
+  }
+
+  // Grava senha
+  String m = server.arg("setSenha");
+  m.trim();
+  if (m != "") {
+    strlcpy(senha, m.c_str(), sizeof(senha));
+  }
+
+  // Grava SSID
+  String n = server.arg("setSSID");
+  n.trim();
+  if (n != "") {
+    strlcpy(ssid, n.c_str(), sizeof(senha));
+  }
+  // Grava pw
+  String o = server.arg("setPW");
+  o.trim();
+  if (o != "") {
+    strlcpy(pw, o.c_str(), sizeof(pw));
+  }
+  // Grava referencia
+  String p = server.arg("setReferencia");
+  p.trim();
+  if (p != "") {
+    strlcpy(referencia, p.c_str(), sizeof(referencia));
+  }
+
+
+  if (configSave()) {
+    server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Configuração salva.');history.back()</script></html>"));
+    log("ConfigSave - Cliente: " + ipStr(server.client().remoteIP()));
+
+  }
+  else {
+    server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Falha salvando configuração.');history.back()</script></html>"));
+    log(F("ConfigSave - ERRO salvando Config"));
+  }
+  //ReconfigurarFirebase();
+}
+
 
 void handleRelayStatus() {   // Atualização dos status a cada 5 segundos no site
   // Relay status
@@ -307,12 +408,12 @@ void handleRelaySet() {   //Mudança de acordo com o botão
     String s = server.arg("set");
     String LigarDesligar = s.substring(1, 2);//primeira parte para liga/desliga = 0 e 1
     String IndexRele = s.substring(2); //Qual a posição do vetor
-    if(LigarDesligar.toInt()){
-    digitalWrite(relayGPIOs[IndexRele.toInt()] , 0);
-    }else{
+    if (LigarDesligar.toInt()) {
+      digitalWrite(relayGPIOs[IndexRele.toInt()] , 0);
+    } else {
       digitalWrite(relayGPIOs[IndexRele.toInt()] , 1);
-    
-      
+
+
     }
 
     lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
@@ -433,7 +534,7 @@ void handleConfigSave() {
     // Grava ledOn
     ledOn = server.arg("led").toInt();
 
-    
+
 
     // Grava configuração
     if (configSave()) {
@@ -452,7 +553,7 @@ void handleReconfig() {
   // Reinicia Config
   configReset();
 
-  
+
 
   // Grava configuração
   if (configSave()) {
@@ -749,10 +850,10 @@ void ConexaoFireBase() {
         String estado = streamStatus.stringData().c_str();
 
 
-       // if (mudanca.indexOf("ESP32") > 0) {
-       //   Firebase.updateNode(firebaseData, "Dispositivos/ESP32/", jsonS);
-       // }
-        if (estado=="Offline"){
+        // if (mudanca.indexOf("ESP32") > 0) {
+        //   Firebase.updateNode(firebaseData, "Dispositivos/ESP32/", jsonS);
+        // }
+        if (estado == "Offline") {
           Firebase.updateNode(firebaseData, "Dispositivos/ESP32/", jsonS);
         }
 
@@ -762,6 +863,48 @@ void ConexaoFireBase() {
   }
 }
 
+void ReconfigurarFirebase() {
+
+  auth.user.email = USER_EMAIL;
+  auth.user.password = USER_PASSWORD;
+
+  // WiFi Station
+  WiFi.begin(ssid, pw);
+  log("Conectando WiFi " + String(ssid));
+  byte b = 0;
+  while (WiFi.status() != WL_CONNECTED && b < 20) {
+    b++;
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println();
+
+  if (WiFi.status() == WL_CONNECTED) {
+    // WiFi Station conectado
+    Serial.println("");
+    Serial.print("WiFi conected. IP: ");
+    Serial.println(WiFi.localIP());
+    Firebase.begin("https://cursofb-d8836-default-rtdb.firebaseio.com/", "BIcBAhezSHlG0xtoeJqCPa6zmSWySypFjLPowkeh");
+    log("WiFi conectado (" + String(WiFi.RSSI()) + ") IP " + ipStr(WiFi.localIP()));
+    /* Assign the callback function for the long running token generation task */
+    config.api_key = API_KEY;
+    auth.user.email = USER_EMAIL;
+    auth.user.password = USER_PASSWORD;
+    config.database_url = DATABASE_URL;
+
+    Firebase.reconnectWiFi(true);
+    fbdo.setResponseSize(4096);
+    String base_path = "/UsersData/";
+    config.token_status_callback = tokenStatusCallback; //see addons/TokenHelper.h
+    config.max_token_generation_retry = 5;
+    Firebase.begin(&config, &auth);
+
+
+  } else {
+    log(F("WiFi não conectado"));
+  }
+
+}
 
 // ---------------------Setup -------------------------------------------
 
@@ -781,7 +924,7 @@ void setup() {
 
   // WiFi Station
   WiFi.begin("IF_CATARINENSE", "ifcatarinense");
-  log("Conectando WiFi " + String("IF_CATARINENSE"));
+  log("Conectando WiFi " + String(ssid));
   byte b = 0;
   while (WiFi.status() != WL_CONNECTED && b < 20) {
     b++;
@@ -798,9 +941,17 @@ void setup() {
     Firebase.begin("https://cursofb-d8836-default-rtdb.firebaseio.com/", "BIcBAhezSHlG0xtoeJqCPa6zmSWySypFjLPowkeh");
     log("WiFi conectado (" + String(WiFi.RSSI()) + ") IP " + ipStr(WiFi.localIP()));
     /* Assign the callback function for the long running token generation task */
+    config.api_key = API_KEY;
+    auth.user.email = USER_EMAIL;
+    auth.user.password = USER_PASSWORD;
+    config.database_url = DATABASE_URL;
+
+    Firebase.reconnectWiFi(true);
+    fbdo.setResponseSize(4096);
+    String base_path = "/UsersData/";
     config.token_status_callback = tokenStatusCallback; //see addons/TokenHelper.h
-
-
+    config.max_token_generation_retry = 5;
+    Firebase.begin(&config, &auth);
 
 
   } else {
@@ -827,15 +978,15 @@ void setup() {
 
   for (int i = 0; i <= NUM_RELAYS; i++) {
     pinMode(relayGPIOs[i], OUTPUT);
-    
+
   }
   delay(500);
- for (int i = 0; i <= NUM_RELAYS; i++) {
-    digitalWrite(relayGPIOs[i],HIGH); //Inicia todas portas em HIGH pro sistema desligar os reles. HIGH relé DESLIGADO
-    
+  for (int i = 0; i <= NUM_RELAYS; i++) {
+    digitalWrite(relayGPIOs[i], HIGH); //Inicia todas portas em HIGH pro sistema desligar os reles. HIGH relé DESLIGADO
+
   }
-  
-  
+
+
 
   //---------------------FIREBASE---------------------------
 
@@ -863,6 +1014,8 @@ void setup() {
   server.on(F("/relayStatus") , handleRelayStatus);
   server.on(F("/relaySet")    , handleRelaySet);
 
+  server.on(F("/atualizacaoSet")    , handleEmailSet);
+
   server.on(F("/Config.htm")    , handleConfig);
   server.on(F("/FileList.htm")    , handleFileList);
   server.on(F("/ConfigSave"), handleConfigSave);
@@ -886,17 +1039,17 @@ void setup() {
 
 }
 
-//void WatchDog() {
-//  
-//  yield();
-//  if (WiFi.status() == WL_CONNECTED && !Firebase.beginStream(stream, "/Digitais/") && !Firebase.beginStream(streamStatus, "/status/") && !Firebase.ready() ) {
-//    while (1);
-//  } else if (!server.begin();) {
+void WatchDog() {
+
+  yield();
+  if (WiFi.status() == WL_CONNECTED && !Firebase.beginStream(stream, "/Digitais/") && !Firebase.beginStream(streamStatus, "/status/") && !Firebase.ready() ) {
+    while (1);
+  } //else if (!server.begin();) {
 //    while (1);
 //  }
-//
-//
-//}
+
+
+}
 
 // ------------------Loop --------------------------------------------
 
@@ -905,7 +1058,7 @@ void loop() {
   timerWrite(timer, 0);
 
   // WatchDog ----------------------------------------
-  
+  WatchDog();
 
   // DNS ---------------------------------------------
   dnsServer.processNextRequest();

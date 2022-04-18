@@ -126,6 +126,45 @@
       width: 170px;
     }
   </style>
+  <script language="JavaScript">
+      var reqSetP = new XMLHttpRequest();
+      var reqSet = new XMLHttpRequest();
+      var reqSetSSID = new XMLHttpRequest();
+      var reqSetPW = new XMLHttpRequest();
+      var reqSetRefe = new XMLHttpRequest();
+     // var NUM_RELAYS = 4; //Numeros de Reles
+   // var IAtualizacao = ["ssid", "pw", "adress", "senha"];
+    //var email =[];
+      function levarinformações(){
+      //  for(var i =0; i<NUM_RELAYS; i++){
+        var email= document.getElementById("adress").value;
+        reqSet.open("GET", "/atualizacaoSet?setEmail=" + email+ "", true);
+        reqSet.send(null);
+        console.log("levarinformaçõesEmail");
+
+        var senha= document.getElementById("senha").value;
+        reqSetP.open("GET", "/atualizacaoSet?setSenha=" + senha+ "", true);
+        reqSetP.send(null);
+        console.log("levarinformaçõesSenha");
+
+        var ssid= document.getElementById("ssid").value;
+        reqSetSSID.open("GET", "/atualizacaoSet?setSSID=" + ssid+ "", true);
+        reqSetSSID.send(null);
+        console.log("levarinformaçõesWifi");
+
+        var pw= document.getElementById("pw").value;
+        reqSetPW.open("GET", "/atualizacaoSet?setPW=" + pw+ "", true);
+        reqSetPW.send(null);
+        console.log("levarinformaçõesSenhaDaWifi");
+
+        var referencia= document.getElementById("referencia").value;
+        reqSetRefe.open("GET", "/atualizacaoSet?setReferencia=" + referencia+ "", true);
+        reqSetRefe.send(null);
+        console.log("levarinformaçõesReferencia");
+       // }
+      }
+    
+  </script>
 </head>
 <body>
   <div class="Cabecario">
@@ -141,36 +180,31 @@
       </h2>
     </header>
   <h3>
-  <form name="config" action="/configSave" method="post">
-  <table>
-    <tr>
-      <th>Referência</th>
-      <td><input type="text" name="reference" value="#reference#" size="25" maxlength="35"></td>
-    </tr>
-    <tr>
-      <th>Autenticação</th>
-      <td>
-        <input type="checkbox" name="aut" value="1"#aut#> Sempre solicitar autenticação.
-      </td>
-    </tr>
-    <tr>
-      <th>SoftAP</th>
-      <td>
-        <input type="checkbox" name="ap" value="1"#ap#> Modo SoftAP sempre ativo.
-      </td>
-    </tr>
-    <tr>
-      <th rowspan="2">Wi-Fi</th>
-      <td colspan="2">SSID: <input type="text" name="ssid" value="#ssid#" size="25" maxlength="35"></td>
-    </tr>
-    <tr>
-      <td colspan="2">Senha: <input id="pwd" type="password" name="pwd" size="20" maxlength="35"></td>
-    </tr>
-    <tr>
-      <th colspan="3" class="footer"><input id="save" type="submit" value="Gravar"></th>
-    </tr>
-  </table>
-  </form>
+    <table>
+      <tr>
+        <th rowspan="1">Referencia</th>
+        <td colspan="2">Nome:  <input type="text" id="referencia" value="Referencia" size="25" maxlength="35"></td>
+      </tr>
+      <tr>
+        <th rowspan="2">Wi-Fi</th>
+        <td colspan="2">SSID: <input type="text" id="ssid" value="wifi" size="25" maxlength="35"></td>
+      </tr>
+      <tr>
+        <td colspan="2">Senha: <input id="pw" type="password" name="pw" size="20" maxlength="35"></td>
+      </tr>
+      <tr>
+        <th rowspan="2">Usuário</th>
+        <td colspan="2">Email: <input type="text" id="adress" value="email" size="25" maxlength="35"></td>
+        
+      </tr>
+      <tr>
+        <td colspan="2">Senha: <input id="senha" type="password" name="SENHA" size="20" maxlength="35"></td>
+      </tr>
+      <th></th><td><input type="button" id="btnSalva" value="Salvar" onClick="levarinformações()"></td>
+      <tr>
+
+    </table>
+  
   </h3>
   </div>
 </body>
