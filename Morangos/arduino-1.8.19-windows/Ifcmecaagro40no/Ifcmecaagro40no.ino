@@ -44,6 +44,7 @@ String relayCodigo[NUM_RELAYS] =       {"VAgua", "VRetAdb1", "VAdb1", "VRetAdb2"
 FirebaseData firebaseData;
 FirebaseData stream;
 FirebaseData streamStatus;
+FirebaseData streamConfig;
 FirebaseJson jsonL;
 FirebaseJson jsonD;
 FirebaseJson jsonS;
@@ -54,19 +55,19 @@ String fireStatus[NUM_RELAYS2] = {"Desligado", "Desligado"};
 unsigned long sendDataPrevMillis = 0;
 unsigned long dataMillis = 0;
 int count = 0;
-
+int counts = 0;
+String uid; 
 uint32_t idleTimeForStream = 15000;
 FirebaseConfig config;
 
+#define USER_EMAIL "morangos@gmail.com"
+#define USER_PASSWORD "123456mo"
+
+
 #define API_KEY "AIzaSyB5BAbxcc0IemgmzU0yILI3OAiv5JQbj1I"
-
-/* 3. Define the user Email and password that already registerd or added in your project */
-#define USER_EMAIL " "
-#define USER_PASSWORD " "
-
-/* 4. If work with RTDB, define the RTDB URL */
 #define DATABASE_URL "https://cursofb-d8836-default-rtdb.firebaseio.com/" //<databaseName>.firebaseio.com or <databaseName>.<region>.firebasedatabase.app
 #define DATABASE_SECRET "DATABASE_SECRET"
+
 FirebaseData fbdo;
 FirebaseAuth auth;
 
@@ -268,7 +269,9 @@ boolean configSave() {
     log(F("\nGravando config:"));
     serializeJsonPretty(jsonConfig, Serial);
     log("");
-
+    
+    
+     
     return true;
   }
   return false;
@@ -338,6 +341,7 @@ void handleEmailSet() {
   s.trim();
   if (s != "") {
     strlcpy(email, s.c_str(), sizeof(email));
+    
   }
 
   // Grava senha
@@ -345,6 +349,7 @@ void handleEmailSet() {
   m.trim();
   if (m != "") {
     strlcpy(senha, m.c_str(), sizeof(senha));
+   
   }
 
   // Grava SSID
@@ -812,7 +817,42 @@ void  FireBaseStatus() {
 
 
 //---------------------------------------------------------------------------
+void FireBaseSetConfig(){
+  if (Firebase.ready() && (millis() - sendDataPrevMillis > idleTimeForStream || sendDataPrevMillis == 0))
+    {
+      sendDataPrevMillis = millis();
+      count++;
+    }
+    if (Firebase.ready())
+    {
+      if (!Firebase.readStream(streamConfig)) Serial.printf("sream read error, %s\n\n", streamConfig.errorReason().c_str());
 
+      if (streamConfig.streamTimeout())
+      {
+        Serial.println("stream timed out, resuming...\n");
+
+        if (!streamConfig.httpConnected()) {
+          Serial.printf("error code: %d, reason: %s\n\n", streamConfig.httpCode(), streamConfig.errorReason().c_str());
+        }
+
+      }
+      if (streamConfig.streamAvailable())
+      {
+
+        Serial.printf("sream path, %s\nevent path, %s\ndata type, %s\nevent type, %s\nvalue, %s\n\n",
+                      streamConfig.streamPath().c_str(),
+                      streamConfig.dataPath().c_str(),
+                      streamConfig.dataType().c_str(),
+                      streamConfig.eventType().c_str(),
+                      streamConfig.stringData().c_str());
+
+        String caminho = streamConfig.streamPath().c_str();
+        String mudanca = streamConfig.dataPath().c_str();
+        String estado = streamConfig.stringData().c_str();
+
+      }
+    }
+}
 void ConexaoFireBase() {
   if (WiFi.status() == WL_CONNECTED) {
     jsonS.set("Estado", "Online");
@@ -849,7 +889,7 @@ void ConexaoFireBase() {
         String mudanca = streamStatus.dataPath().c_str();
         String estado = streamStatus.stringData().c_str();
 
-
+        
         // if (mudanca.indexOf("ESP32") > 0) {
         //   Firebase.updateNode(firebaseData, "Dispositivos/ESP32/", jsonS);
         // }
@@ -863,48 +903,48 @@ void ConexaoFireBase() {
   }
 }
 
-void ReconfigurarFirebase() {
-
-  auth.user.email = USER_EMAIL;
-  auth.user.password = USER_PASSWORD;
-
-  // WiFi Station
-  WiFi.begin(ssid, pw);
-  log("Conectando WiFi " + String(ssid));
-  byte b = 0;
-  while (WiFi.status() != WL_CONNECTED && b < 20) {
-    b++;
-    Serial.print(".");
-    delay(500);
-  }
-  Serial.println();
-
-  if (WiFi.status() == WL_CONNECTED) {
-    // WiFi Station conectado
-    Serial.println("");
-    Serial.print("WiFi conected. IP: ");
-    Serial.println(WiFi.localIP());
-    Firebase.begin("https://cursofb-d8836-default-rtdb.firebaseio.com/", "BIcBAhezSHlG0xtoeJqCPa6zmSWySypFjLPowkeh");
-    log("WiFi conectado (" + String(WiFi.RSSI()) + ") IP " + ipStr(WiFi.localIP()));
-    /* Assign the callback function for the long running token generation task */
-    config.api_key = API_KEY;
-    auth.user.email = USER_EMAIL;
-    auth.user.password = USER_PASSWORD;
-    config.database_url = DATABASE_URL;
-
-    Firebase.reconnectWiFi(true);
-    fbdo.setResponseSize(4096);
-    String base_path = "/UsersData/";
-    config.token_status_callback = tokenStatusCallback; //see addons/TokenHelper.h
-    config.max_token_generation_retry = 5;
-    Firebase.begin(&config, &auth);
-
-
-  } else {
-    log(F("WiFi não conectado"));
-  }
-
-}
+//void ReconfigurarFirebase() {
+//
+//  auth.user.email = USER_EMAIL;
+//  auth.user.password = USER_PASSWORD;
+//
+//  // WiFi Station
+//  WiFi.begin(ssid, pw);
+//  log("Conectando WiFi " + String(ssid));
+//  byte b = 0;
+//  while (WiFi.status() != WL_CONNECTED && b < 20) {
+//    b++;
+//    Serial.print(".");
+//    delay(500);
+//  }
+//  Serial.println();
+//
+//  if (WiFi.status() == WL_CONNECTED) {
+//    // WiFi Station conectado
+//    Serial.println("");
+//    Serial.print("WiFi conected. IP: ");
+//    Serial.println(WiFi.localIP());
+//    Firebase.begin("https://cursofb-d8836-default-rtdb.firebaseio.com/", "BIcBAhezSHlG0xtoeJqCPa6zmSWySypFjLPowkeh");
+//    log("WiFi conectado (" + String(WiFi.RSSI()) + ") IP " + ipStr(WiFi.localIP()));
+//    /* Assign the callback function for the long running token generation task */
+//    config.api_key = API_KEY;
+//    auth.user.email = USER_EMAIL;
+//    auth.user.password = USER_PASSWORD;
+//    config.database_url = DATABASE_URL;
+//
+//    Firebase.reconnectWiFi(true);
+//    fbdo.setResponseSize(4096);
+//    String base_path = "/UsersData/";
+//    config.token_status_callback = tokenStatusCallback; //see addons/TokenHelper.h
+//    config.max_token_generation_retry = 5;
+//    Firebase.begin(&config, &auth);
+//
+//
+//  } else {
+//    log(F("WiFi não conectado"));
+//  }
+//
+//}
 
 // ---------------------Setup -------------------------------------------
 
@@ -938,12 +978,13 @@ void setup() {
     Serial.println("");
     Serial.print("WiFi conected. IP: ");
     Serial.println(WiFi.localIP());
-    Firebase.begin("https://cursofb-d8836-default-rtdb.firebaseio.com/", "BIcBAhezSHlG0xtoeJqCPa6zmSWySypFjLPowkeh");
+    //Firebase.begin(DATABASE_URL, "BIcBAhezSHlG0xtoeJqCPa6zmSWySypFjLPowkeh");
     log("WiFi conectado (" + String(WiFi.RSSI()) + ") IP " + ipStr(WiFi.localIP()));
     /* Assign the callback function for the long running token generation task */
+   
     config.api_key = API_KEY;
-    auth.user.email = USER_EMAIL;
-    auth.user.password = USER_PASSWORD;
+    auth.user.email = USER_EMAIL ;
+    auth.user.password = USER_PASSWORD ;
     config.database_url = DATABASE_URL;
 
     Firebase.reconnectWiFi(true);
@@ -953,6 +994,14 @@ void setup() {
     config.max_token_generation_retry = 5;
     Firebase.begin(&config, &auth);
 
+    Serial.println("Getting User UID");
+  while ((auth.token.uid) == "") {
+    Serial.print('.');
+    delay(1000);
+  }
+  uid = auth.token.uid.c_str();
+  Serial.print("User UID: ");
+  Serial.print(uid);
 
   } else {
     log(F("WiFi não conectado"));
@@ -988,7 +1037,7 @@ void setup() {
 
 
 
-  //---------------------FIREBASE---------------------------
+  //---------------------FIREBASE-------------------------------------------
 
 
   if (!Firebase.beginStream(stream, "/Digitais/")) {
@@ -1001,7 +1050,12 @@ void setup() {
   } else {
     Serial.println("sream status begin complete");
   }
-  //-------------------------------------------------------
+  if (!Firebase.beginStream(streamConfig, "/Config/")) {
+    Serial.printf("sream config begin error, %s\n\n", streamConfig.errorReason().c_str());
+  } else {
+    Serial.println("sream config begin complete");
+  }
+  //--------------------------------------------------------------------
 
   //---------------------------------WATCHDOG---------------------------//
   configureWatchdog();
@@ -1042,11 +1096,11 @@ void setup() {
 void WatchDog() {
 
   yield();
-  if (WiFi.status() == WL_CONNECTED && !Firebase.beginStream(stream, "/Digitais/") && !Firebase.beginStream(streamStatus, "/status/") && !Firebase.ready() ) {
+  if (WiFi.status() == WL_CONNECTED && !Firebase.beginStream(stream, "/Digitais/") && !Firebase.beginStream(streamStatus, "Dispositivos/ESP32/Estado") && !Firebase.ready() ) {
     while (1);
   } //else if (!server.begin();) {
-//    while (1);
-//  }
+  //    while (1);
+  //  }
 
 
 }
@@ -1058,7 +1112,7 @@ void loop() {
   timerWrite(timer, 0);
 
   // WatchDog ----------------------------------------
-  WatchDog();
+  //WatchDog();
 
   // DNS ---------------------------------------------
   dnsServer.processNextRequest();
@@ -1071,7 +1125,6 @@ void loop() {
   //Firebase pegando os status-----------------------
   FireBaseStatus();
   FireBaseSet();
-
-
-
+  FireBaseSetConfig();
+ 
 }
