@@ -25,6 +25,7 @@ function ftimer(){
         displayName.innerText = 'Bem vindo, ' + user.displayName;
     console.log(user.uid);
     console.log(user.displayName); 
+    ArmazenarDadosUsuario(user);
     clearInterval(timerUser); 
     }
    
@@ -121,7 +122,7 @@ authGoogleButton.addEventListener('click', () => {
     signIn(provider);
     const user = firebase.auth().currentUser;
     console.log(user.uid);
-
+    
     LinkFertirriga.innerHTML = '  <a class="text-center" id="LinkFertirriga" href="IFCfertirriga.html">Acesso Liberado ao Controle de Válvulas</a> ';
 });
 
@@ -150,5 +151,25 @@ function signIn(provider) {
     
 
 }
-
-
+ function ArmazenarDadosUsuario(user){
+        console.log("armazena");
+        console.log(user.uid);
+        console.log(user.displayName);
+        console.log(user.email);
+        console.log(user.phoneNumber);
+        console.log(user.photoURL);
+        console.log(user);
+        var dataUser = {
+            uid: user.uid,
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+        };
+        
+        firebase.database().ref("User/"+user.uid).update(dataUser);
+    
+   
+    
+        
+        
+};
