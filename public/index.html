@@ -70,55 +70,45 @@
 
 
   </header>
-  <main>
-    <div class="container-fluid">
-      <div id="mainSlider" class="carousel slide" data-ride="carousel"> 
-        <ol class="carousel-indicators">
-          <li data-target="#mainSlider" data-slide-to="0" class="active"></li>
-          <li data-target="#mainSlider" data-slide-to="1" ></li>
-          <li data-target="#mainSlider" data-slide-to="2" ></li>
-        </ol>
-        <div class="carousel-inner">
-          <div class="carousel-item  active">
-            <img src="Imagens/Banner2.jpeg" class="d-block w-100" alt="Projeto Fertirrigação IFC">
-            <div class="carousel-caption d-none d-md-block">
-              <h2>Bem Vindo ao Projeto Fertirrigação IFC</h2>
-              <h3>Faça login para acessar os comandos </h3>
-              <a href="#" class="main-btn"> </a>
-            </div>
-          </div>
+  <div id="myCarousel" class="carousel slide carousel-fade" data-ride="carousel">
+    <div class="carousel-indicators">
+      <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="0" class="active" aria-current="true"
+        aria-label="Slide 1"></button>
+      <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+    </div>
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <div class="overlay-image" style="background-image:url(./Imagens/Banner1.jpeg)"></div>
+        <div class="containerCarousel">
+          <h1>Bem Vindo ao Projeto IFCFertirriga</h1>
+          <h3>Faça Login para continuar</h3>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <div class="overlay-image" style="background-image:url(./Imagens/Banner3.jpeg)"></div>
+        <div class="containerCarousel">
+          <h1>Bem Vindo ao Projeto IFCFertirriga</h1>
+          <h3>Faça Login para continuar</h3>
         </div>
       </div>
     </div>
-  </main>
-  <!--
-  <div id="area_do_home">
-    <div class="container">
-      <div class="row justify-content-md-center">
-        <div class="col-md-8 text-center">
-          <br>
-          <br>
-          <h1>Bem vindo ao Sistema do IFCfertirriga</h1>
-          <br>
-          <br>
+  
+    <button class="carousel-control-prev" type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#myCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
 
-          <p id="Logo1"><img src="Imagens/Logo1.png" class="img-fluid img-thumbnail" style="max-width: 50%"></p>
-          <br>
-          <h1>Faça a Autenticação</h1>
-
-         
-          <div class="text-center text-light">
-            <button type="button" class="btn btn-secondary btn-lg "><a href="authentication.html">Autenticação</button>
-          </div>
-         
-        </div>
-      </div>
-    </div>
-     -->
-    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/3.3.0/firebase.js"></script>
-
-    <script src="js/app.js"></script>
+  
+ 
+  <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/3.3.0/firebase.js"></script>
+    
+  <script src="js/app.js"></script>
 </body>
 
 </html>
