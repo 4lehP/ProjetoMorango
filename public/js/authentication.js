@@ -23,6 +23,8 @@ function ftimer(){
     if(user.uid){
         LinkFertirriga.innerHTML='  <a class="text-center" id="LinkFertirriga" href="IFCfertirriga.html">Acesso Liberado ao Controle de Válvulas</a> '; 
         displayName.innerText = 'Bem vindo, ' + user.displayName;
+        window.location.href ="/public/UserLogado.html";
+        
     console.log(user.uid);
     console.log(user.displayName); 
     ArmazenarDadosUsuario(user);

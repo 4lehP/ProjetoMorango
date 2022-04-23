@@ -63,6 +63,37 @@ function SelectDataToTable(colection, first) {
         });
 };
 
+function AddItemsToTable(Nome, Descrição, Estado) {
+    user = firebase.auth().currentUser;
+    if (user.uid) {
+        var tbody = document.getElementById('tbody');
+
+        var trow = document.createElement('tr');
+
+        var td1 = document.createElement('td');
+        var td2 = document.createElement('td');
+        var td3 = document.createElement('td');
+        var td4 = document.createElement('td');
+
+        valveList.push([Nome, Descrição, Estado]);
+
+        td1.innerHTML = Nome;
+        td2.innerHTML = Descrição;
+        td3.innerHTML = '<button type="button" class="btn btn-primary my-2"   onclick="AttDigitais(' + IndexTable + ')">On/Off</button>';
+        td4.innerHTML = Estado;
+        IndexTable++
+
+        trow.appendChild(td1);
+        trow.appendChild(td2);
+        trow.appendChild(td3);
+        trow.appendChild(td4);
+
+        tbody.appendChild(trow);
+    }
+    
+}
+
+
 
 var contOFFLINE=0;
 
@@ -95,35 +126,6 @@ function SetDispOffline(colection) {
     
 };
 
-function AddItemsToTable(Nome, Descrição, Estado) {
-    user = firebase.auth().currentUser;
-    if (user.uid) {
-        var tbody = document.getElementById('tbody');
-
-        var trow = document.createElement('tr');
-
-        var td1 = document.createElement('td');
-        var td2 = document.createElement('td');
-        var td3 = document.createElement('td');
-        var td4 = document.createElement('td');
-
-        valveList.push([Nome, Descrição, Estado]);
-
-        td1.innerHTML = Nome;
-        td2.innerHTML = Descrição;
-        td3.innerHTML = '<button type="button" class="btn btn-primary my-2"   onclick="AttDigitais(' + IndexTable + ')">On/Off</button>';
-        td4.innerHTML = Estado;
-        IndexTable++
-
-        trow.appendChild(td1);
-        trow.appendChild(td2);
-        trow.appendChild(td3);
-        trow.appendChild(td4);
-
-        tbody.appendChild(trow);
-    }
-    
-}
 
 
 function AttDigitais(IndexTable) {
