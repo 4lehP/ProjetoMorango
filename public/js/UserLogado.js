@@ -79,6 +79,9 @@ function SelectDataToTable(useruid) {
     
     firebase.database().ref("User/"+useruid+"/Projetos").on('value',    //  .on() define que a função ocorrerá sepre que um dado for alterado na tabela
         function (AllRecords) {
+            while(tableList.length){
+                valveList.pop(); //****Verificar oq está ocorrendo de errado**** 
+            }
             var i=0;
             AllRecords.forEach(
                 function (CurrentRecord) {
@@ -88,7 +91,7 @@ function SelectDataToTable(useruid) {
                     var Link= CurrentRecord.val().Link;
                     AddItemsToTable(Nome, Descrição, Status, Link) // Cria a tabela pela 
                     //tableList.push([Nome, Descrição, Status]);
-                        
+                       
 
                   
                    // document.querySelectorAll("tbodyProjetosProjetos td:nth-child(4)")[i].innerText = Estado;
@@ -96,7 +99,7 @@ function SelectDataToTable(useruid) {
                         
                 }
             );
-            
+                        
         });
 };
 
@@ -129,3 +132,18 @@ function AddItemsToTable(Nome, Descrição, Status) {
     
     
 }
+/*
+logOutButton.addEventListener('click', (e)=> {
+    e.preventDefault();
+    firebase
+        .auth()
+        .signOut()
+        .then(() => {
+           
+            displayName.innerText = 'Você não está autenticado';
+            alert('Você se deslogou');
+        }).catch((error) =>{ 
+            console.error(error);
+        });
+});
+*/
