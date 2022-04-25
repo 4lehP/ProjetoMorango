@@ -132,11 +132,10 @@
       var reqSetSSID = new XMLHttpRequest();
       var reqSetPW = new XMLHttpRequest();
       var reqSetRefe = new XMLHttpRequest();
-     // var NUM_RELAYS = 4; //Numeros de Reles
-   // var IAtualizacao = ["ssid", "pw", "adress", "senha"];
-    //var email =[];
+      var data = this.responseText.split("&");
+      
       function levarinformações(){
-      //  for(var i =0; i<NUM_RELAYS; i++){
+     
         var email= document.getElementById("adress").value;
         reqSet.open("GET", "/atualizacaoSet?setEmail=" + email+ "", true);
         reqSet.send(null);
@@ -161,8 +160,15 @@
         reqSetRefe.open("GET", "/atualizacaoSet?setReferencia=" + referencia+ "", true);
         reqSetRefe.send(null);
         console.log("levarinformaçõesReferencia");
-       // }
+        
+        
+      
       }
+      function configurações(){
+
+        document.getElementById("config").innerText = data[0];
+      }
+      
     
   </script>
 </head>
@@ -202,6 +208,13 @@
       </tr>
       <th></th><td><input type="button" id="btnSalva" value="Salvar" onClick="levarinformações()"></td>
       <tr>
+        <tr>
+
+          <th rowspan="2">Últimas configurações</th>
+         <td><textarea name="sched" rows="5" cols="25">#configuracao#</textarea></td>
+         
+         
+        </tr>
 
     </table>
   

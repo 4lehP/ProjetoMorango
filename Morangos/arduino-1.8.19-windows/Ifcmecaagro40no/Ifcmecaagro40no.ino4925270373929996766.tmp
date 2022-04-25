@@ -135,7 +135,7 @@ char              email[30];     // Rede email
 char              senha[30];       // Senha do email
 char              pw[30];       // Senha da Rede WiFi
 char              agendamento[30];  //#sched# adendamento de rotinas
-char              configuracao[5000];
+
 
 
 // Funções Genéricas ------------------------------------
@@ -181,7 +181,6 @@ void  configReset() {
   autenticacao = true;
   softap = true;
   strlcpy(agendamento, "0000", sizeof(agendamento));
-  strlcpy(configuracao, " ", sizeof(configuracao));
 
 }
 
@@ -234,7 +233,6 @@ boolean configRead() {
     autenticacao = jsonConfig["autenticacao"]    | true;
     softap = jsonConfig["softap"]    | true;
     strlcpy(agendamento, jsonConfig["agendamento"]      | "", sizeof(agendamento));
-    strlcpy(configuracao, jsonConfig["configuracao"]      | "", sizeof(configuracao));
 
     file.close();
 
@@ -266,7 +264,6 @@ boolean configSave() {
     jsonConfig["autenticacao"] = autenticacao;
     jsonConfig["softap"] = softap;
     jsonConfig["agendamento"] = agendamento;
-    jsonConfig["configuracao"] = configuracao;
 
     serializeJsonPretty(jsonConfig, file);
     file.close();
@@ -306,7 +303,7 @@ void handleHome() {
     s.replace(F("#clientIP#") , ipStr(server.client().remoteIP()));
     s.replace(F("#active#")   , longTimeStr(millis() / 1000));
     s.replace(F("#userAgent#"), server.header(F("User-Agent")));
-    
+
     // Envia dados
     server.send(200, F("text/html"), s);
     log("Home - Cliente: " + ipStr(server.client().remoteIP()) +
@@ -453,7 +450,6 @@ void handleRelaySet() {   //Mudança de acordo com o botão
 
 void handleConfig() {
   // Config
-  FireBaseSetConfig();
   File file = SPIFFS.open(F("/Config.htm"), "r");
   if (file) {
     file.setTimeout(100);
@@ -472,8 +468,8 @@ void handleConfig() {
     s.replace(F("#autenticacao#")      , (fuso ? " checked" : ""));
     s.replace(F("#softap#")       , (softap ? " checked" : ""));
     s.replace(F("#agendamento#")    , agendamento);
-    s.replace(F("#configuracao#")    , configuracao);
-    
+
+
     // Send data
     server.send(200, F("text/html"), s);
     log("Config - Cliente: " + ipStr(server.client().remoteIP()));
@@ -855,8 +851,14 @@ void FireBaseSetConfig() {
       String caminho = streamConfig.streamPath().c_str();
       String mudanca = streamConfig.dataPath().c_str();
       String estado = streamConfig.stringData().c_str();
-      
-       strlcpy(configuracao, estado.c_str(), sizeof(configuracao));
+    
+    
+      for(int i=0; i<NUM_RELAYS;i++){
+        if(estado=relayCodigo[i])
+        String agenda = estado;
+        strlcpy(agendamento, agenda, sizeof(agendamento));
+        Serial.println(agenda);
+      }
     }
   }
 }
