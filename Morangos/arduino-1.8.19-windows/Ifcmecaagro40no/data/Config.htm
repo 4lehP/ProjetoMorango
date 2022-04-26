@@ -127,12 +127,12 @@
     }
   </style>
   <script language="JavaScript">
+
       var reqSetP = new XMLHttpRequest();
       var reqSet = new XMLHttpRequest();
       var reqSetSSID = new XMLHttpRequest();
       var reqSetPW = new XMLHttpRequest();
       var reqSetRefe = new XMLHttpRequest();
-      var data = this.responseText.split("&");
       
       function levarinformações(){
      
@@ -164,10 +164,8 @@
         
       
       }
-      function configurações(){
-
-        document.getElementById("config").innerText = data[0];
-      }
+      
+     
       
     
   </script>
@@ -177,48 +175,48 @@
     <header class="row">
       <h1>Agro 4.0</h1>
     <h2>
-         <a href="Home.htm">Home</a> |
-        <a href="Relay.htm">Relé</a> |
-        <a href="FileList.htm">Arquivos</a> |
-        <a href="Config.htm">Configuração</a> |
-        <a href="Log.htm">Log</a> |
-        <a href="Reboot.htm" onclick="return confirm('Reiniciar ESPRelé?')">Reiniciar</a>
-      </h2>
+      <a href="Home.htm">Home</a> |
+      <a href="Relay.htm">Relé</a> |
+      <a href="FileList.htm">Arquivos</a> |
+      <a href="Config.htm">Configuração</a> |
+      <a href="Log.htm">Log</a> |
+      <a href="Reboot.htm" onclick="return confirm('Reiniciar ESPRelé?')">Reiniciar</a>
+    </h2>
     </header>
-  <h3>
-    <table>
-      <tr>
-        <th rowspan="1">Referencia</th>
-        <td colspan="2">Nome:  <input type="text" id="referencia" value="Referencia" size="25" maxlength="35"></td>
-      </tr>
-      <tr>
-        <th rowspan="2">Wi-Fi</th>
-        <td colspan="2">SSID: <input type="text" id="ssid" value="wifi" size="25" maxlength="35"></td>
-      </tr>
-      <tr>
-        <td colspan="2">Senha: <input id="pw" type="password" name="pw" size="20" maxlength="35"></td>
-      </tr>
-      <tr>
-        <th rowspan="2">Usuário</th>
-        <td colspan="2">Email: <input type="text" id="adress" value="email" size="25" maxlength="35"></td>
-        
-      </tr>
-      <tr>
-        <td colspan="2">Senha: <input id="senha" type="password" name="SENHA" size="20" maxlength="35"></td>
-      </tr>
-      <th></th><td><input type="button" id="btnSalva" value="Salvar" onClick="levarinformações()"></td>
-      <tr>
+    <h3>
+      <table>
         <tr>
-
-          <th rowspan="2">Últimas configurações</th>
-         <td><textarea name="sched" rows="5" cols="25">#configuracao#</textarea></td>
-         
-         
+          <th rowspan="1">Referencia</th>
+          <td colspan="2">Nome: <input type="text" id="referencia" value="Referencia" size="25" maxlength="35"></td>
         </tr>
-
-    </table>
-  
-  </h3>
-  </div>
-</body>
+        <tr>
+          <th rowspan="2">Wi-Fi</th>
+          <td colspan="2">SSID: <input type="text" id="ssid" value="wifi" size="25" maxlength="35"></td>
+        </tr>
+        <tr>
+          <td colspan="2">Senha: <input id="pw" type="password" name="pw" size="20" maxlength="35"></td>
+        </tr>
+        <tr>
+          <th rowspan="2">Usuário</th>
+          <td colspan="2">Email: <input type="text" id="adress" value="email" size="25" maxlength="35"></td>
+        </tr>
+        <tr>
+          <td colspan="2">Senha: <input id="senha" type="password" name="SENHA" size="20" maxlength="35"></td>
+        </tr>
+        <th></th>
+        <td><input type="button" id="btnSalva" value="Salvar" onClick="levarinformações()"></td>
+        <tr>
+          <th rowspan="1">Últimas configurações gerais</th>
+          <td><textarea name="configuracao" rows="5" cols="25">#configuracao#</textarea></td>
+        </tr>
+        <tr>
+          <th rowspan="1">Agendamento</th>
+          <td><textarea name="agenda" rows="5" cols="25">#agendamento#</textarea> </td>
+              
+    
+        </tr>
+      </table>
+    </h3>
+    </div>
+    </body>
 </html>

@@ -20,11 +20,10 @@
 //Provide the RTDB payload printing info and other helper functions.
 #include <addons/RTDBHelper.h>
 
-#define RELAY_PIN 2
 
+//------------------------------------------------------------------------//
 
 //---------PARTE DAS CONFIGURAÇÕES DAS ENTRADAS DAS VálvulaS----------//
-
 const byte      LED_ON                  = HIGH;
 const byte      LED_OFF                 = LOW;
 
@@ -38,7 +37,7 @@ String relayCodigo[NUM_RELAYS] =       {"VAgua", "VRetAdb1", "VAdb1", "VRetAdb2"
 //String agenda [NUM_RELAYS];
 String relayDescricaoTeste[NUM_RELAYS] =  {};
 String relayCodigoTeste [NUM_RELAYS] = {};
-
+//-----------------------------------------------------------------//
 
 // Tamanho do Objeto JSON
 //const   size_t    JSON_SIZE            = 404; declarado em def.h
@@ -119,6 +118,8 @@ void configureWatchdog()
   timerAlarmEnable(timer);
 }
 
+//---------------------------------------------------------------------//
+
 
 StaticJsonDocument<320> doc;
 
@@ -135,7 +136,7 @@ char              ssid[30];     // Rede WiFi
 char              email[30];     // Rede email
 char              senha[30];       // Senha do email
 char              pw[30];       // Senha da Rede WiFi
-char              agendamento[5000];  //#sched# adendamento de rotinas
+char              agenda[5000];  //#sched# adendamento de rotinas
 char              configuracao[5000];
 
 
@@ -181,7 +182,7 @@ void  configReset() {
   strlcpy(horamanual, "00,00,00,00,00,0000", sizeof(horamanual));
   autenticacao = true;
   softap = true;
-  strlcpy(agendamento, "0000", sizeof(agendamento)); //agendamento
+  strlcpy(agenda, "0000", sizeof(agenda)); //agendamento
   strlcpy(configuracao, " ", sizeof(configuracao));
 
 }
@@ -234,7 +235,7 @@ boolean configRead() {
     strlcpy(horamanual, jsonConfig["horamanual"]      | "", sizeof(horamanual));
     autenticacao = jsonConfig["autenticacao"]    | true;
     softap = jsonConfig["softap"]    | true;
-    strlcpy(agendamento, jsonConfig["agendamento"]      | "", sizeof(agendamento));
+    strlcpy(agenda, jsonConfig["agenda"]      | "", sizeof(agenda));
     strlcpy(configuracao, jsonConfig["configuracao"]      | "", sizeof(configuracao));
 
     file.close();
@@ -266,7 +267,7 @@ boolean configSave() {
     jsonConfig["horamanual"]  =  horamanual;
     jsonConfig["autenticacao"] = autenticacao;
     jsonConfig["softap"] = softap;
-    jsonConfig["agendamento"] = agendamento;
+    jsonConfig["agenda"] = agenda;
     jsonConfig["configuracao"] = configuracao;
 
     serializeJsonPretty(jsonConfig, file);
@@ -472,7 +473,7 @@ void handleConfig() {
     s.replace(F("#fuso#")   , String(fuso));
     s.replace(F("#autenticacao#")      , (fuso ? " checked" : ""));
     s.replace(F("#softap#")       , (softap ? " checked" : ""));
-    s.replace(F("#agendamento#")    , agendamento);
+    s.replace(F("#agenda#")    , agenda);
     s.replace(F("#configuracao#")    , configuracao);
 
     // Send data
@@ -536,12 +537,12 @@ void handleConfigSave() {
     softap = server.arg("softap").toInt();
 
     // Grava agendamento
-    //    s = server.arg("agendamento");
-    //    s.trim();
-    //    if (s != "") {
-    //      // Atualiza senha, se informada
-    //      strlcpy(agendamento, s.c_str(), sizeof(agendamento));
-    //    }
+//    s = server.arg("agendamento");
+//    s.trim();
+//    if (s != "") {
+//      // Atualiza senha, se informada
+//      strlcpy(agendamento, s.c_str(), sizeof(agendamento));
+//    }
 
     // Grava ledOn
     ledOn = server.arg("led").toInt();
@@ -858,18 +859,16 @@ void FireBaseSetConfig() {
       String mudanca = streamConfig.dataPath().c_str();
       String estado = streamConfig.stringData().c_str();
 
-      if (estado.length() > 60) {
-        strlcpy(configuracao, estado.c_str(), sizeof(configuracao));
+       if (estado.length() > 60) {
+      strlcpy(configuracao, estado.c_str(), sizeof(configuracao));
+       }
+       
+      if(mudanca.indexOf("comando")>0){
+        strlcpy(agenda, estado.c_str(), sizeof(agenda));
+       Serial.println(mudanca);
+       Serial.println(agenda);
       }
-
-      if (mudanca.indexOf("comando") > 0) {
-        strlcpy(agendamento, estado.c_str(), sizeof(agendamento));
-        schedule = agendamento;
-        schedule.trim();
-        schedule.toUpperCase();
-        scheduleSet(schedule);
-      }
-
+      
     }
   }
 }
@@ -921,7 +920,48 @@ void ConexaoFireBase() {
   }
 }
 
-
+//void ReconfigurarFirebase() {
+//
+//  auth.user.email = USER_EMAIL;
+//  auth.user.password = USER_PASSWORD;
+//
+//  // WiFi Station
+//  WiFi.begin(ssid, pw);
+//  log("Conectando WiFi " + String(ssid));
+//  byte b = 0;
+//  while (WiFi.status() != WL_CONNECTED && b < 20) {
+//    b++;
+//    Serial.print(".");
+//    delay(500);
+//  }
+//  Serial.println();
+//
+//  if (WiFi.status() == WL_CONNECTED) {
+//    // WiFi Station conectado
+//    Serial.println("");
+//    Serial.print("WiFi conected. IP: ");
+//    Serial.println(WiFi.localIP());
+//    Firebase.begin("https://cursofb-d8836-default-rtdb.firebaseio.com/", "BIcBAhezSHlG0xtoeJqCPa6zmSWySypFjLPowkeh");
+//    log("WiFi conectado (" + String(WiFi.RSSI()) + ") IP " + ipStr(WiFi.localIP()));
+//    /* Assign the callback function for the long running token generation task */
+//    config.api_key = API_KEY;
+//    auth.user.email = USER_EMAIL;
+//    auth.user.password = USER_PASSWORD;
+//    config.database_url = DATABASE_URL;
+//
+//    Firebase.reconnectWiFi(true);
+//    fbdo.setResponseSize(4096);
+//    String base_path = "/UsersData/";
+//    config.token_status_callback = tokenStatusCallback; //see addons/TokenHelper.h
+//    config.max_token_generation_retry = 5;
+//    Firebase.begin(&config, &auth);
+//
+//
+//  } else {
+//    log(F("WiFi não conectado"));
+//  }
+//
+//}
 
 // ---------------------Setup -------------------------------------------
 
@@ -955,6 +995,7 @@ void setup() {
     Serial.println("");
     Serial.print("WiFi conected. IP: ");
     Serial.println(WiFi.localIP());
+    //Firebase.begin(DATABASE_URL, "BIcBAhezSHlG0xtoeJqCPa6zmSWySypFjLPowkeh");
     log("WiFi conectado (" + String(WiFi.RSSI()) + ") IP " + ipStr(WiFi.localIP()));
     /* Assign the callback function for the long running token generation task */
 
@@ -1064,25 +1105,6 @@ void setup() {
   server.collectHeaders(WEBSERVER_HEADER_KEYS, 1);
   server.begin();
 
-  //-------------------ParteDoAgendamento--------------------------------
-
-  schedule = scheduleGet();
-  // SET SCHEDULE ENTRIES - DEBUG ONLY
-  time_t t = now() + 61;
-  schedule = "SH"   + dateTimeStr( t      , false).substring(0, 16) +
-             "\nSL" + dateTimeStr( t + 60 , false).substring(0, 16) +
-             "\nMH" + dateTimeStr( t + 120, false).substring(8, 16) +
-             "\nML" + dateTimeStr( t + 180, false).substring(8, 16) +
-             "\nWH" +     weekday( t + 240) + " " + dateTimeStr( t + 240, false).substring(11, 16) +
-             "\nWL" +     weekday( t + 300) + " " + dateTimeStr( t + 300, false).substring(11, 16) +
-             "\nDH" + dateTimeStr( t + 360, false).substring(11, 16) +
-             "\nDL" + dateTimeStr( t + 420, false).substring(11, 16) +
-             "\nIH00:01\nIL00:01";
-
-  logFile(F("Boot"), F("Agendamento Ok"));
-
-  //-----------------------------------------------------------------------
-
   // Pronto
   log(F("Pronto"));
   //  timeNTP();
@@ -1123,14 +1145,5 @@ void loop() {
   FireBaseStatus();
   FireBaseSet();
   FireBaseSetConfig();
-
-  // Schedule Check
-  s = scheduleChk(schedule, RELAY_PIN);
-  if (s != "") {
-    // Event detected
-    lastEvent = (digitalRead(RELAY_PIN) ? "Ligado " : "Desligado ") +
-                s + " - " + dateTimeStr(now());
-    log(F("Agendamento"), lastEvent);
-  }
 
 }
