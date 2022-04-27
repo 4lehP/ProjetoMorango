@@ -7,9 +7,9 @@
   <link rel="icon" href="Imagens/Logo1.png" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.css">
   <link rel="stylesheet" href="https://bootswatch.com/5/lumen/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
   <link rel="stylesheet" href="css/styles.css">
   <!--Bootstrap JS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
     crossorigin="anonymous"></script>
 
@@ -53,6 +53,12 @@
                 <a class="dropdown-item" href="#">Separated link</a>
               </div>
             </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/public/authentication.html" id="logOutButton">
+                <i class="bi bi-door-open"></i> Sair
+                <span class="visually-hidden">(current)</span>
+              </a>
+            </li>
           </ul>
           <form class="d-flex">
             <input class="form-control me-sm-2" type="text" placeholder="Search">
@@ -62,58 +68,66 @@
       </div>
     </nav>
   </header>
-  
 
-  <div id="Area-do-login">
+
+  <div id="InformaçõesUsuario">
     <div class="container">
       <div class="row justify-content-md-center">
-        
-          <div class="col-md-4">
-            <h1 class="text-center">Autenticação</h1>
+
+        <div class="col-md-12">
+          <div>
+            <h1 class="text-center">Página do Usuário </h1>
             <h3 class="text-center" id="displayName">Você não está autenticado</h3>
-            <h3 class="text-center" id="LinkFertirriga"> </h3>
-            <br>
-            <form>
-              <div class="form-group">
-                <label for="emailInput">E-mail</label>
-                <input type="email" class="form-control" id="emailInput" placeholder="E-mail">
-              </div>
-              <div class="form-group">
-                <label for="passwordInput">Senha</label>
-                <input type="password" class="form-control" id="passwordInput" placeholder="Senha">
-              </div>
-              <div class="d-grid">
-                <br>
-                <button class="btn btn-lg btn-block btn-primary" id="authEmailPassButton">Autenticar</button>
-                <button class="btn btn-lg btn-block btn-info" id="createUserButton">Criar Nova Conta</button>
-              </div>
-            </form>
-
-
-            <br>
-
-            <p class="text-center"><small>-- ou --</small></p>
-
-            <p class="text-center">
-              <button class="btn btn-lg btn-danger" id="authGoogleButton"><i class="fa fa-google fa-2x"></i></button>
-              <button class="btn btn-lg btn-warning" id="authAnonymouslyButton"><i class="fa fa-user fa-2x"></i></button>
-            </p>
-
-            <br>
-
-            <p class="text-center">
-              <button class="btn btn-lg btn-block btn-default" id="logOutButton">Sair</button>
-            </p>
-
             <div class="text-center">
-                <button type="button" class="btn btn-secondary"><a href="index.html">Voltar para Home</button>
-              </div>
+              <img class="img-thumbnail" id="photoURL">
+            </div>
+
           </div>
+
+          
+          <form class="row g-3">
+            <div class="d-flex">
+              <h3>Projetos do Usuário </h3>
+            </div>
+            <div class="d-flex">
+              <a href="/public/NewProject.html"><button type="button" class="btn btn-success">
+                <i class="bi bi-file-earmark-plus"></i> | Novo Projeto </button>
+              </a>
+            </div>
+          </form>
+
+
+          <div>
+
+            <table class="table align-middle table-striped">
+              <thead>
+                <tr>
+                  <th scope="col">Projeto</th>
+                  <th scope="col">Descrição</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Link</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyProjetos">
+            </table>
+          </div>
+
+        </div>
+        <div class="form-group">
+        <!--
+          <p class="text-center">
+            <a href="/public/authentication.html"><button class="btn btn-lg btn-default" id="logOutButton">Sair</button></a>
+          </p>
+        
+          <div class="text-center">
+            <button type="button" class="btn btn-secondary "><a href="index.html">Voltar para Home</button>
+          </div>
+        </div>
+        -->
         
       </div>
-    </div>
-    <br><br>
-  
+      <br><br>
+
 
       <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -122,6 +136,8 @@
       <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
 
       <script src="js/app.js"></script>
+      
+      <script src="js/UserLogado.js"></script>
       <script src="js/authentication.js"></script>
 </body>
 
