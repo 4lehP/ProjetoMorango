@@ -80,7 +80,7 @@ function SelectDataToTable(useruid) {
     firebase.database().ref("User/"+useruid+"/Projetos").on('value',    //  .on() define que a função ocorrerá sepre que um dado for alterado na tabela
         function (AllRecords) {
             while(tableList.length){
-                valveList.pop(); //****Verificar oq está ocorrendo de errado**** 
+                List.pop(); //****Verificar oq está ocorrendo de errado**** 
             }
             var i=0;
             AllRecords.forEach(
@@ -132,7 +132,7 @@ function AddItemsToTable(Nome, Descrição, Status) {
     
     
 }
-/*
+
 logOutButton.addEventListener('click', (e)=> {
     e.preventDefault();
     firebase
@@ -142,8 +142,9 @@ logOutButton.addEventListener('click', (e)=> {
            
             displayName.innerText = 'Você não está autenticado';
             alert('Você se deslogou');
+            window.location.href = '/public/authentication.html';
         }).catch((error) =>{ 
             console.error(error);
         });
 });
-*/
+
