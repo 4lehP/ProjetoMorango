@@ -125,20 +125,25 @@ String activeTimeStr(const time_t &t){
 
 int timeZone() {
   // Return Time Zone config value
-    StaticJsonDocument<JSON_SIZE> jsonConfig;
+  return int(EEPROM.read(CFG_TIME_ZONE));
+}
 
-  File file = SPIFFS.open(F("/Config.json"), "r");
-  if (deserializeJson(jsonConfig, file)) {
-    // Falha na leitura, assume valores padrão
-    log(F("Falha lendo CONFIG,timeZone()"));
-    return false;
-  } else {
-    // Sucesso na leitura
-    int fuso =  jsonConfig["fuso"]    | 13;
-    file.close();
-    return fuso;
-}
-}
+//int timeZone() {
+//  // Return Time Zone config value
+//    StaticJsonDocument<JSON_SIZE> jsonConfig;
+//
+//  File file = SPIFFS.open(F("/Config.json"), "r");
+//  if (deserializeJson(jsonConfig, file)) {
+//    // Falha na leitura, assume valores padrão
+//    log(F("Falha lendo CONFIG,timeZone()"));
+//    return false;
+//  } else {
+//    // Sucesso na leitura
+//    int fuso =  jsonConfig["fuso"]    | 13;
+//    file.close();
+//    return fuso;
+//}
+//}
 
 boolean pwdNeeded() {
   // Return CFG_PWD_ALLWAYS_NEEDED config value
@@ -713,7 +718,7 @@ String hhmmStr(const time_t &t) {
   return s;
 }
 
-String scheduleChk(const String &schedule, const byte &pin) {
+String scheduleChk(const String &schedule, const byte &pin ) {//const String &Dporta
   // Schedule System Main Function
 
   // Local variables
@@ -774,10 +779,10 @@ String scheduleChk(const String &schedule, const byte &pin) {
   }
 
   // Get DateTime as "dd hh:mm" String
-  dt = dt.substring(8);
+  dt = dt.substring(10);
 
   // Check Monthly High - MHdd hh:mm
-  s = "MH" + dt;
+  s = "MH"   + dt;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = HIGH;
@@ -785,7 +790,7 @@ String scheduleChk(const String &schedule, const byte &pin) {
   }
 
   // Check Monthly Low - MLdd hh:mm
-  s = "ML" + dt;
+  s = "ML"   + dt;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = LOW;
@@ -795,8 +800,8 @@ String scheduleChk(const String &schedule, const byte &pin) {
   // Get DateTime as "d hh:mm" String
   dt = String(weekday(lastCheck)) + dt.substring(2);
   
-  // Check Weekly High - WHd hh:mm
-  s = "WH" + dt;
+  // Check Weekly High - WHd hh:mm---- WHD1d hh:mm
+  s = "WH"  + dt;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = HIGH;
@@ -812,9 +817,9 @@ String scheduleChk(const String &schedule, const byte &pin) {
   }
 
   // Get DateTime as "hh:mm" String
-  dt = dt.substring(2);
+  dt = dt.substring(4);
 
-  // Check Daily High - DHhh:mm
+  // Check Daily High - DHhh:mm --- DHD1hh:mm
   s = "DH" + dt;
   if (schedule.indexOf(s) != -1) {
     event = s;
@@ -823,7 +828,7 @@ String scheduleChk(const String &schedule, const byte &pin) {
   }
 
   // Check Daily Low - DLhh:mm
-  s = "DL" + dt;
+  s = "DL"+ dt;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = LOW;
@@ -831,7 +836,7 @@ String scheduleChk(const String &schedule, const byte &pin) {
   }
 
   // Check Intervaled High - IHhh:mm
-  s = "IH" + hhmmStr(lastCheck - highDT);
+  s = "IH"  + hhmmStr(lastCheck - highDT);
 
   if (schedule.indexOf(s) != -1 && digitalRead(pin)) {
     event = s;
