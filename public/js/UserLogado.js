@@ -103,34 +103,39 @@ function SelectDataToTable(useruid) {
         });
 };
 
-function AddItemsToTable(Nome, Descrição, Status) {
+function AddItemsToTable(Nome, Descrição, Status, Link) {
     user = firebase.auth().currentUser;
-    
-        var tbodyProjetos = document.getElementById('tbodyProjetos');
 
-        var trow = document.createElement('tr');
+    var tbodyProjetos = document.getElementById('tbodyProjetos');
 
-        var td1 = document.createElement('td');
-        var td2 = document.createElement('td');
-        var td3 = document.createElement('td');
-        var td4 = document.createElement('td');
+    var trow = document.createElement('tr');
 
-        tableList.push([Nome, Descrição, Status]);
+    var td1 = document.createElement('td');
+    var td2 = document.createElement('td');
+    var td3 = document.createElement('td');
+    var td4 = document.createElement('td');
 
-        td1.innerHTML = Nome;
-        td2.innerHTML = Descrição;
-        td3.innerHTML = Status;
-        td4.innerHTML = Nome;
-        IndexTable++
+    tableList.push([Nome, Descrição, Status, Link]);
 
-        trow.appendChild(td1);
-        trow.appendChild(td2);
-        trow.appendChild(td3);
-        trow.appendChild(td4);
+    td1.innerHTML = Nome;
+    td2.innerHTML = Descrição;
+    td3.innerHTML = Status;
+    td4.innerHTML = '<a type="button" class="btn btn-primary my-2" href="IFCfertirriga.html">Ir</a> ';
+    //td4.innerHTML ='<a type="button" class="btn btn-primary my-2"   onclick="GotoLink(' + IndexTable + ')">Ir</a>';
+    IndexTable++
 
-        tbodyProjetos.appendChild(trow);
-    
-    
+    trow.appendChild(td1);
+    trow.appendChild(td2);
+    trow.appendChild(td3);
+    trow.appendChild(td4);
+
+    tbodyProjetos.appendChild(trow);
+
+
+}
+
+function GotoLink(IndexTable){
+    Link = tableList[IndexTable][3];
 }
 
 logOutButton.addEventListener('click', (e)=> {
