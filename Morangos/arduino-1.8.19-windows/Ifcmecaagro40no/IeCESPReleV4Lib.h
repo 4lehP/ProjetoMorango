@@ -718,7 +718,7 @@ String hhmmStr(const time_t &t) {
   return s;
 }
 
-String scheduleChk(const String &schedule, const byte &pin ) {//const String &Dporta
+String scheduleChk(const String &schedule, const byte &pin,const String &dPorta) {
   // Schedule System Main Function
 
   // Local variables
@@ -763,7 +763,7 @@ String scheduleChk(const String &schedule, const byte &pin ) {//const String &Dp
   dt += String(minute(lastCheck));
 
   // Check Scheduled High - SHyyyy-mm-dd hh:mm
-  String s = "SH" + dt;
+  String s = "SH" + dPorta + dt ;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = HIGH;
@@ -771,7 +771,7 @@ String scheduleChk(const String &schedule, const byte &pin ) {//const String &Dp
   }
 
   // Check Scheduled Low - SLyyyy-mm-dd hh:mm
-  s = "SL" + dt;
+  s = "SL"+ dPorta + dt ;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = LOW;
@@ -779,10 +779,10 @@ String scheduleChk(const String &schedule, const byte &pin ) {//const String &Dp
   }
 
   // Get DateTime as "dd hh:mm" String
-  dt = dt.substring(10);
+  dt = dt.substring(8);
 
   // Check Monthly High - MHdd hh:mm
-  s = "MH"   + dt;
+  s = "MH" + dPorta + dt ;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = HIGH;
@@ -790,7 +790,7 @@ String scheduleChk(const String &schedule, const byte &pin ) {//const String &Dp
   }
 
   // Check Monthly Low - MLdd hh:mm
-  s = "ML"   + dt;
+  s = "ML" + dPorta + dt ;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = LOW;
@@ -800,8 +800,8 @@ String scheduleChk(const String &schedule, const byte &pin ) {//const String &Dp
   // Get DateTime as "d hh:mm" String
   dt = String(weekday(lastCheck)) + dt.substring(2);
   
-  // Check Weekly High - WHd hh:mm---- WHD1d hh:mm
-  s = "WH"  + dt;
+  // Check Weekly High - WHd hh:mm
+  s = "WH" + dPorta + dt ;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = HIGH;
@@ -809,7 +809,7 @@ String scheduleChk(const String &schedule, const byte &pin ) {//const String &Dp
   }
 
   // Check Weekly Low - WLd hh:mm
-  s = "WL" + dt;
+  s = "WL"+ dPorta + dt ;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = LOW;
@@ -817,10 +817,10 @@ String scheduleChk(const String &schedule, const byte &pin ) {//const String &Dp
   }
 
   // Get DateTime as "hh:mm" String
-  dt = dt.substring(4);
+  dt = dt.substring(2);
 
-  // Check Daily High - DHhh:mm --- DHD1hh:mm
-  s = "DH" + dt;
+  // Check Daily High - DHhh:mm
+  s = "DH"+ dPorta + dt ;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = HIGH;
@@ -828,7 +828,7 @@ String scheduleChk(const String &schedule, const byte &pin ) {//const String &Dp
   }
 
   // Check Daily Low - DLhh:mm
-  s = "DL"+ dt;
+  s = "DL" + dPorta + dt ;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = LOW;
@@ -836,7 +836,7 @@ String scheduleChk(const String &schedule, const byte &pin ) {//const String &Dp
   }
 
   // Check Intervaled High - IHhh:mm
-  s = "IH"  + hhmmStr(lastCheck - highDT);
+  s = "IH" + dPorta + hhmmStr(lastCheck - highDT) ;
 
   if (schedule.indexOf(s) != -1 && digitalRead(pin)) {
     event = s;
@@ -845,7 +845,7 @@ String scheduleChk(const String &schedule, const byte &pin ) {//const String &Dp
   }
 
   // Check Intervaled Low - IDhh:mm
-  s = "IL" + hhmmStr(lastCheck - lowDT);
+  s = "IL" + dPorta + hhmmStr(lastCheck - lowDT)  ;
 
   if (schedule.indexOf(s) != -1 && !digitalRead(pin)) {
     event = s;
@@ -873,7 +873,7 @@ boolean scheduleSet(const String &schedule) {
   if (file) {
     file.print(schedule);
     file.close();
-    scheduleChk("", 0);
+    scheduleChk("", 0,"");
     return true;
   }
   return false;

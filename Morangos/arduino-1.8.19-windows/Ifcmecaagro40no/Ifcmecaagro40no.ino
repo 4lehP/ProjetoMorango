@@ -21,8 +21,10 @@
 #include <addons/RTDBHelper.h>
 
 #define RELAY_PIN 2
-int relayGPIOsteste[RELAY_PIN] = {2, 13};
-String StringPortax[RELAY_PIN] = {"D1", "D2"};
+String RELAY_COD = "D1";
+
+int relayGPIOsteste[RELAY_PIN] = {15, 13};
+String StringPortax[RELAY_PIN] = {"D3", "D2"};
 
 //---------PARTE DAS CONFIGURAÇÕES DAS ENTRADAS DAS VálvulaS----------//
 
@@ -914,8 +916,6 @@ void ConexaoFireBase() {
         if (estado == "Offline") {
           Firebase.updateNode(firebaseData, "Dispositivos/ESP32/", jsonS);
         }
-
-
       }
     }
   }
@@ -924,15 +924,8 @@ void ConexaoFireBase() {
 void CheckSchedule() {
 
   // Schedule Check
-  //for (int i = 0; i <= RELAY_PIN; i++) {
-    s = scheduleChk(schedule, RELAY_PIN); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
-    if (s != "") {
-      // Event detected
-      lastEvent = (digitalRead(RELAY_PIN) ? "Ligado " : "Desligado ") +
-                  s + " - " + dateTimeStr(now());
-      log(F("Agendamento"), lastEvent);
-    }
-  //}
+
+
 }
 void ConfigSchedule() {
   //-------------------ParteDoAgendamento--------------------------------
@@ -941,20 +934,21 @@ void ConfigSchedule() {
   schedule = scheduleGet();
   // SET SCHEDULE ENTRIES - DEBUG ONLY
   time_t t = now() + 61;
-  schedule = "SH"   + dateTimeStr( t      , false).substring(0, 16) +
-             "\nSL" + dateTimeStr( t + 60 , false).substring(0, 16) +
-             "\nMH" + dateTimeStr( t + 120, false).substring(8, 16) +
-             "\nML" + dateTimeStr( t + 180, false).substring(8, 16) +
-             "\nWH" +     weekday( t + 240) + " " + dateTimeStr( t + 240, false).substring(11, 16) +
-             "\nWL" +     weekday( t + 300) + " " + dateTimeStr( t + 300, false).substring(11, 16) +
-             "\nDH" + dateTimeStr( t + 360, false).substring(11, 16) +
-             "\nDL" + dateTimeStr( t + 420, false).substring(11, 16) +
-             "\nIH00:01\nIL00:01";
 
+  for (int i = 0; i < RELAY_PIN; i++) {
+    schedule = "SH" + dateTimeStr( t      , false).substring(0, 16) + StringPortax[i]  +
+               "\nSL" +  dateTimeStr( t + 60 , false).substring(0, 16) + StringPortax[i] +
+               "\nMH" + dateTimeStr( t + 120, false).substring(8, 16) + StringPortax[i] +
+               "\nML" + dateTimeStr( t + 180, false).substring(8, 16) + StringPortax[i] +
+               "\nWH" +    weekday( t + 240) + " " + dateTimeStr( t + 240, false).substring(11, 16) + StringPortax[i] +
+               "\nWL" +    weekday( t + 300) + " " + dateTimeStr( t + 300, false).substring(11, 16) + StringPortax[i] +
+               "\nDH" + dateTimeStr( t + 360, false).substring(11, 16) + StringPortax[i] +
+               "\nDL" +  dateTimeStr( t + 420, false).substring(11, 16) + StringPortax[i] +
+               "\nIH" + "00:01" + StringPortax[i] + "\nIL" + "00:01" + StringPortax[i];
+  }
   log(F("Boot"), F("Agendamento Ok"));
-
-  //-----------------------------------------------------------------------
 }
+
 
 // ---------------------Setup -------------------------------------------
 
@@ -1117,11 +1111,11 @@ void setup() {
 }
 
 void WatchDog() {
-  
-    yield();
-    if (WiFi.status() == WL_CONNECTED && !Firebase.beginStream(stream, "/Digitais/") && !Firebase.beginStream(streamStatus, "Dispositivos/ESP32/Estado") && !Firebase.ready() ) {
-      while (1);
-    } //else if (!server.begin();) {
+
+  yield();
+  if (WiFi.status() == WL_CONNECTED && !Firebase.beginStream(stream, "/Digitais/") && !Firebase.beginStream(streamStatus, "Dispositivos/ESP32/Estado") && !Firebase.ready() ) {
+    while (1);
+  } //else if (!server.begin();) {
   //    while (1);
   //  }
 
@@ -1151,4 +1145,15 @@ void loop() {
   FireBaseSetConfig();
   CheckSchedule();
   
+  for (int i = 0; i < RELAY_PIN; i++) {
+  String s [i]  = scheduleChk(schedule,relayGPIOsteste[i],StringPortax[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
+  Serial.println(i);
+  delay(1000);
+  if (s != "") {
+    // Event detected
+      lastEvent = (digitalRead(relayGPIOsteste[i]) ? "Ligado " : "Desligado ") +
+                  s + " - " + dateTimeStr(now());
+      log(F("Agendamento"), lastEvent);
+    }
+  }
 }
