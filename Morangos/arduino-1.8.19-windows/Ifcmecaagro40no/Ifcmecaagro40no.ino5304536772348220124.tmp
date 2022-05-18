@@ -21,10 +21,7 @@
 #include <addons/RTDBHelper.h>
 
 #define RELAY_PIN 2
-String RELAY_COD = "D1";
 
-int relayGPIOsteste[RELAY_PIN] = {15, 13};
-String StringPortax[RELAY_PIN] = {"D3", "D2"};
 
 //---------PARTE DAS CONFIGURAÇÕES DAS ENTRADAS DAS VálvulaS----------//
 
@@ -37,8 +34,10 @@ const byte      LED_OFF                 = LOW;
 
 int relayGPIOs[NUM_RELAYS] =          {2, 13, 14, 27, 26, 25, 33, 32, 16, 17, 4, 15};
 String relayDescricao[NUM_RELAYS] =  {"Válvula Agua", "Válvula Retorno Adubo 1", "Válvula Adubo 1", "Válvula Retorno Adubo 2", "Válvula Adubo 2", "Válvula Canteiro 6", "Válvula Canteiro 1", "Válvula Canteiro 2", "Válvula Canteiro 3", "Válvula Canteiro 4", "Válvula Canteiro 5", "Bomba 1"};
-String relayCodigo[NUM_RELAYS] =       {"VAgua", "VRetAdb1", "VAdb1", "VRetAdb2", "VAdb2", "VL6", "VL1", "VL2", "VL3", "VL4", "VL5", "VBomba"};
-String relayCodigoTeste [NUM_RELAYS] = {"D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08", "D09", "D10", "D11", "D12"};
+String relayCodigo[NUM_RELAYS] =       {"VAgua", "VRetAdb1", "VAdb1", "VRetAdb2", "VAdb2", "VL6", "VL1", "VL2", "VL3", "VL4", "VL5", "VBomba",};
+//String agenda [NUM_RELAYS];
+String relayDescricaoTeste[NUM_RELAYS] =  {};
+String relayCodigoTeste [NUM_RELAYS] = {};
 
 
 // Tamanho do Objeto JSON
@@ -754,6 +753,13 @@ void handleCSS() {
 
 //---------------------------FIREBASE--------------------------------
 
+void RefreshFire(){
+String refresh=server.arg("setRefresh");
+  if(refresh=="1"){
+     Serial.printf("Get string... %s\n", Firebase.getString(fbdo, F("/Config/Agendar/comando")) ? fbdo.to<const char *>() : fbdo.errorReason().c_str());
+     server.send(200);
+  }
+}
 void FireBaseSet() {
 
   if (Firebase.ready() && (millis() - sendDataPrevMillis > idleTimeForStream || sendDataPrevMillis == 0))
@@ -862,19 +868,16 @@ void FireBaseSetConfig() {
 
       if (mudanca.indexOf("comando") > 0) {
         strlcpy(agendamento, estado.c_str(), sizeof(agendamento));
-        schedule = agendamento;
-        Serial.print(schedule);
-        schedule.trim();
-        schedule.toUpperCase();
-        scheduleSet(schedule);
+//        schedule = agendamento;
+//        schedule.trim();
+//        schedule.toUpperCase();
+//        scheduleSet(schedule);
       }
-      if (mudanca.indexOf("horário") > 0) {
-        EEPROM.write(CFG_TIME_ZONE, estado.toInt());
-      }
+
     }
   }
+  
 }
-
 void ConexaoFireBase() {
   if (WiFi.status() == WL_CONNECTED) {
     jsonS.set("Estado", "Online");
@@ -916,38 +919,13 @@ void ConexaoFireBase() {
         if (estado == "Offline") {
           Firebase.updateNode(firebaseData, "Dispositivos/ESP32/", jsonS);
         }
+
+
       }
     }
   }
 }
 
-void CheckSchedule() {
-
-  // Schedule Check
-
-
-}
-void ConfigSchedule() {
-  //-------------------ParteDoAgendamento--------------------------------
-
-  // Schedule entries
-  schedule = scheduleGet();
-  // SET SCHEDULE ENTRIES - DEBUG ONLY
-  time_t t = now() + 61;
-
-  for (int i = 0; i < RELAY_PIN; i++) {
-    schedule = "SH" + dateTimeStr( t      , false).substring(0, 16) + StringPortax[i]  +
-               "\nSL" +  dateTimeStr( t + 60 , false).substring(0, 16) + StringPortax[i] +
-               "\nMH" + dateTimeStr( t + 120, false).substring(8, 16) + StringPortax[i] +
-               "\nML" + dateTimeStr( t + 180, false).substring(8, 16) + StringPortax[i] +
-               "\nWH" +    weekday( t + 240) + " " + dateTimeStr( t + 240, false).substring(11, 16) + StringPortax[i] +
-               "\nWL" +    weekday( t + 300) + " " + dateTimeStr( t + 300, false).substring(11, 16) + StringPortax[i] +
-               "\nDH" + dateTimeStr( t + 360, false).substring(11, 16) + StringPortax[i] +
-               "\nDL" +  dateTimeStr( t + 420, false).substring(11, 16) + StringPortax[i] +
-               "\nIH" + "00:01" + StringPortax[i] + "\nIL" + "00:01" + StringPortax[i];
-  }
-  log(F("Boot"), F("Agendamento Ok"));
-}
 
 
 // ---------------------Setup -------------------------------------------
@@ -958,7 +936,6 @@ void setup() {
   Serial.begin(115200);
 
   //------------------ Configura WiFi para ESP32---------------------//
-
   WiFi.setHostname(deviceID().c_str());
   WiFi.softAP(deviceID().c_str(), "ESP32ESP32");
   log("WiFi AP " + deviceID() + " - IP " + ipStr(WiFi.softAPIP()));
@@ -1007,18 +984,11 @@ void setup() {
     Serial.print("User UID: ");
     Serial.print(uid);
 
-    setSyncProvider(timeNTP);
-    setSyncInterval(NTP_INT);
-
-    if (timeStatus() != timeSet) {
-      log(F("Boot"), F("Data/Hora ERRO"));
-    }
   } else {
-    // Soft AP mode, ignore date/time
-    log(F("Boot"), F("Data/Hora nao definida"));
     log(F("WiFi não conectado"));
   }
 
+  //---------------------------------------------------------------------------//
 
   // SPIFFS                     SPI Flash File System
   if (!SPIFFS.begin()) {
@@ -1034,18 +1004,12 @@ void setup() {
   //configReset(); // testes
   // Salva configuração
 
-
   // LED
 
   for (int i = 0; i <= NUM_RELAYS; i++) {
     pinMode(relayGPIOs[i], OUTPUT);
 
   }
-  for (int i = 0; i <= RELAY_PIN; i++) {
-    pinMode(relayGPIOsteste[i], OUTPUT);
-
-  }
-
   delay(500);
   for (int i = 0; i <= NUM_RELAYS; i++) {
     digitalWrite(relayGPIOs[i], HIGH); //Inicia todas portas em HIGH pro sistema desligar os reles. HIGH relé DESLIGADO
@@ -1073,9 +1037,13 @@ void setup() {
     Serial.println("sream config begin complete");
   }
 
+  //--------------------------------------------------------------------
 
   //---------------------------------WATCHDOG---------------------------//
   configureWatchdog();
+
+
+
 
   // WebServer
   server.on(F("/Relay.htm")       , handleRelay);
@@ -1083,7 +1051,7 @@ void setup() {
   server.on(F("/relaySet")    , handleRelaySet);
 
   server.on(F("/atualizacaoSet")    , handleEmailSet);
-  // server.on(F("/refreshSet")    , FireBaseSetConfig);
+  server.on(F("/refreshSet")    , FireBaseSetConfig);
 
   server.on(F("/Config.htm")    , handleConfig);
   server.on(F("/FileList.htm")    , handleFileList);
@@ -1101,13 +1069,30 @@ void setup() {
   server.collectHeaders(WEBSERVER_HEADER_KEYS, 1);
   server.begin();
 
+  //-------------------ParteDoAgendamento--------------------------------
+//
+//  schedule = scheduleGet();
+//  // SET SCHEDULE ENTRIES - DEBUG ONLY
+//  time_t t = now() + 61;
+//  schedule = "SH"   + dateTimeStr( t      , false).substring(0, 16) +
+//             "\nSL" + dateTimeStr( t + 60 , false).substring(0, 16) +
+//             "\nMH" + dateTimeStr( t + 120, false).substring(8, 16) +
+//             "\nML" + dateTimeStr( t + 180, false).substring(8, 16) +
+//             "\nWH" +     weekday( t + 240) + " " + dateTimeStr( t + 240, false).substring(11, 16) +
+//             "\nWL" +     weekday( t + 300) + " " + dateTimeStr( t + 300, false).substring(11, 16) +
+//             "\nDH" + dateTimeStr( t + 360, false).substring(11, 16) +
+//             "\nDL" + dateTimeStr( t + 420, false).substring(11, 16) +
+//             "\nIH00:01\nIL00:01";
+//
+//  logFile(F("Boot"), F("Agendamento Ok"));
 
+  //-----------------------------------------------------------------------
 
   // Pronto
   log(F("Pronto"));
   //  timeNTP();
   //  hold(1000);
-  ConfigSchedule();
+
 }
 
 void WatchDog() {
@@ -1143,17 +1128,14 @@ void loop() {
   FireBaseStatus();
   FireBaseSet();
   FireBaseSetConfig();
-  CheckSchedule();
-  
-  for (int i = 0; i < RELAY_PIN; i++) {
-  String s [i]  = scheduleChk(schedule,relayGPIOsteste[i],StringPortax[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
-  Serial.println(i);
-  delay(1000);
-  if (s != "") {
-    // Event detected
-      lastEvent = (digitalRead(relayGPIOsteste[i]) ? "Ligado " : "Desligado ") +
-                  s + " - " + dateTimeStr(now());
-      log(F("Agendamento"), lastEvent);
-    }
-  }
+
+  // Schedule Check
+//  s = scheduleChk(schedule, RELAY_PIN);
+//  if (s != "") {
+//    // Event detected
+//    lastEvent = (digitalRead(RELAY_PIN) ? "Ligado " : "Desligado ") +
+//                s + " - " + dateTimeStr(now());
+//    log(F("Agendamento"), lastEvent);
+//  }
+
 }

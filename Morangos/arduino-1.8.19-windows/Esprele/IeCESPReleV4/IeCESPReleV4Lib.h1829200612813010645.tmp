@@ -8,13 +8,9 @@
 * LIBRARIES AND AUXILIARY FILES
 *******************************************************************************/
 #include <TimeLib.h>
-//#include <ESP8266httpUpdate.h>
-//#include <ESP8266HTTPClient.h>
+#include <ESP8266httpUpdate.h>
+#include <ESP8266HTTPClient.h>
 #include "IeCESPReleV4Def.h"
-#include <SPIFFS.h>
-#include <FS.h>
-#include <ArduinoJson.h>
-
 
 /*******************************************************************************
 * FUNCTIONS
@@ -79,31 +75,31 @@ void log(const String &type, const String &msg) {
 }
 
 String hexStr(const unsigned long &h, const byte &l = 8) {
-  // Retorna valor em formato hexadecimal
-  String s;
-  s = String(h, HEX);
-  s.toUpperCase();
-  s = ("00000000" + s).substring(s.length() + 8 - l);
-  return s;
-}
-
-
-void log(String s) {
-  // Gera log na Serial
-  Serial.println(s);
+  // Return value as Hexadecimal String
+  String sFn;
+  sFn= String(h, HEX);
+  sFn.toUpperCase();
+  sFn = ("00000000" + sFn).substring(sFn.length() + 8 - l);
+  return sFn;
 }
 
 String deviceID() {
-  // Retorna ID padrão
-#ifdef ESP8266
-  // ESP8266 utiliza função getChipId()
-  return "Esp32_" + hexStr(ESP.getChipId());
-#else
-  // ESP32 utiliza função getEfuseMac()
-  return "Esp32_-" + hexStr(ESP.getEfuseMac());
-#endif
+  // Return the Device ID
+  return "ESPRele" + hexStr(ESP.getChipId());
 }
 
+String configLastSavedStr() {
+  // Return last Config save date/time as string
+  unsigned long lFn;
+  lFn  = EEPROM.read(CFG_LAST_SAVED    );
+  lFn  = lFn << 8;
+  lFn |= EEPROM.read(CFG_LAST_SAVED + 1);
+  lFn  = lFn << 8;
+  lFn |= EEPROM.read(CFG_LAST_SAVED + 2);
+  lFn  = lFn << 8;
+  lFn |= EEPROM.read(CFG_LAST_SAVED + 3);
+  return dateTimeStr(lFn);
+}
 
 String activeTimeStr(const time_t &t){
   // Return time_t as String "d:hh:mm:ss"
@@ -125,54 +121,37 @@ String activeTimeStr(const time_t &t){
 
 int timeZone() {
   // Return Time Zone config value
-  return int(EEPROM.read(CFG_TIME_ZONE));
+  return int8(EEPROM.read(CFG_TIME_ZONE));
 }
-
-//int timeZone() {
-//  // Return Time Zone config value
-//    StaticJsonDocument<JSON_SIZE> jsonConfig;
-//
-//  File file = SPIFFS.open(F("/Config.json"), "r");
-//  if (deserializeJson(jsonConfig, file)) {
-//    // Falha na leitura, assume valores padrão
-//    log(F("Falha lendo CONFIG,timeZone()"));
-//    return false;
-//  } else {
-//    // Sucesso na leitura
-//    int fuso =  jsonConfig["fuso"]    | 13;
-//    file.close();
-//    return fuso;
-//}
-//}
 
 boolean pwdNeeded() {
   // Return CFG_PWD_ALLWAYS_NEEDED config value
-  return false;
+  return EEPROM.read(CFG_PWD_ALLWAYS_NEEDED);
 }
 
 boolean softAPOn() {
   // Return CFG_SOFTAP_ALLWAYS_ON config value
-  return true;
+  return EEPROM.read(CFG_SOFTAP_ALLWAYS_ON);
 }
 
 String networkID() {
-  // Return Time Zone config value
-  StaticJsonDocument<JSON_SIZE> jsonConfig;
-  String ssid;
-  File file = SPIFFS.open(F("/Config.json"), "r");
-  if (deserializeJson(jsonConfig, file)) {
-    // Falha na leitura, assume valores padrão
-    ssid = "false";
-    log(F("Falha lendo CONFIG,timeZone()"));
-    return ssid;
-  } else {
-    // Sucesso na leitura
-    char ssidchar[30];
-    strlcpy(ssidchar, jsonConfig["ssid"]  | "", sizeof(ssid));
-    ssid = String(ssidchar); 
-    file.close();
-    return ssid;
-}
+  // Return Network ID config parameter
+  String sFn = "";
+  char c;
+  for (byte bFn = CFG_NETWORK_ID; bFn < CFG_TIME_ZONE; bFn++) {
+    if (EEPROM.read(bFn) == 0) {
+      break;
+    }
+    c = char(EEPROM.read(bFn));
+    // Check for valid characters
+    if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || c == '_') {
+      sFn += c;
+    }
+  }
+  if (sFn == "") {
+    sFn = deviceID();
+  }
+  return sFn;
 }
 
 String reference() {
@@ -305,23 +284,21 @@ void sortArray(String a[], String &s) {
   }
 }
 
-
-
-
 String fsSpaceStr() {
   // Return information about FileSystem space
-  int x=0;
+  FSInfo fs_info;
+  SPIFFS.info(fs_info);
   return "Total: " +
-          String((SPIFFS.totalBytes()) / 1024.0, 1) + F("kb<br>") +
+          String((fs_info.totalBytes) / 1024.0, 1) + F("kb<br>") +
           "Usado: " +
-          String(SPIFFS.usedBytes() / 1024.0, 1) + F("kb<br>") +
+          String(fs_info.usedBytes / 1024.0, 1) + F("kb<br>") +
           "Disponível: " +
-          String((SPIFFS.totalBytes() - SPIFFS.usedBytes()) / 1024.0, 1) + F("kb<br>");
+          String((fs_info.totalBytes - fs_info.usedBytes) / 1024.0, 1) + F("kb<br>");
 }
 
 time_t timeNTP() {
   // Return time_t from NTP Server
-  if (WiFi.status() != WL_CONNECTED ) {
+  if (wifiStatus != WL_CONNECTED) {
     // No WiFi connection
     return 0;
   }
@@ -452,18 +429,18 @@ void logFile(const String &type, const String &msg, const boolean flReboot = fal
     reboot();
   }
 }
-//
-//String configStr() {
-//  // Return Config parameters
-//  return "ID="      + networkID()               +
-//          " Ref="   + reference()               +
-//          " Fuso="  + String(timeZone())        +
-//          " Aut="   + (pwdNeeded() ? "S" : "N") +
-//          " AP="    + (softAPOn()  ? "S" : "N") +
-//          " SSID="  + wifiSSID()                +
-//          " Log="   + String(logDay())          +
-//          " "       + configLastSavedStr();
-//}
+
+String configStr() {
+  // Return Config parameters
+  return "ID="      + networkID()               +
+          " Ref="   + reference()               +
+          " Fuso="  + String(timeZone())        +
+          " Aut="   + (pwdNeeded() ? "S" : "N") +
+          " AP="    + (softAPOn()  ? "S" : "N") +
+          " SSID="  + wifiSSID()                +
+          " Log="   + String(logDay())          +
+          " "       + configLastSavedStr();
+}
 
 /*******************************************************************************
 * VERSION CONTROL SYSTEM FUNCTIONS
@@ -476,128 +453,133 @@ void logFile(const String &type, const String &msg, const boolean flReboot = fal
 *   yyyy-mm-ddTHH:mm:ss+00:00 - Release date/time in ISO8601 format
 *   https://dl...             - Version download URL
 *******************************************************************************/
-//void vcsStatus(const String &v) {
-//  // Set VCS String
-//  vcsString = v;
-//  vcsString.trim();
-//}
-//
-//String vcsVersion() {
-//  // Get current version
-//  return vcsString.substring(0, 3);
-//}
-//
-//boolean vcsIsMandatory() {
-//  // Get mandatory flag
-//  return vcsString.substring(4, 5) == "1";
-//}
+void vcsStatus(const String &v) {
+  // Set VCS String
+  vcsString = v;
+  vcsString.trim();
+}
 
-//boolean vcsHasNewVersion() {
-//  // Indicates new optional version available
-//  return vcsVersion() != "" && vcsVersion() != SW_VERSION;
-//}
-//
-//time_t vcsReleaseDT() {
-//  // Get version release DateTime
-//  TimeElements te;
-//  te.Year   = vcsString.substring( 6, 10).toInt() - 1970;
-//  te.Month  = vcsString.substring(11, 13).toInt();
-//  te.Day    = vcsString.substring(14, 16).toInt();
-//  te.Hour   = vcsString.substring(17, 19).toInt();
-//  te.Minute = vcsString.substring(20, 22).toInt();
-//  te.Second = vcsString.substring(23, 25).toInt();
-//  time_t t  = makeTime(te);
-//  t-= vcsString.substring(25, 28).toInt() * 3600; // Adjust to UTC;
-//  t+= timeZone() * 3600;                          // Adjust to local time
-//  return t;
-//}
+String vcsVersion() {
+  // Get current version
+  return vcsString.substring(0, 3);
+}
 
-//String vcsURL() {
-//  // Get download URL
-//  return vcsString.substring(32);
-//}
-//
-//String vcsStatus() {
-//  // Get VCS Status
-//  return (vcsString == "" ? "" : vcsVersion()                 + " " +
-//                                  dateTimeStr(vcsReleaseDT()) + " " +
-//                                  (vcsIsMandatory() ? F("Obrigatoria") : F("Opcional")));
-//}
-//
-//void vcsSetNextCheck(time_t t) {
-//  // Set next version check DateTime
-//  vcsNextCheck = t;
-//}
-//
-//boolean versionChk(const boolean flForce = false) {
-//  // Version Control System Main Function
-//  if (wifiStatus != WL_CONNECTED || (vcsNextCheck > now() && !flForce)) {
-//    // Wait for next DateTime
-//    return true;
-//  }
-//
-//  // Get Version File
-//  HTTPClient http;
-//  http.begin(VCS_URL, " ");
-//  int httpCode = http.GET();
-//  String s = http.getString();
-//  vcsStatus(s);
-//  http.end();
-//
-//  // Update next check DateTime
-//  vcsNextCheck = now() + SECS_PER_HOUR;
-//  //vcsNextCheck = now() + 15; // DEBUG ONLY
-//
-//  if (httpCode != HTTP_CODE_OK) {
-//    // Error getting Version file
-//    log(F("VCS"), "ERRO HTTP " + String(httpCode) +
-//                " " + http.errorToString(httpCode));
-//    return false;
-//  }
-//
-//  if (vcsStatus() == "") {
-//    // Error in Version File
-//    log(F("VCS"), F("ERRO no Arquivo de Versao"));
-//    return false;
-//  }
-//
-//  // Log VCS Status
-//  logFile(F("VCS"), vcsStatus());
-//
-//  if ((vcsVersion() == SW_VERSION || !vcsIsMandatory()) && !flForce) {
-//    // Same or optional version, check again at 02:00
-//    vcsNextCheck = nextMidnight(now()) + 2 * SECS_PER_HOUR;
-//    //vcsNextCheck = now() + 15; // DEBUG ONLY
-//
-//    return true;
-//  }
-//
+boolean vcsIsMandatory() {
+  // Get mandatory flag
+  return vcsString.substring(4, 5) == "1";
+}
+
+boolean vcsHasNewVersion() {
+  // Indicates new optional version available
+  return vcsVersion() != "" && vcsVersion() != SW_VERSION;
+}
+
+time_t vcsReleaseDT() {
+  // Get version release DateTime
+  TimeElements te;
+  te.Year   = vcsString.substring( 6, 10).toInt() - 1970;
+  te.Month  = vcsString.substring(11, 13).toInt();
+  te.Day    = vcsString.substring(14, 16).toInt();
+  te.Hour   = vcsString.substring(17, 19).toInt();
+  te.Minute = vcsString.substring(20, 22).toInt();
+  te.Second = vcsString.substring(23, 25).toInt();
+  time_t t  = makeTime(te);
+  t-= vcsString.substring(25, 28).toInt() * 3600; // Adjust to UTC;
+  t+= timeZone() * 3600;                          // Adjust to local time
+  return t;
+}
+
+String vcsURL() {
+  // Get download URL
+  return vcsString.substring(32);
+}
+
+String vcsStatus() {
+  // Get VCS Status
+  return (vcsString == "" ? "" : vcsVersion()                 + " " +
+                                  dateTimeStr(vcsReleaseDT()) + " " +
+                                  (vcsIsMandatory() ? F("Obrigatoria") : F("Opcional")));
+}
+
+void vcsSetNextCheck(time_t t) {
+  // Set next version check DateTime
+  vcsNextCheck = t;
+}
+
+boolean versionChk(const boolean flForce = false) {
+  // Version Control System Main Function
+  if (wifiStatus != WL_CONNECTED || (vcsNextCheck > now() && !flForce)) {
+    // Wait for next DateTime
+    return true;
+  }
+
+  // Get Version File
+  HTTPClient http;
+  http.begin(VCS_URL, " ");
+  int httpCode = http.GET();
+  String s = http.getString();
+  vcsStatus(s);
+  http.end();
+
+  // Update next check DateTime
+  vcsNextCheck = now() + SECS_PER_HOUR;
+  //vcsNextCheck = now() + 15; // DEBUG ONLY
+
+  if (httpCode != HTTP_CODE_OK) {
+    // Error getting Version file
+    log(F("VCS"), "ERRO HTTP " + String(httpCode) +
+                " " + http.errorToString(httpCode));
+    return false;
+  }
+
+  if (vcsStatus() == "") {
+    // Error in Version File
+    log(F("VCS"), F("ERRO no Arquivo de Versao"));
+    return false;
+  }
+
+  // Log VCS Status
+  logFile(F("VCS"), vcsStatus());
+
+  if ((vcsVersion() == SW_VERSION || !vcsIsMandatory()) && !flForce) {
+    // Same or optional version, check again at 02:00
+    vcsNextCheck = nextMidnight(now()) + 2 * SECS_PER_HOUR;
+    //vcsNextCheck = now() + 15; // DEBUG ONLY
+
+    return true;
+  }
+
   // New version and mandatory update or forced update
 
-//  // Get new version
-//  yield();
-//  ESPhttpUpdate.rebootOnUpdate(false);
-//  byte b = ESPhttpUpdate.update(vcsURL(), "", " ");
-//
-//  // Test result
-//  switch (b) {
-//    case  HTTP_UPDATE_FAILED:
-//          // Update failed, log and reboot
-//          logFile(F("VCS"), "ERRO " + String(ESPhttpUpdate.getLastError()) +
-//                            " " + ESPhttpUpdate.getLastErrorString(), true);
-//          break;
-//    case  HTTP_UPDATE_OK:
-//          // Update successful, log and reboot
-//          logFile(F("VCS"), F("Atualizado"), true);
-//          break;
-//    default:
-//          // Unknown result, log and ignore
-//          logFile(F("VCS"), F("Retorno invalido"));
-//          break;
-//  }
-//    
-//  return false;
-//}
+  // Release memory
+  http.~HTTPClient();
+  server.~ESP8266WebServer();
+  dnsServer.~DNSServer();
+
+  // Get new version
+  yield();
+  ESPhttpUpdate.rebootOnUpdate(false);
+  byte b = ESPhttpUpdate.update(vcsURL(), "", " ");
+
+  // Test result
+  switch (b) {
+    case  HTTP_UPDATE_FAILED:
+          // Update failed, log and reboot
+          logFile(F("VCS"), "ERRO " + String(ESPhttpUpdate.getLastError()) +
+                            " " + ESPhttpUpdate.getLastErrorString(), true);
+          break;
+    case  HTTP_UPDATE_OK:
+          // Update successful, log and reboot
+          logFile(F("VCS"), F("Atualizado"), true);
+          break;
+    default:
+          // Unknown result, log and ignore
+          logFile(F("VCS"), F("Retorno invalido"));
+          break;
+  }
+    
+  return false;
+}
 
 /*******************************************************************************
 * NO-IP API INTEGRATION - https://www.noip.com/
@@ -610,72 +592,72 @@ void logFile(const String &type, const String &msg, const boolean flReboot = fal
 * API Reference:
 *   https://www.noip.com/integrate/request
 *******************************************************************************/
-//// Constant definition
-//const String    NOIP_HOST         = "esprele.ddns.net";
-//const char      NOIP_USERNAME[]   = "michelon@michelon.com.br";
-//const char      NOIP_PASSWORD[]   = "IeCNoIP@00";
-//const char      NOIP_USERAGENT[]  = "ESPRele/3.1 endereco@email.com.br";
-//const uint16_t  NOIP_INTERVAL     = 8 * 60 * 60;  // 8h
-//
-//String noIPHost() {
-//  return NOIP_HOST;
-//}
-//
-//String chkNoIP(const boolean flForce = false) {
-//  // Process dynamic IP update at No-IP.com
-//  // Returns external IP on success and empty String on fail
-//
-//  // Local static variables
-//  static time_t nextCheck = 0;
-//  static String ip = "";
-//
-//  // Check for update interval
-//  if (wifiStatus != WL_CONNECTED || (nextCheck > now() && !flForce)) {
-//    return ip;
-//  }
-//
-//  // Start IP update
-//  yield();
-//  HTTPClient http;
-//  http.begin("https://dynupdate.no-ip.com/nic/update?hostname=" + noIPHost(), " ");
-//  http.setAuthorization(NOIP_USERNAME, NOIP_PASSWORD);
-//  http.setUserAgent(NOIP_USERAGENT);
-//  int httpCode = http.GET();
-//  String s = http.getString();
-//  http.end();
-//  s.trim();
-//
-//  // Update next check DateTime
-//  nextCheck = now() + SECS_PER_HOUR;
-//  //nextCheck = now() + 30; // DEBUG ONLY
-//
-//  if (httpCode != HTTP_CODE_OK) {
-//    // HTTP error
-//    ip = "";
-//    log(F("No-IP"), "ERRO " + s + " " + String(httpCode) +
-//                    " " + http.errorToString(httpCode));
-//    return ip;
-//  }
-//
-//  // Interpret No-IP Response
-//  String r = s.substring(0, 4);
-//  if (r != "noch" && r != "good") {
-//    // Error
-//    ip = "";
-//    log(F("No-IP"), "ERRO " + s);
-//    return ip;
-//  }
-//
-//  // Success - same ou new IP
-//  ip = s.substring(s.indexOf(' ') + 1);
-//  log(F("No-IP"), s);
-//
-//  // Update next check
-//  nextCheck = now() + NOIP_INTERVAL;
-//  //nextCheck = now() + 30; // DEBUG ONLY
-//
-//  return ip;
-//}
+// Constant definition
+const String    NOIP_HOST         = "esprele.ddns.net";
+const char      NOIP_USERNAME[]   = "michelon@michelon.com.br";
+const char      NOIP_PASSWORD[]   = "IeCNoIP@00";
+const char      NOIP_USERAGENT[]  = "ESPRele/3.1 endereco@email.com.br";
+const uint16_t  NOIP_INTERVAL     = 8 * 60 * 60;  // 8h
+
+String noIPHost() {
+  return NOIP_HOST;
+}
+
+String chkNoIP(const boolean flForce = false) {
+  // Process dynamic IP update at No-IP.com
+  // Returns external IP on success and empty String on fail
+
+  // Local static variables
+  static time_t nextCheck = 0;
+  static String ip = "";
+
+  // Check for update interval
+  if (wifiStatus != WL_CONNECTED || (nextCheck > now() && !flForce)) {
+    return ip;
+  }
+
+  // Start IP update
+  yield();
+  HTTPClient http;
+  http.begin("https://dynupdate.no-ip.com/nic/update?hostname=" + noIPHost(), " ");
+  http.setAuthorization(NOIP_USERNAME, NOIP_PASSWORD);
+  http.setUserAgent(NOIP_USERAGENT);
+  int httpCode = http.GET();
+  String s = http.getString();
+  http.end();
+  s.trim();
+
+  // Update next check DateTime
+  nextCheck = now() + SECS_PER_HOUR;
+  //nextCheck = now() + 30; // DEBUG ONLY
+
+  if (httpCode != HTTP_CODE_OK) {
+    // HTTP error
+    ip = "";
+    log(F("No-IP"), "ERRO " + s + " " + String(httpCode) +
+                    " " + http.errorToString(httpCode));
+    return ip;
+  }
+
+  // Interpret No-IP Response
+  String r = s.substring(0, 4);
+  if (r != "noch" && r != "good") {
+    // Error
+    ip = "";
+    log(F("No-IP"), "ERRO " + s);
+    return ip;
+  }
+
+  // Success - same ou new IP
+  ip = s.substring(s.indexOf(' ') + 1);
+  log(F("No-IP"), s);
+
+  // Update next check
+  nextCheck = now() + NOIP_INTERVAL;
+  //nextCheck = now() + 30; // DEBUG ONLY
+
+  return ip;
+}
 
 /*******************************************************************************
 * SCHEDULE SYSTEM FUNCTIONS
@@ -718,7 +700,7 @@ String hhmmStr(const time_t &t) {
   return s;
 }
 
-String scheduleChk(const String &schedule, const byte &pin,const String &dPorta) {
+String scheduleChk(const String &schedule, const byte &pin) {
   // Schedule System Main Function
 
   // Local variables
@@ -763,7 +745,7 @@ String scheduleChk(const String &schedule, const byte &pin,const String &dPorta)
   dt += String(minute(lastCheck));
 
   // Check Scheduled High - SHyyyy-mm-dd hh:mm
-  String s = "SH" + dPorta + dt ;
+  String s = "SH" + dt;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = HIGH;
@@ -771,7 +753,7 @@ String scheduleChk(const String &schedule, const byte &pin,const String &dPorta)
   }
 
   // Check Scheduled Low - SLyyyy-mm-dd hh:mm
-  s = "SL"+ dPorta + dt ;
+  s = "SL" + dt;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = LOW;
@@ -782,7 +764,7 @@ String scheduleChk(const String &schedule, const byte &pin,const String &dPorta)
   dt = dt.substring(8);
 
   // Check Monthly High - MHdd hh:mm
-  s = "MH" + dPorta + dt ;
+  s = "MH" + dt;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = HIGH;
@@ -790,7 +772,7 @@ String scheduleChk(const String &schedule, const byte &pin,const String &dPorta)
   }
 
   // Check Monthly Low - MLdd hh:mm
-  s = "ML" + dPorta + dt ;
+  s = "ML" + dt;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = LOW;
@@ -801,7 +783,7 @@ String scheduleChk(const String &schedule, const byte &pin,const String &dPorta)
   dt = String(weekday(lastCheck)) + dt.substring(2);
   
   // Check Weekly High - WHd hh:mm
-  s = "WH" + dPorta + dt ;
+  s = "WH" + dt;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = HIGH;
@@ -809,7 +791,7 @@ String scheduleChk(const String &schedule, const byte &pin,const String &dPorta)
   }
 
   // Check Weekly Low - WLd hh:mm
-  s = "WL"+ dPorta + dt ;
+  s = "WL" + dt;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = LOW;
@@ -820,7 +802,7 @@ String scheduleChk(const String &schedule, const byte &pin,const String &dPorta)
   dt = dt.substring(2);
 
   // Check Daily High - DHhh:mm
-  s = "DH"+ dPorta + dt ;
+  s = "DH" + dt;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = HIGH;
@@ -828,7 +810,7 @@ String scheduleChk(const String &schedule, const byte &pin,const String &dPorta)
   }
 
   // Check Daily Low - DLhh:mm
-  s = "DL" + dPorta + dt ;
+  s = "DL" + dt;
   if (schedule.indexOf(s) != -1) {
     event = s;
     relay = LOW;
@@ -836,7 +818,7 @@ String scheduleChk(const String &schedule, const byte &pin,const String &dPorta)
   }
 
   // Check Intervaled High - IHhh:mm
-  s = "IH" + dPorta + hhmmStr(lastCheck - highDT) ;
+  s = "IH" + hhmmStr(lastCheck - highDT);
 
   if (schedule.indexOf(s) != -1 && digitalRead(pin)) {
     event = s;
@@ -845,7 +827,7 @@ String scheduleChk(const String &schedule, const byte &pin,const String &dPorta)
   }
 
   // Check Intervaled Low - IDhh:mm
-  s = "IL" + dPorta + hhmmStr(lastCheck - lowDT)  ;
+  s = "IL" + hhmmStr(lastCheck - lowDT);
 
   if (schedule.indexOf(s) != -1 && !digitalRead(pin)) {
     event = s;
@@ -873,7 +855,7 @@ boolean scheduleSet(const String &schedule) {
   if (file) {
     file.print(schedule);
     file.close();
-    scheduleChk("", 0,"");
+    scheduleChk("", 0);
     return true;
   }
   return false;
