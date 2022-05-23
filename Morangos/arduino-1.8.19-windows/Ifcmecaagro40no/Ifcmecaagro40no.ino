@@ -20,11 +20,11 @@
 //Provide the RTDB payload printing info and other helper functions.
 #include <addons/RTDBHelper.h>
 
-#define RELAY_PIN 2
+#define RELAY_PIN 3
 String RELAY_COD = "D1";
 
-int relayGPIOsteste[RELAY_PIN] = {15, 13};
-String StringPortax[RELAY_PIN] = {"D3", "D2"};
+int relayGPIOsteste[RELAY_PIN] = { 2, 15, 13};
+String StringPortax[RELAY_PIN] = {"D1","D2","D3"};
 
 //---------PARTE DAS CONFIGURAÇÕES DAS ENTRADAS DAS VálvulaS----------//
 
@@ -870,6 +870,8 @@ void FireBaseSetConfig() {
       }
       if (mudanca.indexOf("horário") > 0) {
         EEPROM.write(CFG_TIME_ZONE, estado.toInt());
+        time_t timer = now();
+        Serial.printf("\n Horario de agora: ", timer);
       }
     }
   }
@@ -934,17 +936,16 @@ void ConfigSchedule() {
   schedule = scheduleGet();
   // SET SCHEDULE ENTRIES - DEBUG ONLY
   time_t t = now() + 61;
-
   for (int i = 0; i < RELAY_PIN; i++) {
-    schedule = "SH" + dateTimeStr( t      , false).substring(0, 16) + StringPortax[i]  +
-               "\nSL" +  dateTimeStr( t + 60 , false).substring(0, 16) + StringPortax[i] +
-               "\nMH" + dateTimeStr( t + 120, false).substring(8, 16) + StringPortax[i] +
-               "\nML" + dateTimeStr( t + 180, false).substring(8, 16) + StringPortax[i] +
-               "\nWH" +    weekday( t + 240) + " " + dateTimeStr( t + 240, false).substring(11, 16) + StringPortax[i] +
-               "\nWL" +    weekday( t + 300) + " " + dateTimeStr( t + 300, false).substring(11, 16) + StringPortax[i] +
-               "\nDH" + dateTimeStr( t + 360, false).substring(11, 16) + StringPortax[i] +
-               "\nDL" +  dateTimeStr( t + 420, false).substring(11, 16) + StringPortax[i] +
-               "\nIH" + "00:01" + StringPortax[i] + "\nIL" + "00:01" + StringPortax[i];
+    schedule = "SH" + StringPortax[i] + dateTimeStr( t      , false).substring(0, 16) + 
+               "\nSL" + StringPortax[i] +  dateTimeStr( t + 60 , false).substring(0, 16) + 
+               "\nMH" + StringPortax[i] + dateTimeStr( t + 120, false).substring(8, 16) + 
+               "\nML" + StringPortax[i] + dateTimeStr( t + 180, false).substring(8, 16) + 
+               "\nWH" +  StringPortax[i] +  weekday( t + 240) + " " + dateTimeStr( t + 240, false).substring(11, 16) + 
+               "\nWL" +   StringPortax[i] + weekday( t + 300) + " " + dateTimeStr( t + 300, false).substring(11, 16) + 
+               "\nDH" + StringPortax[i] + dateTimeStr( t + 360, false).substring(11, 16) + 
+               "\nDL" +  StringPortax[i] + dateTimeStr( t + 420, false).substring(11, 16) + 
+               "\nIH" + StringPortax[i]+ "00:01"  + "\nIL"  + StringPortax[i]+ "00:01";
   }
   log(F("Boot"), F("Agendamento Ok"));
 }
@@ -1146,9 +1147,8 @@ void loop() {
   CheckSchedule();
   
   for (int i = 0; i < RELAY_PIN; i++) {
-  String s [i]  = scheduleChk(schedule,relayGPIOsteste[i],StringPortax[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
-  Serial.println(i);
-  delay(1000);
+  String s   = scheduleChk(schedule,relayGPIOsteste[i],StringPortax[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
+  delay(500);
   if (s != "") {
     // Event detected
       lastEvent = (digitalRead(relayGPIOsteste[i]) ? "Ligado " : "Desligado ") +
