@@ -138,20 +138,20 @@ var contOFFLINE=0;
 function AtualizaStatusDispositivo(colection) {
     firebase.database().ref(colection).on('value',    //  .on() define que a função ocorrerá sepre que um dado for alterado na tabela
         function (Record) {
-             var Estado = Record.val().Estado;
-             if(Estado=="Offline")contOFFLINE++;
-             if(Estado=="Online"){
-                 contOFFLINE=0;
-                 
-                 ControladorAtivo.innerText= 'Dispositivo ESP32 está '+Estado+'. ';
-             }
-             if(contOFFLINE>2){
-                    
-                    contOFFLINE=0;
-                    ControladorAtivo.innerText= 'Dispositivo ESP32 está '+Estado+'. ';
-             }
-            
-                    console.log(Estado);   
+            var Estado = Record.val().Estado;
+            if (Estado == "Offline") contOFFLINE++;
+            if (Estado == "Online") {
+                contOFFLINE = 0;
+
+                ControladorAtivo.innerText = 'Dispositivo ESP32 está ' + Estado + '. ';
+            }
+            if (contOFFLINE > 2) {
+
+                contOFFLINE = 0;
+                ControladorAtivo.innerText = 'Dispositivo ESP32 está ' + Estado + '. ';
+            }
+
+            console.log(Estado);
         });
 };
 function SetDispOffline(colection) {
@@ -168,25 +168,33 @@ function SetDispOffline(colection) {
 
 function AttDigitais(IndexTable) {
     // var newPostKey = firebase.database().ref().child('Digitais/').push().key;
+    user = firebase.auth().currentUser;
+
     name = valveList[IndexTable][0];
     status = valveList[IndexTable][2];
     console.log(status);
     console.log(name);
-    if (status =="Desligado") {
-        status="Ligado";
-    } else {
-        status ="Desligado";
-    }
-    console.log("depois");
-    console.log(status);
 
-    // Get a key for a new Post.
-  
-  var updates = {};
-  updates['Digitais/' + name +'/Estado'] = status;
-  firebase.database().ref().update(updates);
-  
-  return 0;
+    if (user.uid != null) {
+        if (status == "Desligado") {
+            status = "Ligado";
+        } else {
+            status = "Desligado";
+        }
+        console.log("depois");
+        console.log(status);
+
+        // Get a key for a new Post.
+
+        var updates = {};
+        updates['Digitais/' + name + '/Estado'] = status;
+        firebase.database().ref().update(updates);
+    }
+    else{
+        alert("Falha ao executar, faça login antes de continuar.");
+    }
+
+  //return 0;
      
 
 } 
@@ -233,20 +241,23 @@ firebase.database().ref('.info/connected').on('value', function(snapshot) {
     });
 });
 
-logOutButton.addEventListener('click', (e) => {
+logOutButton.addEventListener('click', (e)=> {
     e.preventDefault();
     firebase
         .auth()
         .signOut()
         .then(() => {
-            UsuarioAtivo.innerText= 'Você não está autenticado';
+           
+            displayName.innerText = 'Você não está autenticado';
             alert('Você se deslogou');
-            window.location.href = '/authentication.html';
-        }).catch((error) => {
+            window.location.href = '/public/authentication.html';
+        }).catch((error) =>{ 
             console.error(error);
         });
 });
 
-
-
+var btn = document.getElementById("back-to-top");
+btn.addEventListener("click", function() {
+    window.scrollTo(0, 0);
+});
 

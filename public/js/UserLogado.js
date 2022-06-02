@@ -120,7 +120,7 @@ function AddItemsToTable(Nome, Descrição, Status, Link) {
     td1.innerHTML = Nome;
     td2.innerHTML = Descrição;
     td3.innerHTML = Status;
-    td4.innerHTML = '<a type="button" class="btn btn-primary my-2" href="IFCfertirriga.html"><i class="bi bi-cursor-fill"></i></a> ';
+    td4.innerHTML = '<a type="button" class="btn btn-primary my-2"data-bs-toggle="tooltip" data-bs-placement="top" title="Ir ao Projeto" href="IFCfertirriga.html"><i class="bi bi-cursor-fill"></i></a> ';
     IndexTable++
 
     trow.appendChild(td1);
@@ -146,7 +146,7 @@ logOutButton.addEventListener('click', (e)=> {
            
             displayName.innerText = 'Você não está autenticado';
             alert('Você se deslogou');
-            window.location.href = '/authentication.html';
+            window.location.href = '/public/authentication.html';
         }).catch((error) =>{ 
             console.error(error);
         });

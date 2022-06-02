@@ -53,3 +53,8 @@ body {
   object-fit: cover;
   border: 3px solid #c70606;
 }
+
+.agendaForm{
+  border-radius: 10%;
+  border: 3px solid #158cba;
+}
