@@ -53,3 +53,25 @@ body {
   object-fit: cover;
   border: 3px solid #c70606;
 }
+
+.container .box {
+  width:60%;
+  margin:5px;
+  display:table;
+}
+/*.container .box .box-row {
+  /*display:table-row;
+}
+*/
+.container .box .box-cell {
+  display:table-cell;
+  padding:10px;
+  border-radius: 10%;
+  border: 3px solid #158cba;
+  background-color: #b3e1f39f;
+}
+
+.agendaTable{
+  height: 500px;
+  overflow:auto;
+}

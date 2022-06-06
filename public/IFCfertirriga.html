@@ -16,7 +16,7 @@
   <header>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container-fluid">
-        <img id="morangologo" src="Imagens/morango.png"> 
+        <img id="morangologo" src="Imagens/morango.png">
         <a class="navbar-brand" href="#"> </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
           aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,14 +50,14 @@
                 <a class="dropdown-item" href="#">Separated link</a>
               </div>
             </li>
-           <li class="nav-item">
+            <li class="nav-item">
               <a class="nav-link active" href="/public/authentication.html" id="logOutButton">
                 <i class="bi bi-door-open"></i> Sair
                 <span class="visually-hidden">(current)</span>
               </a>
             </li>
           </ul>
-          <div >
+          <div>
             <img class="float-end img-fluid img-thumbnail" id="photoURL">
           </div>
           <!--
@@ -70,7 +70,7 @@
       </div>
     </nav>
   </header>
-  
+
 
   <table class="table table-hover">
     <thead>
@@ -80,10 +80,10 @@
     </thead>
     <tbody>
       <tr>
-       
+
       </tr>
       <tr>
-        
+
       </tr>
     </tbody>
   </table>
@@ -93,12 +93,14 @@
     <div class="container">
       <div class="row justify-content-md-center">
         <div class="col-md-8">
-            <h4 class="text-center" id="UsuarioAtivo"> </h4>
-          
-            <h4 class="text-center" id="ControladorAtivo"> </h4>
-            
+          <h4 class="text-center" id="UsuarioAtivo"> </h4>
+
+          <h4 class="text-center" id="ControladorAtivo"> </h4>
+
         </div>
       </div>
+
+
       <div class="row justify-content-md-center">
         <div class="col-md-8">
           <div class="cat">
@@ -108,42 +110,145 @@
           <h1 class="text-center">Comandos Individuais</h1>
           <hr>
 
-          <table class="table align-middle">
-            <thead>
-              <tr>
-                <th scope="col">Código</th>
-                <th scope="col">Descrição</th>
-                <th scope="col">Chave</th>
-                <th scope="col">Estado</th>
-              </tr>
-            </thead>
-            <tbody id="tbody">
-          </table>
+          <!-- ----Container Agendamento Agenda---- -->
+
+          <div class="container">
+            <div class="box">
+              <div class="box-row">
+
+                <!-- Agendamento -->
+
+                <div class="box-cell agendamento">
+                  <div class="col-md-12">
+                    <div class="agendaForm">
+                      <div class="col justify-content-md-center">
+                        <h4 class="text-center">Agendamento</h4>
+
+                        <form>
+                          <div class="input-group mb-3">
+                            <label class="input-group-text" for="inputGroupSelect01" data-bs-toggle="tooltip"
+                              data-bs-placement="top" title="Escolha uma válvula">Válvula</label>
+                            <select class="form-select" id="codigoAgenda" data-bs-toggle="tooltip"
+                              data-bs-placement="top" title="Escolha uma válvula">
+                              <option selected>Código da Válvula</option>
+                              <option value="VAdb1">Válvula do Adubo 1</option>
+                              <option value="VAdb2">Válvula do Adubo 2</option>
+                              <option value="VAgua">Válvula da Água</option>
+                              <option value="VBomba">Válvula da Bomba</option>
+                              <option value="VL1">Vávula Canteiro 1</option>
+                              <option value="VL2">Válvula Canteiro 2</option>
+                              <option value="VL3">Válvula Canteiro 3</option>
+                              <option value="VL4">Válvula Canteiro 4</option>
+                              <option value="VL5">Válvula Canteiro 5</option>
+                              <option value="VL6">Válvula Canteiro 6</option>
+                              <option value="VRetAdb1">Válvula de Retorno Adubo 1</option>
+                              <option value="VRetAdb2">Válvula de Retorno Adubo 2</option>
+                            </select>
+                          </div>
+                          <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1"
+                              data-bs-toggle="tooltip" data-bs-placement="top" title="Selecione" value="ligar" checked>
+                            <label class="form-check-label" for="exampleRadios1">
+                              Ligar
+                            </label>
+                          </div>
+                          <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2"
+                              data-bs-toggle="tooltip" data-bs-placement="top" title="Selecione" value="desligar">
+                            <label class="form-check-label" for="exampleRadios2">
+                              Desligar
+                            </label>
+                          </div>
+                          <br><br>
+                          <div class="form-group">
+                            <label for="time">Horário</label>
+                            <input type="time" class="form-control" id="horaAgenda" data-bs-toggle="tooltip"
+                              data-bs-placement="top" title="Selecione o horário">
+                          </div>
+                          <br>
+                          <p class="text-center">
+                            <button class="btn btn-lg btn-block btn-primary" id="agendar" data-bs-toggle="tooltip"
+                              data-bs-placement="top" title="Novo Agendamento">Agendar</button>
+                          </p>
+                        </form>
+
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Agenda -->
+
+                <div class="box-cell agenda">
+                  <div class="col-md-12">
+                    <div class="agendaForm">
+                      <div class="col justify-content-md-center">
+                        <h4 class="text-center">Agenda</h4>
+
+                        <div class="d-flex justify-content">
+                          <table class="table align-middle table-striped table-hover" id="agendaTable">
+                            <thead>
+                              <tr>
+                                <th scope="col">Válvula</th>
+                                <th scope="col">Horário</th>
+                              </tr>
+                            </thead>
+                            <tbody id="agenda">
+                          </table>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+            <br>
+            
+        
+            <div class="d-flex justify-content">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th scope="col">Código</th>
+                    <th scope="col">Descrição</th>
+                    <th scope="col">Chave</th>
+                    <th scope="col">Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody">
+              </table>
+            </div>
+
+          </div>
         </div>
+
       </div>
 
     </div>
 
-  </div>
+    </tbody>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <!--Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+      crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.10/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
+    <script src="js/app.js"></script>
 
-  </tbody>
-  <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-  <!--Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-    crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.2.10/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
-  <script src="js/app.js"></script>
+    <script src="js/IFCfertirriga.js"></script>
+    <script src="js/authentication.js"></script>
 
-  <script src="js/IFCfertirriga.js"></script>
-  
-
-  <div class="text-center">
-    <button type="button" class="btn btn-secondary"><a href="index.html">Voltar para Home</button>
-  </div>
+    <br><br>
+    <div class="text-center">
+      <button type="button" class="btn btn-secondary"><a href="UserLogado.html">Voltar</button>
+    </div>
 
 
 </body>

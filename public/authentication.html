@@ -74,6 +74,7 @@
             <h3 class="text-center" id="LinkFertirriga"> </h3>
             <br>
             <form>
+              
               <div class="form-group">
                 <label for="emailInput">E-mail</label>
                 <input type="email" class="form-control" id="emailInput" placeholder="E-mail">
@@ -87,6 +88,7 @@
                 <button class="btn btn-lg btn-block btn-primary" id="authEmailPassButton">Autenticar</button>
                 <button class="btn btn-lg btn-block btn-info" id="createUserButton">Criar Nova Conta</button>
               </div>
+              
             </form>
 
 
@@ -95,8 +97,8 @@
             <p class="text-center"><small>-- ou --</small></p>
 
             <p class="text-center">
-              <button class="btn btn-lg btn-danger" id="authGoogleButton"><i class="fa fa-google fa-2x"></i></button>
-              <button class="btn btn-lg btn-warning" id="authAnonymouslyButton"><i class="fa fa-user fa-2x"></i></button>
+              <button class="btn btn-lg btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Autenticação com Google" id="authGoogleButton"><i class="fa fa-google fa-2x"></i></button>
+              <button class="btn btn-lg btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Anônimo" id="authAnonymouslyButton"><i class="fa fa-user fa-2x"></i></button>
             </p>
 
             <br>
@@ -105,9 +107,7 @@
               <button class="btn btn-lg btn-block btn-default" id="logOutButton">Sair</button>
             </p>
 
-            <div class="text-center">
-                <button type="button" class="btn btn-secondary"><a href="index.html">Voltar para Home</button>
-              </div>
+            
           </div>
         
       </div>
