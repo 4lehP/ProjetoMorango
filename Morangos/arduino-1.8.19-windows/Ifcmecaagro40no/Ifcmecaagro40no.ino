@@ -76,7 +76,7 @@ FirebaseConfig config;
 
 FirebaseData fbdo;
 FirebaseAuth auth;
-
+static time_t hora;
 //----------------PROTÓTIPO DAS FUNÇÕES---------------------------------------------//
 
 String softwareStr(); // Retorna nome do software
@@ -138,7 +138,7 @@ char              senha[30];       // Senha do email
 char              pw[30];       // Senha da Rede WiFi
 char              agendamento[5000];  //#sched# adendamento de rotinas
 char              configuracao[5000];
-
+char              horarioAtualiza[20];
 
 // Funções Genéricas ------------------------------------
 
@@ -184,6 +184,7 @@ void  configReset() {
   softap = true;
   strlcpy(agendamento, "0000", sizeof(agendamento)); //agendamento
   strlcpy(configuracao, " ", sizeof(configuracao));
+  strlcpy(horarioAtualiza, " ", sizeof(horarioAtualiza));
 
 }
 
@@ -237,6 +238,7 @@ boolean configRead() {
     softap = jsonConfig["softap"]    | true;
     strlcpy(agendamento, jsonConfig["agendamento"]      | "", sizeof(agendamento));
     strlcpy(configuracao, jsonConfig["configuracao"]      | "", sizeof(configuracao));
+    strlcpy(horarioAtualiza, jsonConfig["hora de reboot"]      | "", sizeof(horarioAtualiza));
 
     file.close();
 
@@ -269,6 +271,7 @@ boolean configSave() {
     jsonConfig["softap"] = softap;
     jsonConfig["agendamento"] = agendamento;
     jsonConfig["configuracao"] = configuracao;
+    jsonConfig["horario de reboot"] = horarioAtualiza;
 
     serializeJsonPretty(jsonConfig, file);
     file.close();
@@ -869,7 +872,7 @@ void FireBaseSetConfig() {
         scheduleSet(schedule);
       }
       if (mudanca.indexOf("horário") > 0) {
-        EEPROM.write(CFG_TIME_ZONE, estado.toInt());
+        strlcpy(horarioAtualiza, estado.c_str(), sizeof(horarioAtualiza));
       }
     }
   }
@@ -921,12 +924,7 @@ void ConexaoFireBase() {
   }
 }
 
-void CheckSchedule() {
 
-  // Schedule Check
-
-
-}
 void ConfigSchedule() {
   //-------------------ParteDoAgendamento--------------------------------
 
@@ -1111,15 +1109,22 @@ void setup() {
 }
 
 void WatchDog() {
-
+  hora=now();
   yield();
-  if (WiFi.status() == WL_CONNECTED && !Firebase.beginStream(stream, "/Digitais/") && !Firebase.beginStream(streamStatus, "Dispositivos/ESP32/Estado") && !Firebase.ready() ) {
+  String horas = "";
+  if (hour(hora) < 10) {
+    s += '0';
+  }
+ horas += String(hour(hora)) + ':';
+  if (minute(hora) < 10) {
+    s += '0';
+  }
+  horas += String(minute(hora));
+  if (WiFi.status() == WL_CONNECTED && !Firebase.beginStream(stream, "/Digitais/") || !Firebase.beginStream(streamStatus, "Dispositivos/ESP32/Estado") || !Firebase.ready() ) {
     while (1);
-  } //else if (!server.begin();) {
-  //    while (1);
-  //  }
-
-
+  } else if(horas.c_str()==horarioAtualiza){
+    while(1);
+  }
 }
 
 // ------------------Loop --------------------------------------------
@@ -1143,12 +1148,11 @@ void loop() {
   FireBaseStatus();
   FireBaseSet();
   FireBaseSetConfig();
-  CheckSchedule();
+  
   
   for (int i = 0; i < RELAY_PIN; i++) {
-  String s [i]  = scheduleChk(schedule,relayGPIOsteste[i],StringPortax[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
-  Serial.println(i);
-  delay(1000);
+  String s   = scheduleChk(schedule,relayGPIOsteste[i],StringPortax[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
+  delay(500);
   if (s != "") {
     // Event detected
       lastEvent = (digitalRead(relayGPIOsteste[i]) ? "Ligado " : "Desligado ") +
