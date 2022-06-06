@@ -20,7 +20,7 @@
 //Provide the RTDB payload printing info and other helper functions.
 #include <addons/RTDBHelper.h>
 
-#define RELAY_PIN 3
+#define RELAY_PIN 4
 String RELAY_COD = "D1";
 
 int relayGPIOsteste[RELAY_PIN] = { 2, 15, 13};
