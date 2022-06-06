@@ -357,7 +357,7 @@ time_t timeNTP() {
     udp.read(ntp, NTP_PACKET_SIZE);
     l = word(ntp[40], ntp[41]) << 16 | word(ntp[42], ntp[43]);
     l -= 2208988800UL;      // Calculate from 1900 to 1970
-    l += timeZone() * 3600; // Adjust time zone (+- timeZone * 60m * 60s)
+    l += -3 * 3600; // Adjust time zone (+- timeZone * 60m * 60s)
     logStr[logIndex] = dateTimeStr(l) + F(";NTP;Ok");
   } else {
     //Error
@@ -371,17 +371,17 @@ time_t timeNTP() {
   return l;
 }
 
-String dateTimeISO8601(const time_t &t) {
-  // Return time_t as ISO8601 Date/Time String
-  String sFn = dateTimeStr(t, false);
-  sFn.replace(" ", "T");
-  sFn = sFn                            +
-        ((timeZone() < 0) ? "-" : "+") +
-        ((timeZone() < 10) ? "0" : "") +
-        String(abs(timeZone()))        +
-        ":00";
-  return sFn;
-}  
+//String dateTimeISO8601(const time_t &t) {
+//  // Return time_t as ISO8601 Date/Time String
+//  String sFn = dateTimeStr(t, false);
+//  sFn.replace(" ", "T");
+//  sFn = sFn                            +
+//        ((-3 < 0) ? "-" : "+") +
+//        ((-3 < 10) ? "0" : "") +
+//        String(-3)        +
+//        ":00";
+//  return sFn;
+//}  
 
 void logDelete() {
   // Delete log in memory
@@ -866,6 +866,7 @@ String scheduleChk(const String &schedule, const byte &pin,const String &dPorta)
   }
   return "";
 }
+
 
 boolean scheduleSet(const String &schedule) {
   // Save Schedule entries
