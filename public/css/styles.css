@@ -55,23 +55,21 @@ body {
 }
 
 .container .box {
-  width:60%;
   margin:5px;
   display:table;
 }
-/*.container .box .box-row {
-  /*display:table-row;
+.container .box .box-row {
+  display:table-row;
 }
-*/
+
 .container .box .box-cell {
+  width: 400px;
+  height: 200px;
   display:table-cell;
   padding:10px;
   border-radius: 10%;
   border: 3px solid #158cba;
   background-color: #b3e1f39f;
+  box-shadow: 0 5px 5px rgba(0,0,0,0.3);
 }
 
-.agendaTable{
-  height: 500px;
-  overflow:auto;
-}

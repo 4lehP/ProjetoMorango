@@ -11,6 +11,7 @@ var logOutButton = document.getElementById('logOutButton');
 var UsuarioAtivo = document.getElementById('UsuarioAtivo');
 var ControladorAtivo = document.getElementById('ControladorAtivo');    
 var primeiro = true;
+
 window.onload = SelectDataToTable('Digitais/',1);
 window.onload = AtualizaStatusDispositivo('Dispositivos/ESP32/') ;
 window.onload = SetDispOffline('Dispositivos/ESP32');
@@ -191,7 +192,8 @@ function AttDigitais(IndexTable) {
         firebase.database().ref().update(updates);
     }
     else{
-        alert("Falha ao executar, faça login antes de continuar.");
+        // NÃO ESTÁ FUNCIONANDO !!!!!
+        alert('Falha ao executar, faça login antes de continuar.');
     }
 
   //return 0;
@@ -256,8 +258,20 @@ logOutButton.addEventListener('click', (e)=> {
         });
 });
 
-var btn = document.getElementById("back-to-top");
-btn.addEventListener("click", function() {
-    window.scrollTo(0, 0);
-});
+var agendar = document.querySelector("#agendar");
+console.log(agendar);
+
+agendar.addEventListener("click", function(Event){
+    Event.preventDefault();
+    console.log('Salvo');
+    alert("Salvo");
+    
+})
+
+function lerSelect(valor){
+    alert(valor);
+
+}
+
+
 
