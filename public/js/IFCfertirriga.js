@@ -137,7 +137,7 @@ function AddItemsToTable(Nome, Descrição, Estado) {
 var contOFFLINE=0;
 
 function AtualizaStatusDispositivo(colection) {
-    firebase.database().ref(colection).on('value',    //  .on() define que a função ocorrerá sepre que um dado for alterado na tabela
+    firebase.database().ref(colection).on('value',    //  .on() define que a função ocorrerá sempre que um dado for alterado na tabela
         function (Record) {
             var Estado = Record.val().Estado;
             if (Estado == "Offline") contOFFLINE++;
@@ -258,19 +258,26 @@ logOutButton.addEventListener('click', (e)=> {
         });
 });
 
-var agendar = document.querySelector("#agendar");
-console.log(agendar);
+function getForm(hora, valor){
+    user = firebase.auth().currentUser;
 
-agendar.addEventListener("click", function(Event){
-    Event.preventDefault();
-    console.log('Salvo');
-    alert("Salvo");
+    var status = document.forms[0];
+    var txt;
+    var i;
+
+    for(i=0; i < status.length; i++){
+        if(status[i].checked){
+            txt = status[i].value ;
+        }
+
+    }
+    var comando = txt+valor+hora;
+
+    if (user.uid =! null) {
+        alert('Novo Agendamento Realizado');
+        firebase.database().ref("Config/kkkk/comando/").push(comando);
+    }
     
-})
-
-function lerSelect(valor){
-    alert(valor);
-
 }
 
 

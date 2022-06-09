@@ -102,7 +102,7 @@
 
 
       <div class="row justify-content-md-center">
-        <div class="col-md-12">
+        <div class="col-md-8">
           <div class="cat">
             <p id="diagrama"><img src="Imagens/Diagrama.jpg" class="img-fluid"></p>
           </div>
@@ -130,7 +130,7 @@
                             <label class="input-group-text" for="inputGroupSelect01" data-bs-toggle="tooltip"
                               data-bs-placement="top" title="Escolha uma válvula">Válvula</label>
                             <select name="sel_valvula" class="form-select" id="codigoAgenda" data-bs-toggle="tooltip"
-                              data-bs-placement="top" title="Escolha uma válvula" onchange="lerSelect(this.value)"> <!-- onchange: função que lê os dados quando alterado -->
+                              data-bs-placement="top" title="Escolha uma válvula">
                               <option selected>Código da Válvula</option>
                               <option value="14">Válvula do Adubo 1</option>
                               <option value="26">Válvula do Adubo 2</option>
@@ -146,9 +146,9 @@
                               <option value="27">Válvula de Retorno Adubo 2</option>
                             </select>
                           </div>
-                            
+                           
                           <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="exampleRadios" id="Ligar"
+                            <input class="form-check-input" type="radio" name="status" id="Ligar"
                               data-bs-toggle="tooltip" data-bs-placement="top" title="Selecione" value="H" checked>
                             <label class="form-check-label" for="exampleRadios1">
                               Ligar
@@ -156,7 +156,7 @@
                           </div>
 
                           <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="exampleRadios" id="Desligar"
+                            <input class="form-check-input" type="radio" name="status" id="Desligar"
                               data-bs-toggle="tooltip" data-bs-placement="top" title="Selecione" value="L">
                             <label class="form-check-label" for="exampleRadios2">
                               Desligar
@@ -172,8 +172,8 @@
                           <br>
 
                           <p class="text-center">
-                            <button class="btn btn-lg btn-block btn-primary" data-bs-toggle="tooltip"
-                              data-bs-placement="top" title="Novo Agendamento">Agendar</button>
+                            <input type="button" class="btn btn-lg btn-block btn-primary" data-bs-toggle="tooltip"
+                              data-bs-placement="top" title="Novo Agendamento" onclick="getForm(horaAgenda.value, codigoAgenda.value)" value="Agendar">
                           </p>
                         </form>
 
