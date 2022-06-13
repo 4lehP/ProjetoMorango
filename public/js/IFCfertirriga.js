@@ -1,16 +1,19 @@
 //var valveList = document.getElementById('valveList');
+var agendaList = [];
 var valveList = [];
 var IndexTable = 0;
+var IndexAgenda = 0;
 var code = document.getElementById('code');
 var description = document.getElementById('description');
 var SwitchEstado = document.getElementById('SwitchEstado'); 
 var Vadb1label = document.getElementById('Vadb1label');
 var tbody = document.getElementById('tbody');
+var tbodyAgenda = document.getElementById('tbodyAgenda');
 var IMGphotoURL = document.getElementById('photoURL');
 var logOutButton = document.getElementById('logOutButton');
 var UsuarioAtivo = document.getElementById('UsuarioAtivo');
 var ControladorAtivo = document.getElementById('ControladorAtivo');    
-var primeiro = true;
+var first = true;
 
 window.onload = SelectDataToTable('Digitais/',1);
 window.onload = AtualizaStatusDispositivo('Dispositivos/ESP32/') ;
@@ -25,8 +28,8 @@ function ftimer(){
     if(user.uid){
        UsuarioAtivo.innerText= 'Usuário: '+user.displayName+'.';
        LoadDataFromUser(user.uid); 
-       console.log(user.uid);
-        console.log(user.displayName);
+       //console.log(user.uid);
+       // console.log(user.displayName);
         ArmazenarDadosUsuario(user); 
         clearInterval(timerUser); 
     }
@@ -39,12 +42,13 @@ function LoadDataFromUser(useruid) {
              var displayName = Record.val().displayName;
              var email = Record.val().email;
              var photoURL =  Record.val().photoURL;
-             console.log(photoURL);
+             //console.log(photoURL);
              IMGphotoURL.src = photoURL; 
-            console.log(displayName);
+            //console.log(displayName);
         });
 };
 function ArmazenarDadosUsuario(user){
+    /* 
     console.log("armazena");
     console.log(user.uid);
     console.log(user.displayName);
@@ -52,6 +56,7 @@ function ArmazenarDadosUsuario(user){
     console.log(user.phoneNumber);
     console.log(user.photoURL);
     console.log(user);
+    */
     var dataUser = {
         uid: user.uid,
         displayName: user.displayName,
@@ -93,7 +98,7 @@ function SelectDataToTable(colection, first) {
                     }
                     document.querySelectorAll("tbody td:nth-child(4)")[i].innerText = Estado;
                              
-                             console.log(i +" "+Estado);
+                             //console.log(i +" "+Estado);
                              i++;
                         
                 }
@@ -173,8 +178,8 @@ function AttDigitais(IndexTable) {
 
     name = valveList[IndexTable][0];
     status = valveList[IndexTable][2];
-    console.log(status);
-    console.log(name);
+    //console.log(status);
+    //console.log(name);
 
     if (user.uid != null) {
         if (status == "Desligado") {
@@ -182,8 +187,8 @@ function AttDigitais(IndexTable) {
         } else {
             status = "Desligado";
         }
-        console.log("depois");
-        console.log(status);
+       // console.log("depois");
+       // console.log(status);
 
         // Get a key for a new Post.
 
@@ -258,6 +263,7 @@ logOutButton.addEventListener('click', (e)=> {
         });
 });
 
+// Pega os valores do formulário do agendamento e envia para o firebase 
 function getForm(hora, valor){
     user = firebase.auth().currentUser;
 
@@ -265,20 +271,72 @@ function getForm(hora, valor){
     var txt;
     var i;
 
-    for(i=0; i < status.length; i++){
+    for(i=0; i < status.length; i++){     //Busca o valor selecionado nos checks 
         if(status[i].checked){
             txt = status[i].value ;
         }
 
     }
-    var comando = txt+valor+hora;
+                 
+    var agendaTxt; // Texto com o estado para a tabela
 
+    //Converte o código em texto
+    if(txt=='H'){
+        agendaTxt = "Ligar";
+    }else{
+        agendaTxt = "Desligar"; 
+    }
+
+    var agendaValor; // Texto com o nome da válvula para a tabela
+    
+    switch (valor) {
+        case "D1":
+            agendaValor = "Válvula do Adubo 1";
+            break;
+        case "D2":
+            agendaValor = "Válvula do Adubo 2";
+            break;
+        case "D3":
+            agendaValor = "Válvula da Água";
+            break;
+        case "D4":
+            agendaValor = "Válvula da Bomba";
+            break;
+        case "D5":
+            agendaValor = "Vávula Canteiro 1";
+            break;
+        case "D6":
+            agendaValor = "Válvula Canteiro 2";
+            break;
+        case "D7":
+            agendaValor = "Válvula Canteiro 3";
+            break;
+        case "D8":
+            agendaValor = "Válvula Canteiro 4";
+            break;
+        case "D9":
+            agendaValor = "Válvula Canteiro 5";
+            break;
+        case "D10":
+            agendaValor = "Válvula Canteiro 6";
+            break;
+        case "D11":
+            agendaValor = "Válvula de Retorno Adubo 1";
+            break;
+        case "D12":
+            agendaValor = "Válvula de Retorno Adubo 2";
+            break;
+
+    }   
+    //console.log(agendaValor, agendaTxt);
+
+    var comando = txt+valor+hora;
+    
     if (user.uid =! null) {
         alert('Novo Agendamento Realizado');
-        firebase.database().ref("Config/kkkk/comando/").push(comando);
+        firebase.database().ref("Config/kkkk/comando/").push(comando); //Escreve no firebase o código do agendamento
+        
     }
     
 }
-
-
 

@@ -31,9 +31,9 @@ function ftimer(){
         
         LoadDataFromUser(user.uid);
         SelectDataToTable(user.uid);    
-    console.log(user.uid);
-    console.log(user.displayName); 
-    console.log(user.email); 
+    //console.log(user.uid);
+    //console.log(user.displayName); 
+    //console.log(user.email); 
     ArmazenarDadosUsuario(user);
     clearInterval(timerUser); 
     }
@@ -46,13 +46,14 @@ function LoadDataFromUser(useruid) {
              var displayName = Record.val().displayName;
              var email = Record.val().email;
              var photoURL =  Record.val().photoURL;
-             console.log(photoURL);
+             //console.log(photoURL);
              IMGphotoURL.src = photoURL; 
-            console.log(displayName);
+            //console.log(displayName);
         });
 };
 
  function ArmazenarDadosUsuario(user){
+        /*
         console.log("armazena");
         console.log(user.uid);
         console.log(user.displayName);
@@ -60,6 +61,7 @@ function LoadDataFromUser(useruid) {
         console.log(user.phoneNumber);
         console.log(user.photoURL);
         console.log(user);
+        */
         var dataUser = {
             uid: user.uid,
             displayName: user.displayName,
@@ -148,7 +150,7 @@ logOutButton.addEventListener('click', (e)=> {
             alert('Você se deslogou');
             window.location.href = '/public/authentication.html';
         }).catch((error) =>{ 
-            console.error(error);
+            //console.error(error);
         });
 });
 
