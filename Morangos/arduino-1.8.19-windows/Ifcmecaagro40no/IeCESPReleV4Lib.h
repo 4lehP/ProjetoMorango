@@ -105,28 +105,28 @@ String deviceID() {
 }
 
 
-String activeTimeStr(const time_t &t){
-  // Return time_t as String "d:hh:mm:ss"
-  String sFn = String(t / SECS_PER_DAY) + ':';
-  if (hour(t) < 10) {
-    sFn += '0';
-  }
-  sFn += String(hour(t)) + ':';
-  if (minute(t) < 10) {
-    sFn += '0';
-  }
-  sFn += String(minute(t)) + ':';
-  if (second(t) < 10) {
-    sFn += '0';
-  }
-  sFn += String(second(t));
-  return sFn;
-}
+//String activeTimeStr(const time_t &t){
+//  // Return time_t as String "d:hh:mm:ss"
+//  String sFn = String(t / SECS_PER_DAY) + ':';
+//  if (hour(t) < 10) {
+//    sFn += '0';
+//  }
+//  sFn += String(hour(t)) + ':';
+//  if (minute(t) < 10) {
+//    sFn += '0';
+//  }
+//  sFn += String(minute(t)) + ':';
+//  if (second(t) < 10) {
+//    sFn += '0';
+//  }
+//  sFn += String(second(t));
+//  return sFn;
+//}
 
-int timeZone() {
-  // Return Time Zone config value
-  return int(EEPROM.read(CFG_TIME_ZONE));
-}
+//int timeZone() {
+//  // Return Time Zone config value
+//  return int(EEPROM.read(CFG_TIME_ZONE));
+//}
 
 //int timeZone() {
 //  // Return Time Zone config value
@@ -357,7 +357,7 @@ time_t timeNTP() {
     udp.read(ntp, NTP_PACKET_SIZE);
     l = word(ntp[40], ntp[41]) << 16 | word(ntp[42], ntp[43]);
     l -= 2208988800UL;      // Calculate from 1900 to 1970
-    l += timeZone() * 3600; // Adjust time zone (+- timeZone * 60m * 60s)
+    l += -3 * 3600; // Adjust time zone (+- timeZone * 60m * 60s)
     logStr[logIndex] = dateTimeStr(l) + F(";NTP;Ok");
   } else {
     //Error
@@ -371,17 +371,17 @@ time_t timeNTP() {
   return l;
 }
 
-String dateTimeISO8601(const time_t &t) {
-  // Return time_t as ISO8601 Date/Time String
-  String sFn = dateTimeStr(t, false);
-  sFn.replace(" ", "T");
-  sFn = sFn                            +
-        ((timeZone() < 0) ? "-" : "+") +
-        ((timeZone() < 10) ? "0" : "") +
-        String(abs(timeZone()))        +
-        ":00";
-  return sFn;
-}  
+//String dateTimeISO8601(const time_t &t) {
+//  // Return time_t as ISO8601 Date/Time String
+//  String sFn = dateTimeStr(t, false);
+//  sFn.replace(" ", "T");
+//  sFn = sFn                            +
+//        ((timeZone() < 0) ? "-" : "+") +
+//        ((timeZone() < 10) ? "0" : "") +
+//        String(abs(timeZone()))        +
+//        ":00";
+//  return sFn;
+//}  
 
 void logDelete() {
   // Delete log in memory
@@ -762,59 +762,59 @@ String scheduleChk(const String &schedule, const byte &pin,const String &dPorta)
   }
   dt += String(minute(lastCheck));
 
-  // Check Scheduled High - SHyyyy-mm-dd hh:mm
-  String s = "SH" + dPorta + dt ;
-  if (schedule.indexOf(s) != -1) {
-    event = s;
-    relay = HIGH;
-    goto process;
-  }
-
-  // Check Scheduled Low - SLyyyy-mm-dd hh:mm
-  s = "SL"+ dPorta + dt ;
-  if (schedule.indexOf(s) != -1) {
-    event = s;
-    relay = LOW;
-    goto process;
-  }
+//  // Check Scheduled High - SHyyyy-mm-dd hh:mm
+//  String s = "SH" + dPorta + dt ;
+//  if (schedule.indexOf(s) != -1) {
+//    event = s;
+//    relay = HIGH;
+//    goto process;
+//  }
+//
+//  // Check Scheduled Low - SLyyyy-mm-dd hh:mm
+//  s = "SL"+ dPorta + dt ;
+//  if (schedule.indexOf(s) != -1) {
+//    event = s;
+//    relay = LOW;
+//    goto process;
+//  }
 
   // Get DateTime as "dd hh:mm" String
   dt = dt.substring(8);
 
-  // Check Monthly High - MHdd hh:mm
-  s = "MH" + dPorta + dt ;
-  if (schedule.indexOf(s) != -1) {
-    event = s;
-    relay = HIGH;
-    goto process;
-  }
-
-  // Check Monthly Low - MLdd hh:mm
-  s = "ML" + dPorta + dt ;
-  if (schedule.indexOf(s) != -1) {
-    event = s;
-    relay = LOW;
-    goto process;
-  }
+//  // Check Monthly High - MHdd hh:mm
+//  s = "MH" + dPorta + dt ;
+//  if (schedule.indexOf(s) != -1) {
+//    event = s;
+//    relay = HIGH;
+//    goto process;
+//  }
+//
+//  // Check Monthly Low - MLdd hh:mm
+//  s = "ML" + dPorta + dt ;
+//  if (schedule.indexOf(s) != -1) {
+//    event = s;
+//    relay = LOW;
+//    goto process;
+//  }
 
   // Get DateTime as "d hh:mm" String
   dt = String(weekday(lastCheck)) + dt.substring(2);
   
-  // Check Weekly High - WHd hh:mm
-  s = "WH" + dPorta + dt ;
-  if (schedule.indexOf(s) != -1) {
-    event = s;
-    relay = HIGH;
-    goto process;
-  }
-
-  // Check Weekly Low - WLd hh:mm
-  s = "WL"+ dPorta + dt ;
-  if (schedule.indexOf(s) != -1) {
-    event = s;
-    relay = LOW;
-    goto process;
-  }
+//  // Check Weekly High - WHd hh:mm
+//  s = "WH" + dPorta + dt ;
+//  if (schedule.indexOf(s) != -1) {
+//    event = s;
+//    relay = HIGH;
+//    goto process;
+//  }
+//
+//  // Check Weekly Low - WLd hh:mm
+//  s = "WL"+ dPorta + dt ;
+//  if (schedule.indexOf(s) != -1) {
+//    event = s;
+//    relay = LOW;
+//    goto process;
+//  }
 
   // Get DateTime as "hh:mm" String
   dt = dt.substring(2);
@@ -835,22 +835,22 @@ String scheduleChk(const String &schedule, const byte &pin,const String &dPorta)
     goto process;
   }
 
-  // Check Intervaled High - IHhh:mm
-  s = "IH" + dPorta + hhmmStr(lastCheck - highDT) ;
-
-  if (schedule.indexOf(s) != -1 && digitalRead(pin)) {
-    event = s;
-    relay = LOW;
-    goto process;
-  }
-
-  // Check Intervaled Low - IDhh:mm
-  s = "IL" + dPorta + hhmmStr(lastCheck - lowDT)  ;
-
-  if (schedule.indexOf(s) != -1 && !digitalRead(pin)) {
-    event = s;
-    relay = HIGH;
-  }
+//  // Check Intervaled High - IHhh:mm
+//  s = "IH" + dPorta + hhmmStr(lastCheck - highDT) ;
+//
+//  if (schedule.indexOf(s) != -1 && digitalRead(pin)) {
+//    event = s;
+//    relay = LOW;
+//    goto process;
+//  }
+//
+//  // Check Intervaled Low - IDhh:mm
+//  s = "IL" + dPorta + hhmmStr(lastCheck - lowDT)  ;
+//
+//  if (schedule.indexOf(s) != -1 && !digitalRead(pin)) {
+//    event = s;
+//    relay = HIGH;
+//  }
 
   process:  // Process event
   if (event != "" && relay != digitalRead(pin)) {

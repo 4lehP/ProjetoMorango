@@ -14,17 +14,17 @@
 #include <ArduinoJson.h>
 #include "IeCESPReleV4Lib.h"
 
+
 //Provide the token generation process info.
 #include <addons/TokenHelper.h>
 
 //Provide the RTDB payload printing info and other helper functions.
 #include <addons/RTDBHelper.h>
 
-#define RELAY_PIN 2
-String RELAY_COD = "D1";
+#define RELAY_PIN 3
 
-int relayGPIOsteste[RELAY_PIN] = {15, 13};
-String StringPortax[RELAY_PIN] = {"D3", "D2"};
+int relayGPIOsteste[RELAY_PIN] = {15, 13, 2};
+String StringPortax[RELAY_PIN] = {"D1", "D2", "D2"};
 
 //---------PARTE DAS CONFIGURAÇÕES DAS ENTRADAS DAS VálvulaS----------//
 
@@ -34,11 +34,10 @@ const byte      LED_OFF                 = LOW;
 #define NUM_RELAYS  12
 #define NUM_RELAYS2  12
 
-
 int relayGPIOs[NUM_RELAYS] =          {2, 13, 14, 27, 26, 25, 33, 32, 16, 17, 4, 15};
 String relayDescricao[NUM_RELAYS] =  {"Válvula Agua", "Válvula Retorno Adubo 1", "Válvula Adubo 1", "Válvula Retorno Adubo 2", "Válvula Adubo 2", "Válvula Canteiro 6", "Válvula Canteiro 1", "Válvula Canteiro 2", "Válvula Canteiro 3", "Válvula Canteiro 4", "Válvula Canteiro 5", "Bomba 1"};
 String relayCodigo[NUM_RELAYS] =       {"VAgua", "VRetAdb1", "VAdb1", "VRetAdb2", "VAdb2", "VL6", "VL1", "VL2", "VL3", "VL4", "VL5", "VBomba"};
-String relayCodigoTeste [NUM_RELAYS] = {"D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08", "D09", "D10", "D11", "D12"};
+String relayCodigoTeste [NUM_RELAYS] = {"D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12"};
 
 
 // Tamanho do Objeto JSON
@@ -50,33 +49,34 @@ FirebaseData stream;
 FirebaseData streamStatus;
 FirebaseData streamConfig;
 FirebaseData streamAgendamento;
-
+FirebaseConfig config;
 FirebaseJson jsonL;
 FirebaseJson jsonD;
 FirebaseJson jsonS;
 FirebaseJson json;
+FirebaseData fbdo;
+FirebaseAuth auth;
 
-int releSetFlag = 99;
+int releSetFlag = 99;           //A flag para atualizar o status no firebase quando muda o estado no webserver local do esp32
 String fireStatus[NUM_RELAYS2] = {"Desligado", "Desligado"};
 unsigned long sendDataPrevMillis = 0;
-unsigned long dataMillis = 0;
+unsigned long dataMillis = 0; // Variaveis para os firebases  set/status/config
 int count = 0;
 int counts = 0;
 String uid;
 uint32_t idleTimeForStream = 15000;
-FirebaseConfig config;
-
-#define USER_EMAIL "morangos@gmail.com"
-#define USER_PASSWORD "123456mo"
 
 
+#define USER_EMAIL "morangos@gmail.com"   // email para conectar com o firebase
+#define USER_PASSWORD "123456mo"          // senha do email para o firebase
+
+// As variáveis para o projeto do firebase
 #define API_KEY "AIzaSyB5BAbxcc0IemgmzU0yILI3OAiv5JQbj1I"
 #define DATABASE_URL "https://cursofb-d8836-default-rtdb.firebaseio.com/" //<databaseName>.firebaseio.com or <databaseName>.<region>.firebasedatabase.app
 #define DATABASE_SECRET "DATABASE_SECRET"
 
-FirebaseData fbdo;
-FirebaseAuth auth;
-static time_t hora;
+
+static time_t hora;  // variavel para pegar a hora atual
 //----------------PROTÓTIPO DAS FUNÇÕES---------------------------------------------//
 
 String softwareStr(); // Retorna nome do software
@@ -102,23 +102,8 @@ void handleCSS(); //
 void FireBaseSet();// A cada pedido de mudança no FireBase é atualizado os estados dos reles
 void  FireBaseStatus();//Atualização do estado dos reles
 void ConexaoFireBase(); //Atualizado quando o esp32 esta online
-void WatchDog(); // As condições de acionamento do Watchdog
 
-//-----------------------------WATCHDOG---------------------------------------------//
 
-hw_timer_t *timer = NULL;
-
-void IRAM_ATTR resetModule() {
-  ets_printf("(watchdog) reiniciar\n"); //imprime no log
-  esp_restart(); //reinicia o chip
-}
-void configureWatchdog()
-{
-  timer = timerBegin(0, 80, true);
-  timerAttachInterrupt(timer, &resetModule, true);
-  timerAlarmWrite(timer, 3000000, true);
-  timerAlarmEnable(timer);
-}
 
 
 StaticJsonDocument<320> doc;
@@ -138,7 +123,7 @@ char              senha[30];       // Senha do email
 char              pw[30];       // Senha da Rede WiFi
 char              agendamento[5000];  //#sched# adendamento de rotinas
 char              configuracao[5000];
-char              horarioAtualiza[20];
+char            horarioAtualiza[20];
 
 // Funções Genéricas ------------------------------------
 
@@ -170,8 +155,8 @@ String longTimeStr(const time_t &t) {
 // Funções de Configuração ------------------------------
 void  configReset() {
   // Define configuração padrão
-  strlcpy(id, " ", sizeof(id));
-  strlcpy(ssid, " ", sizeof(ssid));
+  strlcpy(id, "IF_CATARINENSE", sizeof(id));
+  strlcpy(ssid, "ifcatarinense", sizeof(ssid));
   strlcpy(pw, " ", sizeof(pw));
   strlcpy(email, " ", sizeof(email));
   strlcpy(senha, " ", sizeof(senha));
@@ -184,7 +169,8 @@ void  configReset() {
   softap = true;
   strlcpy(agendamento, "0000", sizeof(agendamento)); //agendamento
   strlcpy(configuracao, " ", sizeof(configuracao));
-  strlcpy(horarioAtualiza, " ", sizeof(horarioAtualiza));
+  strlcpy(horarioAtualiza, "14:00", sizeof(horarioAtualiza));
+
 
 }
 
@@ -240,6 +226,7 @@ boolean configRead() {
     strlcpy(configuracao, jsonConfig["configuracao"]      | "", sizeof(configuracao));
     strlcpy(horarioAtualiza, jsonConfig["hora de reboot"]      | "", sizeof(horarioAtualiza));
 
+
     file.close();
 
     log(F("\nLendo config:"));
@@ -258,17 +245,16 @@ boolean configSave() {
   if (file) {
     // Atribui valores ao JSON e grava
     jsonConfig["id"]    = id;
-    jsonConfig["led"]   = ledOn;
     jsonConfig["boot"]  = bootCount;
     jsonConfig["ssid"]  = ssid;
     jsonConfig["email"]  = email;
     jsonConfig["pw"]    = pw;
     jsonConfig["senha"]    = senha;
     jsonConfig["referencia"]    = referencia;
-    jsonConfig["fuso"]  = fuso;
-    jsonConfig["horamanual"]  =  horamanual;
-    jsonConfig["autenticacao"] = autenticacao;
-    jsonConfig["softap"] = softap;
+    //jsonConfig["fuso"]  = fuso;
+   // jsonConfig["horamanual"]  =  horamanual;
+    //jsonConfig["autenticacao"] = autenticacao;
+    //jsonConfig["softap"] = softap;
     jsonConfig["agendamento"] = agendamento;
     jsonConfig["configuracao"] = configuracao;
     jsonConfig["horario de reboot"] = horarioAtualiza;
@@ -279,8 +265,6 @@ boolean configSave() {
     log(F("\nGravando config:"));
     serializeJsonPretty(jsonConfig, Serial);
     log("");
-
-
 
     return true;
   }
@@ -458,7 +442,7 @@ void handleRelaySet() {   //Mudança de acordo com o botão
 
 void handleConfig() {
   // Config
-  FireBaseSetConfig();
+  //  FireBaseSetConfig();
   File file = SPIFFS.open(F("/Config.htm"), "r");
   if (file) {
     file.setTimeout(100);
@@ -497,18 +481,25 @@ void handleConfigSave() {
   if (server.args() == 10) {
 #else
   // ESP32 envia apenas os 4 campos
-  if (server.args() == 9) {
+  if (server.args() == 4) {
 #endif
     String s;
 
     // Grava id
-    s = server.arg("id");
+    s = server.arg("adress");
     s.trim();
     if (s == "") {
-      s = id;
+      s = email;
     }
-    strlcpy(id, s.c_str(), sizeof(id));
-
+    strlcpy(email, s.c_str(), sizeof(email));
+ // Grava id
+    s = server.arg("senha");
+    s.trim();
+    if (s == "") {
+      s = senha;
+    }
+    strlcpy(email, s.c_str(), sizeof(email));
+    
     // Grava ssid
     s = server.arg("ssid");
     s.trim();
@@ -529,15 +520,15 @@ void handleConfigSave() {
     }
 
     // Grava horamanual
-    s = server.arg("horamanual");
-    s.trim();
-    if (s != "") {
-      strlcpy(horamanual, s.c_str(), sizeof(horamanual));
-    }
+//    s = server.arg("horamanual");
+//    s.trim();
+//    if (s != "") {
+//      strlcpy(horamanual, s.c_str(), sizeof(horamanual));
+//    }
 
-    fuso = server.arg("fuso").toInt();
-    autenticacao = server.arg("autenticacao").toInt();
-    softap = server.arg("softap").toInt();
+//    fuso = server.arg("fuso").toInt();
+//    autenticacao = server.arg("autenticacao").toInt();
+//    softap = server.arg("softap").toInt();
 
     // Grava agendamento
     //    s = server.arg("agendamento");
@@ -547,11 +538,7 @@ void handleConfigSave() {
     //      strlcpy(agendamento, s.c_str(), sizeof(agendamento));
     //    }
 
-    // Grava ledOn
-    ledOn = server.arg("led").toInt();
-
-
-
+    
     // Grava configuração
     if (configSave()) {
       server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Configuração salva.');history.back()</script></html>"));
@@ -598,146 +585,146 @@ void handleReboot() {
 
 void handleFileList() {
   // File list
-  if (!pwdNeeded() || chkWebAuth()) {
-    File file = SPIFFS.open(F("/FileList.htm"), "r");
-    if (file) {
-      file.setTimeout(100);
-      String  s = file.readString(),
-              sort = "",
-              files[DIRECTORY_MAX_FILES];
-      file.close();
-      File dir = SPIFFS.open("/");   //   Dir dir = SPIFFS.openDir("/");
-      File file = dir.openNextFile();
-      byte b = 0;
-      while (file) {
-        files[b] = "<li>" + String(file.name()) + " - " + String(file.size() / 1024.0, 2) + "kb" + "</li>";
-        b++;
-        yield();
-        file = dir.openNextFile();
-      }
-      // Sort entries
-      sortArray(files, sort);
-      // Replace markers
-      s.replace(F("#files#")   , "<ul>" + sort + F("</ul>"));
-      s.replace(F("#fsSpace#") , fsSpaceStr());
-      // Send data
-      server.send(200, F("text/html"), s);
-      log(F("WebFileList"), "Cliente: " + ipStr(server.client().remoteIP()));
-    } else {
-      server.send(500, F("text/plain"), F("FileList - ERROR 500"));
-      logFile(F("WebFileList"), F("ERRO lendo arquivo"), true);
+  //if (!pwdNeeded() || chkWebAuth()) {
+  File file = SPIFFS.open(F("/FileList.htm"), "r");
+  if (file) {
+    file.setTimeout(100);
+    String  s = file.readString(),
+            sort = "",
+            files[DIRECTORY_MAX_FILES];
+    file.close();
+    File dir = SPIFFS.open("/");   //   Dir dir = SPIFFS.openDir("/");
+    File file = dir.openNextFile();
+    byte b = 0;
+    while (file) {
+      files[b] = "<li>" + String(file.name()) + " - " + String(file.size() / 1024.0, 2) + "kb" + "</li>";
+      b++;
+      yield();
+      file = dir.openNextFile();
     }
+    // Sort entries
+    sortArray(files, sort);
+    // Replace markers
+    s.replace(F("#files#")   , "<ul>" + sort + F("</ul>"));
+    s.replace(F("#fsSpace#") , fsSpaceStr());
+    // Send data
+    server.send(200, F("text/html"), s);
+    log(F("WebFileList"), "Cliente: " + ipStr(server.client().remoteIP()));
+  } else {
+    server.send(500, F("text/plain"), F("FileList - ERROR 500"));
+    logFile(F("WebFileList"), F("ERRO lendo arquivo"), true);
   }
+  //}
 }
 
 void handleLog() {
   // Log
   String files[DIRECTORY_MAX_FILES];
   String f;
-  if (chkWebAuth()) {
-    File file = SPIFFS.open(F("/Log.htm"), "r");
-    if (file) {
-      file.setTimeout(100);
-      String s = file.readString();
-      file.close();
-      File dir = SPIFFS.open(F("/Log/"));//Dir dir = SPIFFS.openDir(F("/Log/"));
-      byte b = 0;
-      while (dir) {  // while (dir.next()) {
-        f = String(dir.name()).substring(5);
-        files[b] = "<li><a href='logFileGet?l=" + f.substring(3, 4) + "'>" + f + F("</a> - ") +
-                   String(dir.size() / 1024.0, 2) + F("kb ") +
-                   (logDay() == f.substring(3, 4).toInt() ? "(A)" : "") + F("</li>");
-        b++;
-      }
-      String sort;
-      if (files[0] == "") {
-        // No entries
-        sort = F("<li><i>Nenhum arquivo</i></li>");
-      } else {
-        // Sort entries
-        sortArray(files, sort);
-      }
-      // Replace markers
-      s.replace(F("#logFiles#"), "<ul>" + sort + F("</ul>"));
-      s.replace(F("#fsSpace#") , fsSpaceStr());
-      // Send data
-      server.send(200, F("text/html"), s);
-      log(F("WebLog"), "Client: " + ipStr(server.client().remoteIP()));
-    } else {
-      server.send(500, F("text/plain"), F("LogList - ERROR 500"));
-      logFile(F("WebLogList"), F("ERRO lendo arquivo"), true);
+  //if (chkWebAuth()) {
+  File file = SPIFFS.open(F("/Log.htm"), "r");
+  if (file) {
+    file.setTimeout(100);
+    String s = file.readString();
+    file.close();
+    File dir = SPIFFS.open(F("/Log/"));//Dir dir = SPIFFS.openDir(F("/Log/"));
+    byte b = 0;
+    while (dir) {  // while (dir.next()) {
+      f = String(dir.name()).substring(5);
+      files[b] = "<li><a href='logFileGet?l=" + f.substring(3, 4) + "'>" + f + F("</a> - ") +
+                 String(dir.size() / 1024.0, 2) + F("kb ") +
+                 (logDay() == f.substring(3, 4).toInt() ? "(A)" : "") + F("</li>");
+      b++;
     }
+    String sort;
+    if (files[0] == "") {
+      // No entries
+      sort = F("<li><i>Nenhum arquivo</i></li>");
+    } else {
+      // Sort entries
+      sortArray(files, sort);
+    }
+    // Replace markers
+    s.replace(F("#logFiles#"), "<ul>" + sort + F("</ul>"));
+    s.replace(F("#fsSpace#") , fsSpaceStr());
+    // Send data
+    server.send(200, F("text/html"), s);
+    log(F("WebLog"), "Client: " + ipStr(server.client().remoteIP()));
+  } else {
+    server.send(500, F("text/plain"), F("LogList - ERROR 500"));
+    logFile(F("WebLogList"), F("ERRO lendo arquivo"), true);
   }
+  // }
 }
 
 void handleLogGet() {
   // Memory Log download
-  if (chkWebAuth()) {
-    byte bFn;
-    String s = deviceID() +
-               F(" - Log em Memoria\r\nData/Hora;Tipo;Mensagem\r\n");
-    for (bFn = logIndex; bFn < LOG_ENTRIES; bFn++) {
-      if (logStr[bFn] != "") {
-        s += logStr[bFn] + F("\r\n");
-      }
+  // if (chkWebAuth()) {
+  byte bFn;
+  String s = deviceID() +
+             F(" - Log em Memoria\r\nData/Hora;Tipo;Mensagem\r\n");
+  for (bFn = logIndex; bFn < LOG_ENTRIES; bFn++) {
+    if (logStr[bFn] != "") {
+      s += logStr[bFn] + F("\r\n");
     }
-    for (bFn = 0; bFn < logIndex; bFn++) {
-      if (logStr[bFn] != "") {
-        s += logStr[bFn] + F("\r\n");
-      }
-    }
-    server.sendHeader(F("Content-Disposition"), "filename=\"" +
-                      deviceID() + F("LogMemoria.csv\""));
-    server.send(200, F("text/csv"), s);
-    log(F("WebLogGet"), "Client: " + ipStr(server.client().remoteIP()));
   }
+  for (bFn = 0; bFn < logIndex; bFn++) {
+    if (logStr[bFn] != "") {
+      s += logStr[bFn] + F("\r\n");
+    }
+  }
+  server.sendHeader(F("Content-Disposition"), "filename=\"" +
+                    deviceID() + F("LogMemoria.csv\""));
+  server.send(200, F("text/csv"), s);
+  log(F("WebLogGet"), "Client: " + ipStr(server.client().remoteIP()));
+  //}
 }
 
 void handleLogFileGet() {
   // File Log download
-  if (chkWebAuth()) {
-    String s = server.arg("l");
-    if (s != "") {
-      File file = SPIFFS.open("/Log/Dia" + s + F(".csv"), "r");
-      if (file) {
-        server.sendHeader(F("Content-Disposition"), "filename=\"" +
-                          deviceID() + F("LogDia") + s + F(".csv\""));
-        server.streamFile(file, "text/csv");
-        file.close();
-        log(F("WebLogFileGet"), "Client: " + ipStr(server.client().remoteIP()));
-      } else {
-        server.send(500, F("text/plain"), F("LogFileGet - ERROR 500"));
-        log(F("WebLogFileGet"), F("ERRO lendo arquivo"));
-      }
+  //if (chkWebAuth()) {
+  String s = server.arg("l");
+  if (s != "") {
+    File file = SPIFFS.open("/Log/Dia" + s + F(".csv"), "r");
+    if (file) {
+      server.sendHeader(F("Content-Disposition"), "filename=\"" +
+                        deviceID() + F("LogDia") + s + F(".csv\""));
+      server.streamFile(file, "text/csv");
+      file.close();
+      log(F("WebLogFileGet"), "Client: " + ipStr(server.client().remoteIP()));
     } else {
-      server.send(500, F("text/plain"), F("LogFileGet - ERROR Bad parameter 500"));
-      log(F("WebLogFileGet"), F("ERRO parametro incorreto"));
+      server.send(500, F("text/plain"), F("LogFileGet - ERROR 500"));
+      log(F("WebLogFileGet"), F("ERRO lendo arquivo"));
     }
+  } else {
+    server.send(500, F("text/plain"), F("LogFileGet - ERROR Bad parameter 500"));
+    log(F("WebLogFileGet"), F("ERRO parametro incorreto"));
   }
+  // }
 }
 
 void handleLogReset() {
   // Memory Log reset
-  if (chkWebAuth()) {
-    // Delete log
-    logDelete();
-    // Send data
-    server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Log em Memória excluído.');window.location = 'log';</script></html>"));
-    log(F("WebLogReset"), "Cliente: " + ipStr(server.client().remoteIP()));
-    logFile(F("WebLogReset"), "Cliente: " + ipStr(server.client().remoteIP()));
-  }
+  //if (chkWebAuth()) {
+  // Delete log
+  logDelete();
+  // Send data
+  server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Log em Memória excluído.');window.location = 'log';</script></html>"));
+  log(F("WebLogReset"), "Cliente: " + ipStr(server.client().remoteIP()));
+  logFile(F("WebLogReset"), "Cliente: " + ipStr(server.client().remoteIP()));
+  //}
 }
 
 void handleLogFileReset() {
   // File Log reset
-  if (chkWebAuth()) {
-    // Delete log files
-    logFileDelete();
-    // Send data
-    server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Log em Arquivo excluído.');window.location = 'log';</script></html>"));
-    log(F("WebLogFileReset"), "Cliente: " + ipStr(server.client().remoteIP()));
-    logFile(F("WebLogFileReset"), "Cliente: " + ipStr(server.client().remoteIP()));
-  }
+  //if (chkWebAuth()) {
+  // Delete log files
+  logFileDelete();
+  // Send data
+  server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Log em Arquivo excluído.');window.location = 'log';</script></html>"));
+  log(F("WebLogFileReset"), "Cliente: " + ipStr(server.client().remoteIP()));
+  logFile(F("WebLogFileReset"), "Cliente: " + ipStr(server.client().remoteIP()));
+  //}
 }
 
 void handleCSS() {
@@ -756,6 +743,7 @@ void handleCSS() {
 }
 
 //---------------------------FIREBASE--------------------------------
+
 
 void FireBaseSet() {
 
@@ -799,7 +787,6 @@ void FireBaseSet() {
           }
         }
       }
-
     }
   }
 }
@@ -872,7 +859,23 @@ void FireBaseSetConfig() {
         scheduleSet(schedule);
       }
       if (mudanca.indexOf("horário") > 0) {
+
         strlcpy(horarioAtualiza, estado.c_str(), sizeof(horarioAtualiza));
+        Serial.println(horarioAtualiza);
+        StaticJsonDocument<JSON_SIZE> jsonConfig;
+
+        File file = SPIFFS.open(F("/Config.json"), "w+");
+        if (file) {
+          // Atribui valores ao JSON e grava
+          jsonConfig["horario de reboot"] = horarioAtualiza;
+
+          serializeJsonPretty(jsonConfig, file);
+          file.close();
+
+          log(F("\nGravando config:"));
+          serializeJsonPretty(jsonConfig, Serial);
+          log("");
+        }
       }
     }
   }
@@ -929,7 +932,7 @@ void ConfigSchedule() {
   //-------------------ParteDoAgendamento--------------------------------
 
   // Schedule entries
-  schedule = scheduleGet();
+  schedule = scheduleGet();   // pega os comandos salvos do schedule anterior
   // SET SCHEDULE ENTRIES - DEBUG ONLY
   time_t t = now() + 61;
 
@@ -982,7 +985,6 @@ void setup() {
     Serial.print("WiFi conected. IP: ");
     Serial.println(WiFi.localIP());
     log("WiFi conectado (" + String(WiFi.RSSI()) + ") IP " + ipStr(WiFi.localIP()));
-    /* Assign the callback function for the long running token generation task */
 
     config.api_key = API_KEY;
     auth.user.email = USER_EMAIL ;
@@ -1010,6 +1012,7 @@ void setup() {
 
     if (timeStatus() != timeSet) {
       log(F("Boot"), F("Data/Hora ERRO"));
+      reboot();
     }
   } else {
     // Soft AP mode, ignore date/time
@@ -1073,7 +1076,7 @@ void setup() {
 
 
   //---------------------------------WATCHDOG---------------------------//
-  configureWatchdog();
+  //configureWatchdog();
 
   // WebServer
   server.on(F("/Relay.htm")       , handleRelay);
@@ -1081,7 +1084,6 @@ void setup() {
   server.on(F("/relaySet")    , handleRelaySet);
 
   server.on(F("/atualizacaoSet")    , handleEmailSet);
-  // server.on(F("/refreshSet")    , FireBaseSetConfig);
 
   server.on(F("/Config.htm")    , handleConfig);
   server.on(F("/FileList.htm")    , handleFileList);
@@ -1108,53 +1110,46 @@ void setup() {
   ConfigSchedule();
 }
 
-void WatchDog() {
-  hora=now();
-  yield();
-  String horas = "";
-  if (hour(hora) < 10) {
-    s += '0';
-  }
- horas += String(hour(hora)) + ':';
-  if (minute(hora) < 10) {
-    s += '0';
-  }
-  horas += String(minute(hora));
-  if (WiFi.status() == WL_CONNECTED && !Firebase.beginStream(stream, "/Digitais/") || !Firebase.beginStream(streamStatus, "Dispositivos/ESP32/Estado") || !Firebase.ready() ) {
-    while (1);
-  } else if(horas.c_str()==horarioAtualiza){
-    while(1);
-  }
-}
-
 // ------------------Loop --------------------------------------------
 
 void loop() {
 
-  timerWrite(timer, 0);
-
-  // WatchDog ----------------------------------------
-  //WatchDog();
-
-  // DNS ---------------------------------------------
-  dnsServer.processNextRequest();
+  yield();
 
   // Web ---------------------------------------------
   server.handleClient();
 
-  ConexaoFireBase();
+  // WatchDog ----------------------------------------
+  hora = now();
+  String horas = "";
+  if (hour(hora) < 10) {
+    s += '0';
+  }
+  horas += String(hour(hora)) + ':';
+  if (minute(hora) < 10) {
+    s += '0';
+  }
+  horas += String(minute(hora));
+  if (WiFi.status() == WL_CONNECTED && !Firebase.beginStream(stream, "/Digitais/") && !Firebase.beginStream(streamStatus, "Dispositivos/ESP32/Estado") && !Firebase.ready() ) {
+    reboot();
+  } else if ( horas == horarioAtualiza ) {
+    reboot();
+  }
+
+  // DNS ---------------------------------------------
+  dnsServer.processNextRequest();
 
   //Firebase pegando os status-----------------------
   FireBaseStatus();
   FireBaseSet();
   FireBaseSetConfig();
-  
-  
+  ConexaoFireBase();
+ 
   for (int i = 0; i < RELAY_PIN; i++) {
-  String s   = scheduleChk(schedule,relayGPIOsteste[i],StringPortax[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
-  delay(500);
-  if (s != "") {
-    // Event detected
+    String s   = scheduleChk(schedule, relayGPIOsteste[i], StringPortax[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
+    delay(500);
+    if (s != "") {
+      // Event detected
       lastEvent = (digitalRead(relayGPIOsteste[i]) ? "Ligado " : "Desligado ") +
                   s + " - " + dateTimeStr(now());
       log(F("Agendamento"), lastEvent);

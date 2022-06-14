@@ -1,4 +1,5 @@
 <html>
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=auto">
@@ -8,77 +9,88 @@
       padding: 0;
       height: 100vh;
       margin: 0;
-      
-     }
-     .Cabecario{
-       display: flex;
-       flex-flow: row wrap;
-       text-align: center;
+
+    }
+
+    .Cabecario {
+      display: flex;
+      flex-flow: row wrap;
+      text-align: center;
       font-family: Verdana, Arial, Helvetica, sans-serif;
-      
-     
-     }
-     .Cabecario>*{
-        padding: 10px;
-        margin: 10px;
-        flex: 1 100%;
-        border-radius: 20px;
-     }
-     .row{
+
+
+    }
+
+    .Cabecario>* {
+      padding: 10px;
+      margin: 10px;
+      flex: 1 100%;
+      border-radius: 20px;
+    }
+
+    .row {
       background: #d0d0d0;
       height: 40px;
-       color: #ffffff;
-       width: 100%;
-       display: flex;
-       justify-content: center;
-       flex-wrap: wrap;
-     }
+      color: #ffffff;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
 
-     .box1{
-        background: #d0d0d0;
-     }
-     .box2{
+    .box1 {
       background: #d0d0d0;
-     }
-     .main{
-       text-align: left;
-       background: hsl(0, 9%, 55%);
-       height: 300px;
-       font-size: 24px;
-     }
-     @media all and (min-width:800px){
-       .main{
-         flex:2;
-       }
-        .box1{
-          order:1;
-        }
-        .box2{
-          order:2;
-        }
-     }
-     @media all and(min-width:600px){
+    }
 
-        .box1{
-          flex: 1;
-        }
-     }
-     
+    .box2 {
+      background: #d0d0d0;
+    }
+
+    .main {
+      text-align: left;
+      background: hsl(0, 9%, 55%);
+      height: 300px;
+      font-size: 24px;
+    }
+
+    @media all and (min-width:800px) {
+      .main {
+        flex: 2;
+      }
+
+      .box1 {
+        order: 1;
+      }
+
+      .box2 {
+        order: 2;
+      }
+    }
+
+    @media all and(min-width:600px) {
+
+      .box1 {
+        flex: 1;
+      }
+    }
+
     h1 {
       font-size: 20px;
-      text-align:justify;
+      text-align: justify;
       color: rgb(1, 4, 7);
       margin: 3px;
-     
+
     }
+
     h2 {
       font-size: 12px;
-      text-align:center;
+      text-align: center;
       color: rgb(60, 153, 234);
       margin: 10px;
-      height:200px;
-      
+      height: 200px;
+
     }
+
     h3 {
       font-size: 12px;
       text-align: left;
@@ -89,10 +101,12 @@
       border: #787878 solid 2px;
       border-radius: 0px 0px 7px 7px;
     }
+
     table {
-     
+
       width: 100%;
     }
+
     th {
       font-size: 11px;
       background: rgb(60, 153, 234);
@@ -101,22 +115,26 @@
       border-radius: 3px 0px 0px 3px;
       width: 25%;
     }
+
     td {
       font-size: 11px;
       background: #787878;
       padding: 5px;
       border-radius: 0px 3px 3px 0px;
     }
+
     a {
       font-size: 12px;
       color: #ffffff;
     }
+
     input[type=button] {
       border: 2px solid #333333;
       border-radius: 5px;
       padding: 5px;
       width: 90px;
     }
+
     span {
       display: block;
       text-align: center;
@@ -128,93 +146,96 @@
   </style>
   <script language="JavaScript">
 
-      var reqSetP = new XMLHttpRequest();
-      var reqSet = new XMLHttpRequest();
-      var reqSetSSID = new XMLHttpRequest();
-      var reqSetPW = new XMLHttpRequest();
-      var reqSetRefe = new XMLHttpRequest();
-      
-      function levarinformações(){
-     
-        var email= document.getElementById("adress").value;
-        reqSet.open("GET", "/atualizacaoSet?setEmail=" + email+ "", true);
-        reqSet.send(null);
-        console.log("levarinformaçõesEmail");
+    var reqSetP = new XMLHttpRequest();
+    var reqSet = new XMLHttpRequest();
+    var reqSetSSID = new XMLHttpRequest();
+    var reqSetPW = new XMLHttpRequest();
+    var reqSetRefe = new XMLHttpRequest();
 
-        var senha= document.getElementById("senha").value;
-        reqSetP.open("GET", "/atualizacaoSet?setSenha=" + senha+ "", true);
-        reqSetP.send(null);
-        console.log("levarinformaçõesSenha");
+    function levarinformações() {
 
-        var ssid= document.getElementById("ssid").value;
-        reqSetSSID.open("GET", "/atualizacaoSet?setSSID=" + ssid+ "", true);
-        reqSetSSID.send(null);
-        console.log("levarinformaçõesWifi");
+      var email = document.getElementById("adress").value;
+      reqSet.open("GET", "/atualizacaoSet?setEmail=" + email + "", true);
+      reqSet.send(null);
+      console.log("levarinformaçõesEmail");
 
-        var pw= document.getElementById("pw").value;
-        reqSetPW.open("GET", "/atualizacaoSet?setPW=" + pw+ "", true);
-        reqSetPW.send(null);
-        console.log("levarinformaçõesSenhaDaWifi");
+      var senha = document.getElementById("senha").value;
+      reqSetP.open("GET", "/atualizacaoSet?setSenha=" + senha + "", true);
+      reqSetP.send(null);
+      console.log("levarinformaçõesSenha");
 
-        var referencia= document.getElementById("referencia").value;
-        reqSetRefe.open("GET", "/atualizacaoSet?setReferencia=" + referencia+ "", true);
-        reqSetRefe.send(null);
-        console.log("levarinformaçõesReferencia");
-        
-        
-      
-      }
-      
-    
+      var ssid = document.getElementById("ssid").value;
+      reqSetSSID.open("GET", "/atualizacaoSet?setSSID=" + ssid + "", true);
+      reqSetSSID.send(null);
+      console.log("levarinformaçõesWifi");
+
+      var pw = document.getElementById("pw").value;
+      reqSetPW.open("GET", "/atualizacaoSet?setPW=" + pw + "", true);
+      reqSetPW.send(null);
+      console.log("levarinformaçõesSenhaDaWifi");
+
+      var referencia = document.getElementById("referencia").value;
+      reqSetRefe.open("GET", "/atualizacaoSet?setReferencia=" + referencia + "", true);
+      reqSetRefe.send(null);
+      console.log("levarinformaçõesReferencia");
+
+
+
+    }
+
+
   </script>
 </head>
+
 <body>
   <div class="Cabecario">
     <header class="row">
       <h1>Agro 4.0</h1>
-    <h2>
-      <a href="Home.htm">Home</a> |
-      <a href="Relay.htm">Relé</a> |
-      <a href="FileList.htm">Arquivos</a> |
-      <a href="Config.htm">Configuração</a> |
-      <a href="Log.htm">Log</a> |
-      <a href="Reboot.htm" onclick="return confirm('Reiniciar ESPRelé?')">Reiniciar</a>
-    </h2>
+      <h2>
+        <a href="Home.htm">Home</a> |
+        <a href="Relay.htm">Relé</a> |
+        <a href="FileList.htm">Arquivos</a> |
+        <a href="Config.htm">Configuração</a> |
+        <a href="Log.htm">Log</a> |
+        <a href="Reboot.htm" onclick="return confirm('Reiniciar ESPRelé?')">Reiniciar</a>
+      </h2>
     </header>
     <h3>
-      <table>
-        <tr>
-          <th rowspan="1">Referencia</th>
-          <td colspan="2">Nome: <input type="text" id="referencia" value="Referencia" size="25" maxlength="35"></td>
-        </tr>
-        <tr>
-          <th rowspan="2">Wi-Fi</th>
-          <td colspan="2">SSID: <input type="text" id="ssid" value="wifi" size="25" maxlength="35"></td>
-        </tr>
-        <tr>
-          <td colspan="2">Senha: <input id="pw" type="password" name="pw" size="20" maxlength="35"></td>
-        </tr>
-        <tr>
-          <th rowspan="2">Usuário</th>
-          <td colspan="2">Email: <input type="text" id="adress" value="email" size="25" maxlength="35"></td>
-        </tr>
-        <tr>
-          <td colspan="2">Senha: <input id="senha" type="password" name="SENHA" size="20" maxlength="35"></td>
-        </tr>
-        <th></th>
-        <td><input type="button" id="btnSalva" value="Salvar" onClick="levarinformações()"></td>
-        <tr>
-          <th rowspan="1">Últimas configurações gerais</th>
-          <td><textarea name="configuracao" rows="5" cols="25">#configuracao#</textarea></td>
-        </tr>
-        <tr>
-          <th rowspan="1">Agendamento</th>
-          <td><textarea name="agenda" rows="5" cols="25">#agendamento#</textarea></td>
-              
-    
-        </tr>
-      </table>
+      <form name="config" action="/ConfigSave" method="post">
+        <table>
+          <tr>
+            <th rowspan="1">Referencia</th>
+            <td colspan="2">Nome: <input type="text" id="referencia" value="Referencia" size="25" maxlength="35"></td>
+          </tr>
+          <tr>
+            <th rowspan="2">Wi-Fi</th>
+            <td colspan="2">SSID: <input type="text" id="ssid" value="wifi" size="25" maxlength="35"></td>
+          </tr>
+          <tr>
+            <td colspan="2">Senha: <input id="pw" type="password" name="pw" size="20" maxlength="35"></td>
+          </tr>
+          <tr>
+            <th rowspan="2">Usuário</th>
+            <td colspan="2">Email: <input type="text" id="adress" value="email" size="25" maxlength="35"></td>
+          </tr>
+          <tr>
+            <td colspan="2">Senha: <input id="senha" type="password" name="SENHA" size="20" maxlength="35"></td>
+          </tr>
+          <th></th>
+          <td colspan="2" class="msg"><input id="save" type="submit" value="Gravar"
+              onClick="confirm('Gravar a configuração?')"></td>
+          <tr>
+            <th rowspan="1">Últimas configurações gerais</th>
+            <td><textarea name="configuracao" rows="5" cols="25">#configuracao#</textarea></td>
+          </tr>
+          <tr>
+            <th rowspan="1">Agendamento</th>
+            <td><textarea name="agenda" rows="5" cols="25">#agendamento#</textarea></td>
+          </tr>
+        </table>
+      </form>
     </h3>
-    </div>
-    </body>
+  </div>
+</body>
+
 </html>
