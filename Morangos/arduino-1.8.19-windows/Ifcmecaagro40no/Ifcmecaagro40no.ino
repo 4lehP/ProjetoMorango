@@ -21,10 +21,18 @@
 //Provide the RTDB payload printing info and other helper functions.
 #include <addons/RTDBHelper.h>
 
+<<<<<<< HEAD
 #define RELAY_PIN 3
 
 int relayGPIOsteste[RELAY_PIN] = {15, 13, 2};
 String StringPortax[RELAY_PIN] = {"D1", "D2", "D2"};
+=======
+#define RELAY_PIN 4
+String RELAY_COD = "D1";
+
+int relayGPIOsteste[RELAY_PIN] = { 2, 15, 13};
+String StringPortax[RELAY_PIN] = {"D1","D2","D3"};
+>>>>>>> main
 
 //---------PARTE DAS CONFIGURAÇÕES DAS ENTRADAS DAS VálvulaS----------//
 
@@ -37,8 +45,15 @@ const byte      LED_OFF                 = LOW;
 int relayGPIOs[NUM_RELAYS] =          {2, 13, 14, 27, 26, 25, 33, 32, 16, 17, 4, 15};
 String relayDescricao[NUM_RELAYS] =  {"Válvula Agua", "Válvula Retorno Adubo 1", "Válvula Adubo 1", "Válvula Retorno Adubo 2", "Válvula Adubo 2", "Válvula Canteiro 6", "Válvula Canteiro 1", "Válvula Canteiro 2", "Válvula Canteiro 3", "Válvula Canteiro 4", "Válvula Canteiro 5", "Bomba 1"};
 String relayCodigo[NUM_RELAYS] =       {"VAgua", "VRetAdb1", "VAdb1", "VRetAdb2", "VAdb2", "VL6", "VL1", "VL2", "VL3", "VL4", "VL5", "VBomba"};
+<<<<<<< HEAD
 String relayCodigoTeste [NUM_RELAYS] = {"D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12"};
 
+=======
+String relayCodigoTeste [NUM_RELAYS] = {"D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08", "D09", "D10", "D11", "D12"};
+static time_t horas;
+int atualizaAgenda=10;
+int horaMais;
+>>>>>>> main
 
 // Tamanho do Objeto JSON
 //const   size_t    JSON_SIZE            = 404; declarado em def.h
@@ -75,8 +90,14 @@ uint32_t idleTimeForStream = 15000;
 #define DATABASE_URL "https://cursofb-d8836-default-rtdb.firebaseio.com/" //<databaseName>.firebaseio.com or <databaseName>.<region>.firebasedatabase.app
 #define DATABASE_SECRET "DATABASE_SECRET"
 
+<<<<<<< HEAD
 
 static time_t hora;  // variavel para pegar a hora atual
+=======
+FirebaseData fbdo;
+FirebaseAuth auth;
+
+>>>>>>> main
 //----------------PROTÓTIPO DAS FUNÇÕES---------------------------------------------//
 
 String softwareStr(); // Retorna nome do software
@@ -123,7 +144,11 @@ char              senha[30];       // Senha do email
 char              pw[30];       // Senha da Rede WiFi
 char              agendamento[5000];  //#sched# adendamento de rotinas
 char              configuracao[5000];
+<<<<<<< HEAD
 char            horarioAtualiza[20];
+=======
+
+>>>>>>> main
 
 // Funções Genéricas ------------------------------------
 
@@ -169,8 +194,11 @@ void  configReset() {
   softap = true;
   strlcpy(agendamento, "0000", sizeof(agendamento)); //agendamento
   strlcpy(configuracao, " ", sizeof(configuracao));
+<<<<<<< HEAD
   strlcpy(horarioAtualiza, "14:00", sizeof(horarioAtualiza));
 
+=======
+>>>>>>> main
 
 }
 
@@ -224,7 +252,6 @@ boolean configRead() {
     softap = jsonConfig["softap"]    | true;
     strlcpy(agendamento, jsonConfig["agendamento"]      | "", sizeof(agendamento));
     strlcpy(configuracao, jsonConfig["configuracao"]      | "", sizeof(configuracao));
-    strlcpy(horarioAtualiza, jsonConfig["hora de reboot"]      | "", sizeof(horarioAtualiza));
 
 
     file.close();
@@ -257,7 +284,6 @@ boolean configSave() {
     //jsonConfig["softap"] = softap;
     jsonConfig["agendamento"] = agendamento;
     jsonConfig["configuracao"] = configuracao;
-    jsonConfig["horario de reboot"] = horarioAtualiza;
 
     serializeJsonPretty(jsonConfig, file);
     file.close();
@@ -859,6 +885,7 @@ void FireBaseSetConfig() {
         scheduleSet(schedule);
       }
       if (mudanca.indexOf("horário") > 0) {
+<<<<<<< HEAD
 
         strlcpy(horarioAtualiza, estado.c_str(), sizeof(horarioAtualiza));
         Serial.println(horarioAtualiza);
@@ -876,6 +903,11 @@ void FireBaseSetConfig() {
           serializeJsonPretty(jsonConfig, Serial);
           log("");
         }
+=======
+        EEPROM.write(CFG_TIME_ZONE, estado.toInt());
+        time_t timer = now();
+        Serial.printf("\n Horario de agora: ", timer);
+>>>>>>> main
       }
     }
   }
@@ -935,17 +967,16 @@ void ConfigSchedule() {
   schedule = scheduleGet();   // pega os comandos salvos do schedule anterior
   // SET SCHEDULE ENTRIES - DEBUG ONLY
   time_t t = now() + 61;
-
   for (int i = 0; i < RELAY_PIN; i++) {
-    schedule = "SH" + dateTimeStr( t      , false).substring(0, 16) + StringPortax[i]  +
-               "\nSL" +  dateTimeStr( t + 60 , false).substring(0, 16) + StringPortax[i] +
-               "\nMH" + dateTimeStr( t + 120, false).substring(8, 16) + StringPortax[i] +
-               "\nML" + dateTimeStr( t + 180, false).substring(8, 16) + StringPortax[i] +
-               "\nWH" +    weekday( t + 240) + " " + dateTimeStr( t + 240, false).substring(11, 16) + StringPortax[i] +
-               "\nWL" +    weekday( t + 300) + " " + dateTimeStr( t + 300, false).substring(11, 16) + StringPortax[i] +
-               "\nDH" + dateTimeStr( t + 360, false).substring(11, 16) + StringPortax[i] +
-               "\nDL" +  dateTimeStr( t + 420, false).substring(11, 16) + StringPortax[i] +
-               "\nIH" + "00:01" + StringPortax[i] + "\nIL" + "00:01" + StringPortax[i];
+    schedule = "SH" + StringPortax[i] + dateTimeStr( t      , false).substring(0, 16) + 
+               "\nSL" + StringPortax[i] +  dateTimeStr( t + 60 , false).substring(0, 16) + 
+               "\nMH" + StringPortax[i] + dateTimeStr( t + 120, false).substring(8, 16) + 
+               "\nML" + StringPortax[i] + dateTimeStr( t + 180, false).substring(8, 16) + 
+               "\nWH" +  StringPortax[i] +  weekday( t + 240) + " " + dateTimeStr( t + 240, false).substring(11, 16) + 
+               "\nWL" +   StringPortax[i] + weekday( t + 300) + " " + dateTimeStr( t + 300, false).substring(11, 16) + 
+               "\nDH" + StringPortax[i] + dateTimeStr( t + 360, false).substring(11, 16) + 
+               "\nDL" +  StringPortax[i] + dateTimeStr( t + 420, false).substring(11, 16) + 
+               "\nIH" + StringPortax[i]+ "00:01"  + "\nIL"  + StringPortax[i]+ "00:01";
   }
   log(F("Boot"), F("Agendamento Ok"));
 }
@@ -1009,17 +1040,22 @@ void setup() {
 
     setSyncProvider(timeNTP);
     setSyncInterval(NTP_INT);
-
+    timeNTP();
+    delay(1000);
     if (timeStatus() != timeSet) {
       log(F("Boot"), F("Data/Hora ERRO"));
+<<<<<<< HEAD
       reboot();
+=======
+      while(1);
+>>>>>>> main
     }
   } else {
     // Soft AP mode, ignore date/time
     log(F("Boot"), F("Data/Hora nao definida"));
     log(F("WiFi não conectado"));
   }
-
+  delay(1000);
 
   // SPIFFS                     SPI Flash File System
   if (!SPIFFS.begin()) {
@@ -1105,11 +1141,27 @@ void setup() {
 
   // Pronto
   log(F("Pronto"));
-  //  timeNTP();
-  //  hold(1000);
+  
+  delay(1000);
+   
   ConfigSchedule();
 }
 
+<<<<<<< HEAD
+=======
+void WatchDog() {
+
+  yield();
+  if (WiFi.status() == WL_CONNECTED && !Firebase.beginStream(stream, "/Digitais/") && !Firebase.beginStream(streamStatus, "Dispositivos/ESP32/Estado") && !Firebase.ready() ) {
+    while (1);
+  } //else if (!server.begin();) {
+  //    while (1);
+  //  }
+
+
+}
+
+>>>>>>> main
 // ------------------Loop --------------------------------------------
 
 void loop() {
@@ -1143,8 +1195,12 @@ void loop() {
   FireBaseStatus();
   FireBaseSet();
   FireBaseSetConfig();
+<<<<<<< HEAD
   ConexaoFireBase();
  
+=======
+  
+>>>>>>> main
   for (int i = 0; i < RELAY_PIN; i++) {
     String s   = scheduleChk(schedule, relayGPIOsteste[i], StringPortax[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
     delay(500);
@@ -1154,5 +1210,28 @@ void loop() {
                   s + " - " + dateTimeStr(now());
       log(F("Agendamento"), lastEvent);
     }
+  }
+  horas = now();
+  String minuto= "";
+  if (minute(horas) < 10) {
+    minuto += '0';
+  }
+  minuto += String(minute(horas));
+  
+ if(atualizaAgenda !=0){
+  horas = now();
+  String horinha;
+    
+   horaMais =int(minute(horas)) + 3;
+  Serial.println(horaMais);
+  atualizaAgenda=0;
+  }
+//  if(minuto.toInt()==horaMais){
+//   schedule = scheduleGet();
+//   Serial.println("\n Leitura realizada");
+//    atualizaAgenda=10;
+//  }
+  if(int(minute(horas)) + 3 == true){
+    schedule = scheduleGet();
   }
 }
