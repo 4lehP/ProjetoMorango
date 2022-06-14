@@ -1,14 +1,15 @@
 //var valveList = document.getElementById('valveList');
+var IndexAgenda = 0;
 var agendaList = [];
+var tbodyAgenda = document.getElementById('tbodyAgenda');
+
 var valveList = [];
 var IndexTable = 0;
-var IndexAgenda = 0;
 var code = document.getElementById('code');
 var description = document.getElementById('description');
 var SwitchEstado = document.getElementById('SwitchEstado'); 
 var Vadb1label = document.getElementById('Vadb1label');
 var tbody = document.getElementById('tbody');
-var tbodyAgenda = document.getElementById('tbodyAgenda');
 var IMGphotoURL = document.getElementById('photoURL');
 var logOutButton = document.getElementById('logOutButton');
 var UsuarioAtivo = document.getElementById('UsuarioAtivo');
@@ -263,6 +264,11 @@ logOutButton.addEventListener('click', (e)=> {
         });
 });
 
+var agendaTxt;          // Texto com o estado para a tabela
+var agendaValor;        // Texto com o nome da válvula para a tabela
+var hora1;
+var comandoTxt;
+
 // Pega os valores do formulário do agendamento e envia para o firebase 
 function getForm(hora, valor){
     user = firebase.auth().currentUser;
@@ -270,7 +276,7 @@ function getForm(hora, valor){
     var status = document.forms[0];
     var txt;
     var i;
-
+    hora1 = hora;
     for(i=0; i < status.length; i++){     //Busca o valor selecionado nos checks 
         if(status[i].checked){
             txt = status[i].value ;
@@ -278,8 +284,6 @@ function getForm(hora, valor){
 
     }
                  
-    var agendaTxt; // Texto com o estado para a tabela
-
     //Converte o código em texto
     if(txt=='H'){
         agendaTxt = "Ligar";
@@ -287,7 +291,7 @@ function getForm(hora, valor){
         agendaTxt = "Desligar"; 
     }
 
-    var agendaValor; // Texto com o nome da válvula para a tabela
+     
     
     switch (valor) {
         case "D1":
@@ -330,13 +334,30 @@ function getForm(hora, valor){
     }   
     //console.log(agendaValor, agendaTxt);
 
-    var comando = txt+valor+hora;
+    comandoTxt = txt+valor+hora;
     
     if (user.uid =! null) {
         alert('Novo Agendamento Realizado');
-        firebase.database().ref("Config/kkkk/comando/").push(comando); //Escreve no firebase o código do agendamento
+        firebase.database().ref("Config/kkkk/comando/").push(comandoTxt); //Escreve no firebase o código do agendamento
+        ArmazenaAgendamento();
         
     }
     
+}
+
+function ArmazenaAgendamento(){
+//    firebase.database().ref("Config/kkkk/Descrição/" + comandoTxt).set({          //Salva no firebase com o destino Config/kkkk/Descrição/" + comandoTxt
+    firebase.database().ref("Config/kkkk/Descrição/").push({                        //Salva no firebase com o destino Config/kkkk/Descrição/" com Uid único para cada novo agendamento
+        nome: agendaValor,
+        hora: hora1,
+        comando: agendaTxt,
+        //cod: comandoTxt,
+    })
+    .then(()=>{
+        alert("Salvo");
+    })
+    .catch((error)=>{
+        console.log(error);
+    });
 }
 
