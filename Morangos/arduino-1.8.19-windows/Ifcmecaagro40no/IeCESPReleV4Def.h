@@ -14,7 +14,6 @@
 #include <SPIFFS.h>
 #include <FS.h>
 #include <DNSServer.h>
-#include <TimeLib.h>
 #include <ArduinoJson.h>
 #include <EEPROM.h>
 #include <WiFiUdp.h>
@@ -27,10 +26,10 @@
 const char      BUILD[]                         = __DATE__ " " __TIME__;
 
 // Web Interface Username
-const char      WWW_USERNAME[]                  = "esprele";
+const char      WWW_USERNAME[]                  = "moranguinho";
 
 // System Password
-const char      PASSWORD[]                      = "Rele8266";
+const char      PASSWORD[]                      = "123456mo";
 
 // WebServer Port
 const byte      WEBSERVER_PORT                  = 80;

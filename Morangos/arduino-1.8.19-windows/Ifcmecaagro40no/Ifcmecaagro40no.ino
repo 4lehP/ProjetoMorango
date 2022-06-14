@@ -13,14 +13,16 @@
 #include <FS.h>
 #include <ArduinoJson.h>
 #include "IeCESPReleV4Lib.h"
+<<<<<<< Updated upstream
 
 
 //Provide the token generation process info.
+=======
+>>>>>>> Stashed changes
 #include <addons/TokenHelper.h>
-
-//Provide the RTDB payload printing info and other helper functions.
 #include <addons/RTDBHelper.h>
 
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 #define RELAY_PIN 3
 
@@ -33,6 +35,12 @@ String RELAY_COD = "D1";
 int relayGPIOsteste[RELAY_PIN] = { 2, 15, 13};
 String StringPortax[RELAY_PIN] = {"D1","D2","D3"};
 >>>>>>> main
+=======
+#define RELAY_PIN 3
+
+int relayGPIOsteste[RELAY_PIN] = {15, 13, 2};
+String StringPortax[RELAY_PIN] = {"D1", "D2", "D2"};
+>>>>>>> Stashed changes
 
 //---------PARTE DAS CONFIGURAÇÕES DAS ENTRADAS DAS VálvulaS----------//
 
@@ -45,6 +53,7 @@ const byte      LED_OFF                 = LOW;
 int relayGPIOs[NUM_RELAYS] =          {2, 13, 14, 27, 26, 25, 33, 32, 16, 17, 4, 15};
 String relayDescricao[NUM_RELAYS] =  {"Válvula Agua", "Válvula Retorno Adubo 1", "Válvula Adubo 1", "Válvula Retorno Adubo 2", "Válvula Adubo 2", "Válvula Canteiro 6", "Válvula Canteiro 1", "Válvula Canteiro 2", "Válvula Canteiro 3", "Válvula Canteiro 4", "Válvula Canteiro 5", "Bomba 1"};
 String relayCodigo[NUM_RELAYS] =       {"VAgua", "VRetAdb1", "VAdb1", "VRetAdb2", "VAdb2", "VL6", "VL1", "VL2", "VL3", "VL4", "VL5", "VBomba"};
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 String relayCodigoTeste [NUM_RELAYS] = {"D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12"};
 
@@ -54,6 +63,10 @@ static time_t horas;
 int atualizaAgenda=10;
 int horaMais;
 >>>>>>> main
+=======
+String relayCodigoTeste [NUM_RELAYS] = {"D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12"};
+
+>>>>>>> Stashed changes
 
 // Tamanho do Objeto JSON
 //const   size_t    JSON_SIZE            = 404; declarado em def.h
@@ -90,6 +103,7 @@ uint32_t idleTimeForStream = 15000;
 #define DATABASE_URL "https://cursofb-d8836-default-rtdb.firebaseio.com/" //<databaseName>.firebaseio.com or <databaseName>.<region>.firebasedatabase.app
 #define DATABASE_SECRET "DATABASE_SECRET"
 
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 
 static time_t hora;  // variavel para pegar a hora atual
@@ -98,6 +112,10 @@ FirebaseData fbdo;
 FirebaseAuth auth;
 
 >>>>>>> main
+=======
+
+static time_t hora;  // variavel para pegar a hora atual
+>>>>>>> Stashed changes
 //----------------PROTÓTIPO DAS FUNÇÕES---------------------------------------------//
 
 String softwareStr(); // Retorna nome do software
@@ -144,11 +162,15 @@ char              senha[30];       // Senha do email
 char              pw[30];       // Senha da Rede WiFi
 char              agendamento[5000];  //#sched# adendamento de rotinas
 char              configuracao[5000];
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 char            horarioAtualiza[20];
 =======
 
 >>>>>>> main
+=======
+char            horarioAtualiza[20];
+>>>>>>> Stashed changes
 
 // Funções Genéricas ------------------------------------
 
@@ -194,11 +216,16 @@ void  configReset() {
   softap = true;
   strlcpy(agendamento, "0000", sizeof(agendamento)); //agendamento
   strlcpy(configuracao, " ", sizeof(configuracao));
+<<<<<<< Updated upstream
 <<<<<<< HEAD
   strlcpy(horarioAtualiza, "14:00", sizeof(horarioAtualiza));
 
 =======
 >>>>>>> main
+=======
+  strlcpy(horarioAtualiza, "14:00", sizeof(horarioAtualiza));
+
+>>>>>>> Stashed changes
 
 }
 
@@ -252,6 +279,8 @@ boolean configRead() {
     softap = jsonConfig["softap"]    | true;
     strlcpy(agendamento, jsonConfig["agendamento"]      | "", sizeof(agendamento));
     strlcpy(configuracao, jsonConfig["configuracao"]      | "", sizeof(configuracao));
+    strlcpy(horarioAtualiza, jsonConfig["hora de reboot"]      | "", sizeof(horarioAtualiza));
+
 
 
     file.close();
@@ -279,11 +308,16 @@ boolean configSave() {
     jsonConfig["senha"]    = senha;
     jsonConfig["referencia"]    = referencia;
     //jsonConfig["fuso"]  = fuso;
+<<<<<<< Updated upstream
    // jsonConfig["horamanual"]  =  horamanual;
+=======
+    // jsonConfig["horamanual"]  =  horamanual;
+>>>>>>> Stashed changes
     //jsonConfig["autenticacao"] = autenticacao;
     //jsonConfig["softap"] = softap;
     jsonConfig["agendamento"] = agendamento;
     jsonConfig["configuracao"] = configuracao;
+    jsonConfig["horario de reboot"] = horarioAtualiza;
 
     serializeJsonPretty(jsonConfig, file);
     file.close();
@@ -513,6 +547,7 @@ void handleConfigSave() {
 
     // Grava id
     s = server.arg("adress");
+<<<<<<< Updated upstream
     s.trim();
     if (s == "") {
       s = email;
@@ -526,6 +561,21 @@ void handleConfigSave() {
     }
     strlcpy(email, s.c_str(), sizeof(email));
     
+=======
+    s.trim();
+    if (s == "") {
+      s = email;
+    }
+    strlcpy(email, s.c_str(), sizeof(email));
+    // Grava id
+    s = server.arg("senha");
+    s.trim();
+    if (s == "") {
+      s = senha;
+    }
+    strlcpy(email, s.c_str(), sizeof(email));
+
+>>>>>>> Stashed changes
     // Grava ssid
     s = server.arg("ssid");
     s.trim();
@@ -545,6 +595,7 @@ void handleConfigSave() {
       strlcpy(referencia, s.c_str(), sizeof(referencia));
     }
 
+<<<<<<< Updated upstream
     // Grava horamanual
 //    s = server.arg("horamanual");
 //    s.trim();
@@ -565,6 +616,9 @@ void handleConfigSave() {
     //    }
 
     
+=======
+
+>>>>>>> Stashed changes
     // Grava configuração
     if (configSave()) {
       server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Configuração salva.');history.back()</script></html>"));
@@ -640,13 +694,18 @@ void handleFileList() {
     server.send(500, F("text/plain"), F("FileList - ERROR 500"));
     logFile(F("WebFileList"), F("ERRO lendo arquivo"), true);
   }
+<<<<<<< Updated upstream
   //}
+=======
+  // }
+>>>>>>> Stashed changes
 }
 
 void handleLog() {
   // Log
   String files[DIRECTORY_MAX_FILES];
   String f;
+<<<<<<< Updated upstream
   //if (chkWebAuth()) {
   File file = SPIFFS.open(F("/Log.htm"), "r");
   if (file) {
@@ -666,6 +725,37 @@ void handleLog() {
     if (files[0] == "") {
       // No entries
       sort = F("<li><i>Nenhum arquivo</i></li>");
+=======
+  if (chkWebAuth()) {
+    File file = SPIFFS.open(F("/Log.htm"), "r");
+    if (file) {
+      file.setTimeout(100);
+      String s = file.readString();
+      file.close();
+      File dir = SPIFFS.open(F("/Log/"));//Dir dir = SPIFFS.openDir(F("/Log/"));
+      byte b = 0;
+      while (dir) {  // while (dir.next()) {
+        f = String(dir.name()).substring(5);
+        files[b] = "<li><a href='logFileGet?l=" + f.substring(3, 4) + "'>" + f + F("</a> - ") +
+                   String(dir.size() / 1024.0, 2) + F("kb ") +
+                   (logDay() == f.substring(3, 4).toInt() ? "(A)" : "") + F("</li>");
+        b++;
+      }
+      String sort;
+      if (files[0] == "") {
+        // No entries
+        sort = F("<li><i>Nenhum arquivo</i></li>");
+      } else {
+        // Sort entries
+        sortArray(files, sort);
+      }
+      //    // Replace markers
+      s.replace(F("#logFiles#"), "<ul>" + sort + F("</ul>"));
+      s.replace(F("#fsSpace#") , fsSpaceStr());
+      // Send data
+      server.send(200, F("text/html"), s);
+      log(F("WebLog"), "Client: " + ipStr(server.client().remoteIP()));
+>>>>>>> Stashed changes
     } else {
       // Sort entries
       sortArray(files, sort);
@@ -708,7 +798,11 @@ void handleLogGet() {
 
 void handleLogFileGet() {
   // File Log download
+<<<<<<< Updated upstream
   //if (chkWebAuth()) {
+=======
+  // if (chkWebAuth()) {
+>>>>>>> Stashed changes
   String s = server.arg("l");
   if (s != "") {
     File file = SPIFFS.open("/Log/Dia" + s + F(".csv"), "r");
@@ -731,26 +825,85 @@ void handleLogFileGet() {
 
 void handleLogReset() {
   // Memory Log reset
+<<<<<<< Updated upstream
   //if (chkWebAuth()) {
+=======
+  // if (chkWebAuth()) {
+>>>>>>> Stashed changes
   // Delete log
   logDelete();
   // Send data
   server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Log em Memória excluído.');window.location = 'log';</script></html>"));
   log(F("WebLogReset"), "Cliente: " + ipStr(server.client().remoteIP()));
   logFile(F("WebLogReset"), "Cliente: " + ipStr(server.client().remoteIP()));
+<<<<<<< Updated upstream
   //}
+=======
+  // }
+>>>>>>> Stashed changes
 }
 
 void handleLogFileReset() {
   // File Log reset
+<<<<<<< Updated upstream
   //if (chkWebAuth()) {
+=======
+  // if (chkWebAuth()) {
+>>>>>>> Stashed changes
   // Delete log files
   logFileDelete();
   // Send data
   server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Log em Arquivo excluído.');window.location = 'log';</script></html>"));
   log(F("WebLogFileReset"), "Cliente: " + ipStr(server.client().remoteIP()));
   logFile(F("WebLogFileReset"), "Cliente: " + ipStr(server.client().remoteIP()));
+<<<<<<< Updated upstream
   //}
+=======
+  //  }
+}
+void handleLogSet() {
+  if (chkWebAuth()) {
+
+    String s = server.arg("set");
+
+    if (s = "10") {
+      byte bFn;
+      String s = deviceID() +
+                 F(" - Log em Memoria\r\nData/Hora;Tipo;Mensagem\r\n");
+      for (bFn = logIndex; bFn < LOG_ENTRIES; bFn++) {
+        if (logStr[bFn] != "") {
+          s += logStr[bFn] + F("\r\n");
+        }
+      }
+      for (bFn = 0; bFn < logIndex; bFn++) {
+        if (logStr[bFn] != "") {
+          s += logStr[bFn] + F("\r\n");
+        }
+      }
+      server.sendHeader(F("Content-Disposition"), "filename=\"" +
+                        deviceID() + F("LogMemoria.csv\""));
+      server.send(200, F("text/csv"), s);
+      log(F("WebLogGet"), "Client: " + ipStr(server.client().remoteIP()));
+    } else {
+      server.send(500, F("text/plain"), F("LogFileGet - ERROR Bad parameter 500"));
+      log(F("WebLogFileGet"), F("ERRO parametro incorreto"));
+    }
+    
+    if (s = "11") {
+      logDelete();
+      // Send data
+      server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Log em Memória excluído.');window.location = 'log';</script></html>"));
+      log(F("WebLogReset"), "Cliente: " + ipStr(server.client().remoteIP()));
+      logFile(F("WebLogReset"), "Cliente: " + ipStr(server.client().remoteIP()));
+    } else if (s = "12") {
+      logFileDelete();
+      // Send data
+      server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Log em Arquivo excluído.');window.location = 'log';</script></html>"));
+      log(F("WebLogFileReset"), "Cliente: " + ipStr(server.client().remoteIP()));
+      logFile(F("WebLogFileReset"), "Cliente: " + ipStr(server.client().remoteIP()));
+    }
+  }
+>>>>>>> Stashed changes
 }
 
 void handleCSS() {
@@ -807,8 +960,8 @@ void FireBaseSet() {
       if (estado.length() < 40) {
         for ( int i = 0; i < NUM_RELAYS; i++) {
           if (estado.indexOf(relayCodigo[i]) > 0) {
-            if (estado.indexOf("Desligado") > 0)digitalWrite(relayGPIOs[i] , HIGH);
-            else if (estado.indexOf("Ligado") > 0)digitalWrite(relayGPIOs[i] , LOW);
+            if (estado.indexOf("Desligado") > 0)digitalWrite(relayGPIOs[i] , LOW);
+            else if (estado.indexOf("Ligado") > 0)digitalWrite(relayGPIOs[i] , HIGH);
 
           }
         }
@@ -885,7 +1038,10 @@ void FireBaseSetConfig() {
         scheduleSet(schedule);
       }
       if (mudanca.indexOf("horário") > 0) {
+<<<<<<< Updated upstream
 <<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
 
         strlcpy(horarioAtualiza, estado.c_str(), sizeof(horarioAtualiza));
         Serial.println(horarioAtualiza);
@@ -903,11 +1059,14 @@ void FireBaseSetConfig() {
           serializeJsonPretty(jsonConfig, Serial);
           log("");
         }
+<<<<<<< Updated upstream
 =======
         EEPROM.write(CFG_TIME_ZONE, estado.toInt());
         time_t timer = now();
         Serial.printf("\n Horario de agora: ", timer);
 >>>>>>> main
+=======
+>>>>>>> Stashed changes
       }
     }
   }
@@ -967,16 +1126,17 @@ void ConfigSchedule() {
   schedule = scheduleGet();   // pega os comandos salvos do schedule anterior
   // SET SCHEDULE ENTRIES - DEBUG ONLY
   time_t t = now() + 61;
+
   for (int i = 0; i < RELAY_PIN; i++) {
-    schedule = "SH" + StringPortax[i] + dateTimeStr( t      , false).substring(0, 16) + 
-               "\nSL" + StringPortax[i] +  dateTimeStr( t + 60 , false).substring(0, 16) + 
-               "\nMH" + StringPortax[i] + dateTimeStr( t + 120, false).substring(8, 16) + 
-               "\nML" + StringPortax[i] + dateTimeStr( t + 180, false).substring(8, 16) + 
-               "\nWH" +  StringPortax[i] +  weekday( t + 240) + " " + dateTimeStr( t + 240, false).substring(11, 16) + 
-               "\nWL" +   StringPortax[i] + weekday( t + 300) + " " + dateTimeStr( t + 300, false).substring(11, 16) + 
-               "\nDH" + StringPortax[i] + dateTimeStr( t + 360, false).substring(11, 16) + 
-               "\nDL" +  StringPortax[i] + dateTimeStr( t + 420, false).substring(11, 16) + 
-               "\nIH" + StringPortax[i]+ "00:01"  + "\nIL"  + StringPortax[i]+ "00:01";
+    schedule = "SH" + dateTimeStr( t      , false).substring(0, 16) + StringPortax[i]  +
+               "\nSL" +  dateTimeStr( t + 60 , false).substring(0, 16) + StringPortax[i] +
+               "\nMH" + dateTimeStr( t + 120, false).substring(8, 16) + StringPortax[i] +
+               "\nML" + dateTimeStr( t + 180, false).substring(8, 16) + StringPortax[i] +
+               "\nWH" +    weekday( t + 240) + " " + dateTimeStr( t + 240, false).substring(11, 16) + StringPortax[i] +
+               "\nWL" +    weekday( t + 300) + " " + dateTimeStr( t + 300, false).substring(11, 16) + StringPortax[i] +
+               "\nDH" + dateTimeStr( t + 360, false).substring(11, 16) + StringPortax[i] +
+               "\nDL" +  dateTimeStr( t + 420, false).substring(11, 16) + StringPortax[i] +
+               "\nIH" + "00:01" + StringPortax[i] + "\nIL" + "00:01" + StringPortax[i];
   }
   log(F("Boot"), F("Agendamento Ok"));
 }
@@ -1040,22 +1200,25 @@ void setup() {
 
     setSyncProvider(timeNTP);
     setSyncInterval(NTP_INT);
-    timeNTP();
-    delay(1000);
+
     if (timeStatus() != timeSet) {
       log(F("Boot"), F("Data/Hora ERRO"));
+<<<<<<< Updated upstream
 <<<<<<< HEAD
       reboot();
 =======
       while(1);
 >>>>>>> main
+=======
+      reboot();
+>>>>>>> Stashed changes
     }
   } else {
     // Soft AP mode, ignore date/time
     log(F("Boot"), F("Data/Hora nao definida"));
     log(F("WiFi não conectado"));
   }
-  delay(1000);
+
 
   // SPIFFS                     SPI Flash File System
   if (!SPIFFS.begin()) {
@@ -1127,10 +1290,10 @@ void setup() {
   server.on(F("/Reconfig.htm")  , handleReconfig);
   server.on(F("/Reboot.htm")    , handleReboot);
   server.on(F("/Log.htm")         , handleLog);
-  server.on(F("/LogReset")    , handleLogReset);
-  server.on(F("/LogFileReset"), handleLogFileReset);
-  server.on(F("/LogGet")      , handleLogGet);
-  server.on(F("/LogFileGet")  , handleLogFileGet);
+  server.on(F("/logSet")    , handleLogSet);
+  //  server.on(F("/LogFileReset"), handleLogFileReset);
+  //  server.on(F("/LogGet")      , handleLogGet);
+  //  server.on(F("/LogFileGet")  , handleLogFileGet);
   server.on(F("/style.css")       , handleCSS);
 
   server.onNotFound(handleHome);
@@ -1141,12 +1304,12 @@ void setup() {
 
   // Pronto
   log(F("Pronto"));
-  
-  delay(1000);
-   
+  //  timeNTP();
+  //  hold(1000);
   ConfigSchedule();
 }
 
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 =======
 void WatchDog() {
@@ -1162,6 +1325,8 @@ void WatchDog() {
 }
 
 >>>>>>> main
+=======
+>>>>>>> Stashed changes
 // ------------------Loop --------------------------------------------
 
 void loop() {
@@ -1195,12 +1360,17 @@ void loop() {
   FireBaseStatus();
   FireBaseSet();
   FireBaseSetConfig();
+<<<<<<< Updated upstream
 <<<<<<< HEAD
   ConexaoFireBase();
  
 =======
   
 >>>>>>> main
+=======
+  ConexaoFireBase();
+
+>>>>>>> Stashed changes
   for (int i = 0; i < RELAY_PIN; i++) {
     String s   = scheduleChk(schedule, relayGPIOsteste[i], StringPortax[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
     delay(500);
@@ -1210,28 +1380,5 @@ void loop() {
                   s + " - " + dateTimeStr(now());
       log(F("Agendamento"), lastEvent);
     }
-  }
-  horas = now();
-  String minuto= "";
-  if (minute(horas) < 10) {
-    minuto += '0';
-  }
-  minuto += String(minute(horas));
-  
- if(atualizaAgenda !=0){
-  horas = now();
-  String horinha;
-    
-   horaMais =int(minute(horas)) + 3;
-  Serial.println(horaMais);
-  atualizaAgenda=0;
-  }
-//  if(minuto.toInt()==horaMais){
-//   schedule = scheduleGet();
-//   Serial.println("\n Leitura realizada");
-//    atualizaAgenda=10;
-//  }
-  if(int(minute(horas)) + 3 == true){
-    schedule = scheduleGet();
   }
 }
