@@ -144,47 +144,7 @@
       width: 170px;
     }
   </style>
-  <script language="JavaScript">
-
-    var reqSetP = new XMLHttpRequest();
-    var reqSet = new XMLHttpRequest();
-    var reqSetSSID = new XMLHttpRequest();
-    var reqSetPW = new XMLHttpRequest();
-    var reqSetRefe = new XMLHttpRequest();
-
-    function levarinformações() {
-
-      var email = document.getElementById("adress").value;
-      reqSet.open("GET", "/atualizacaoSet?setEmail=" + email + "", true);
-      reqSet.send(null);
-      console.log("levarinformaçõesEmail");
-
-      var senha = document.getElementById("senha").value;
-      reqSetP.open("GET", "/atualizacaoSet?setSenha=" + senha + "", true);
-      reqSetP.send(null);
-      console.log("levarinformaçõesSenha");
-
-      var ssid = document.getElementById("ssid").value;
-      reqSetSSID.open("GET", "/atualizacaoSet?setSSID=" + ssid + "", true);
-      reqSetSSID.send(null);
-      console.log("levarinformaçõesWifi");
-
-      var pw = document.getElementById("pw").value;
-      reqSetPW.open("GET", "/atualizacaoSet?setPW=" + pw + "", true);
-      reqSetPW.send(null);
-      console.log("levarinformaçõesSenhaDaWifi");
-
-      var referencia = document.getElementById("referencia").value;
-      reqSetRefe.open("GET", "/atualizacaoSet?setReferencia=" + referencia + "", true);
-      reqSetRefe.send(null);
-      console.log("levarinformaçõesReferencia");
-
-
-
-    }
-
-
-  </script>
+ 
 </head>
 
 <body>
@@ -222,8 +182,7 @@
             <td colspan="2">Senha: <input id="senha" type="password" name="SENHA" size="20" maxlength="35"></td>
           </tr>
           <th></th>
-          <td colspan="2" class="msg"><input id="save" type="submit" value="Gravar"
-              onClick="confirm('Gravar a configuração?')"></td>
+          <td colspan="2" class="msg"><input id="save" type="submit" value="Gravar" onClick="confirm('Gravar a configuração?')"></td>
           <tr>
             <th rowspan="1">Últimas configurações gerais</th>
             <td><textarea name="configuracao" rows="5" cols="25">#configuracao#</textarea></td>

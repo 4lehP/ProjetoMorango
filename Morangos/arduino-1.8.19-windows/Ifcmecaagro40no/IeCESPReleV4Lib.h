@@ -376,15 +376,12 @@ time_t timeNTP() {
 //  String sFn = dateTimeStr(t, false);
 //  sFn.replace(" ", "T");
 //  sFn = sFn                            +
-<<<<<<< HEAD
 //        ((timeZone() < 0) ? "-" : "+") +
 //        ((timeZone() < 10) ? "0" : "") +
 //        String(abs(timeZone()))        +
-=======
 //        ((-3 < 0) ? "-" : "+") +
 //        ((-3 < 10) ? "0" : "") +
 //        String(-3)        +
->>>>>>> main
 //        ":00";
 //  return sFn;
 //}  
