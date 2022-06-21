@@ -339,6 +339,7 @@ function getForm(hora, valor){
     if (user.uid =! null) {
         alert('Novo Agendamento Realizado');
         firebase.database().ref("Config/kkkk/comando/").push(comandoTxt); //Escreve no firebase o código do agendamento
+        //firebase.database().ref("Config/kkkk/"+comandoTxt).set(comandoTxt);
         ArmazenaAgendamento();
         
     }
@@ -346,12 +347,12 @@ function getForm(hora, valor){
 }
 
 function ArmazenaAgendamento(){
-//    firebase.database().ref("Config/kkkk/Descrição/" + comandoTxt).set({          //Salva no firebase com o destino Config/kkkk/Descrição/" + comandoTxt
-    firebase.database().ref("Config/kkkk/Descrição/").push({                        //Salva no firebase com o destino Config/kkkk/Descrição/" com Uid único para cada novo agendamento
+//    firebase.database().ref("Config/kkkk/Descrição/").push({          //Salva no firebase com o destino Config/kkkk/Descrição/" com Uid único para cada novo agendamento
+    firebase.database().ref("Config/kkkk/Descrição/"+agendaValor).set({                        //Salva no firebase com o destino Config/kkkk/Descrição/" + nome da válvula 
         nome: agendaValor,
         hora: hora1,
         comando: agendaTxt,
-        //cod: comandoTxt,
+        xdc
     })
     .then(()=>{
         alert("Salvo");
@@ -361,3 +362,42 @@ function ArmazenaAgendamento(){
     });
 }
 
+function SelectDataToAgenda() {
+    firebase.database().ref("Config/kkkk/Descrição/" +agendaValor).on('value',
+        function (AgdRecords) {
+           while (agendaList.length) {
+                agendaList.pop();
+            }
+            AgdRecords.forEach(
+                function (CurrentAgdRecord) {
+                    var nome = CurrentAgdRecord.val().nome;
+                    var hora = CurrentAgdRecord.val().hora;
+                    var comando = CurrentAgdRecord.val().comando;
+                    AddItemsToAgenda(nome, hora, comando)
+                }
+            );
+
+        });
+};
+
+function AddItemsToAgenda(nome, hora, comando){
+    var tbodyAgenda = document.getElementById('tbodyAgenda');
+    var trow = document.createElement('tr');
+
+    var td1 = document.createElement('td');
+    var td2 = document.createElement('td');
+    var td3 = document.createElement('td');
+    
+    agendaList.push([nome, hora, comando]);
+
+    td1.innerHTML = nome;
+    td2.innerHTML = hora;
+    td3.innerHTML = comando;
+    IndexAgenda++
+
+    trow.appendChild(td1);
+    trow.appendChild(td2);
+    trow.appendChild(td3);
+
+    tbodyAgenda.appendChild(trow);
+}

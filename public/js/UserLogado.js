@@ -41,40 +41,40 @@ function ftimer(){
 }
 
 function LoadDataFromUser(useruid) {
-    firebase.database().ref("User/"+useruid).on('value',    //  .on() define que a função ocorrerá sepre que um dado for alterado na tabela
+    firebase.database().ref("User/" + useruid).on('value',    //  .on() define que a função ocorrerá sepre que um dado for alterado na tabela
         function (Record) {
-             var displayName = Record.val().displayName;
-             var email = Record.val().email;
-             var photoURL =  Record.val().photoURL;
-             //console.log(photoURL);
-             IMGphotoURL.src = photoURL; 
+            var displayName = Record.val().displayName;
+            var email = Record.val().email;
+            var photoURL = Record.val().photoURL;
+            //console.log(photoURL);
+            IMGphotoURL.src = photoURL;
             //console.log(displayName);
         });
 };
 
- function ArmazenarDadosUsuario(user){
-        /*
-        console.log("armazena");
-        console.log(user.uid);
-        console.log(user.displayName);
-        console.log(user.email);
-        console.log(user.phoneNumber);
-        console.log(user.photoURL);
-        console.log(user);
-        */
-        var dataUser = {
-            uid: user.uid,
-            displayName: user.displayName,
-            email: user.email,
-            photoURL: user.photoURL,
-        };
-        
-        firebase.database().ref("User/"+user.uid).update(dataUser);
-    
-   
-    
-        
-        
+function ArmazenarDadosUsuario(user) {
+    /*
+    console.log("armazena");
+    console.log(user.uid);
+    console.log(user.displayName);
+    console.log(user.email);
+    console.log(user.phoneNumber);
+    console.log(user.photoURL);
+    console.log(user);
+    */
+    var dataUser = {
+        uid: user.uid,
+        displayName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+    };
+
+    firebase.database().ref("User/" + user.uid).update(dataUser);
+
+
+
+
+
 };
 
 function SelectDataToTable(useruid) {
