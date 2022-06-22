@@ -284,14 +284,12 @@ function getForm(hora, valor){
 
     }
                  
-    //Converte o código em texto
+    //Escreve o código por extenso
     if(txt=='H'){
         agendaTxt = "Ligar";
     }else{
         agendaTxt = "Desligar"; 
-    }
-
-     
+    }    
     
     switch (valor) {
         case "D1":
@@ -337,50 +335,46 @@ function getForm(hora, valor){
     comandoTxt = txt+valor+hora;
     
     if (user.uid =! null) {
-        alert('Novo Agendamento Realizado');
-        firebase.database().ref("Config/kkkk/comando/").push(comandoTxt); //Escreve no firebase o código do agendamento
-        //firebase.database().ref("Config/kkkk/"+comandoTxt).set(comandoTxt);
-        ArmazenaAgendamento();
+        firebase.database().ref("Config/kkkk/comando/").push(comandoTxt)             //Escreve no firebase o comando reduzido do agendamento (HD215:55)
+        .then(()=>{
+          alert('Novo Agendamento Realizado');  
+        });            
+        
+        //firebase.database().ref("Config/kkkk/"+comandoTxt).set(comandoTxt);       //Salva no firebase com o destino Config/kkkk/Descrição/" + o comando reduzido (HD215:55)
+        firebase.database().ref("Config/kkkk/Descrição/").push({                    //Salva no firebase com o destino Config/kkkk/Descrição/" com Uid único para cada novo agendamento
+            nome: agendaValor,
+            hora: hora1,
+            comando: agendaTxt,
+        })
+        .then(() => {
+            alert("Salvo");
+        })
+        .catch((error) => {
+                console.log(error);
+        });
         
     }
     
 }
 
-function ArmazenaAgendamento(){
-//    firebase.database().ref("Config/kkkk/Descrição/").push({          //Salva no firebase com o destino Config/kkkk/Descrição/" com Uid único para cada novo agendamento
-    firebase.database().ref("Config/kkkk/Descrição/"+agendaValor).set({                        //Salva no firebase com o destino Config/kkkk/Descrição/" + nome da válvula 
-        nome: agendaValor,
-        hora: hora1,
-        comando: agendaTxt,
-        xdc
-    })
-    .then(()=>{
-        alert("Salvo");
-    })
-    .catch((error)=>{
-        console.log(error);
-    });
-}
-
 function SelectDataToAgenda() {
-    firebase.database().ref("Config/kkkk/Descrição/" +agendaValor).on('value',
+    firebase.database().ref("Config/kkkk/Descrição/").on('value',
         function (AgdRecords) {
-           while (agendaList.length) {
-                agendaList.pop();
-            }
             AgdRecords.forEach(
                 function (CurrentAgdRecord) {
-                    var nome = CurrentAgdRecord.val().nome;
-                    var hora = CurrentAgdRecord.val().hora;
-                    var comando = CurrentAgdRecord.val().comando;
-                    AddItemsToAgenda(nome, hora, comando)
+                    var Nome = CurrentAgdRecord.val().nome;
+                    var Hora = CurrentAgdRecord.val().hora;
+                    var Comando = CurrentAgdRecord.val().comando;
+                    AddItemsToAgenda(Nome, Hora, Comando)
                 }
             );
 
         });
 };
 
-function AddItemsToAgenda(nome, hora, comando){
+window.onload = SelectDataToAgenda;
+
+function AddItemsToAgenda(Nome, Hora, Comando){
     var tbodyAgenda = document.getElementById('tbodyAgenda');
     var trow = document.createElement('tr');
 
@@ -388,11 +382,11 @@ function AddItemsToAgenda(nome, hora, comando){
     var td2 = document.createElement('td');
     var td3 = document.createElement('td');
     
-    agendaList.push([nome, hora, comando]);
+    agendaList.push([Nome, Hora, Comando]);
 
-    td1.innerHTML = nome;
-    td2.innerHTML = hora;
-    td3.innerHTML = comando;
+    td1.innerHTML = Nome;
+    td2.innerHTML = Hora;
+    td3.innerHTML = Comando;
     IndexAgenda++
 
     trow.appendChild(td1);
