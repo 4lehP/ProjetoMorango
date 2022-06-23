@@ -64,7 +64,6 @@ body {
 
 .container .box .box-cell {
   width: 400px;
-  height: 200px;
   display:table-cell;
   padding:10px;
   border-radius: 10%;
@@ -74,7 +73,8 @@ body {
 }
 
 #containerAgenda{
-  height: 200px;
+  height: 250px;
   overflow-y: auto;
+  padding: 2px;
   
 }

@@ -19,6 +19,7 @@ var first = true;
 window.onload = SelectDataToTable('Digitais/',1);
 window.onload = AtualizaStatusDispositivo('Dispositivos/ESP32/') ;
 window.onload = SetDispOffline('Dispositivos/ESP32');
+window.onload = SelectDataToAgenda();
 
 
 var user = firebase.auth().currentUser;
@@ -335,19 +336,17 @@ function getForm(hora, valor){
     comandoTxt = txt+valor+hora;
     
     if (user.uid =! null) {
-        firebase.database().ref("Config/kkkk/comando/").push(comandoTxt)             //Escreve no firebase o comando reduzido do agendamento (HD215:55)
-        .then(()=>{
-          alert('Novo Agendamento Realizado');  
-        });            
+        firebase.database().ref("Config/kkkk/comando/").push(comandoTxt)             //Escreve no firebase o comando reduzido do agendamento (HD215:55)           
         
-        //firebase.database().ref("Config/kkkk/"+comandoTxt).set(comandoTxt);       //Salva no firebase com o destino Config/kkkk/Descrição/" + o comando reduzido (HD215:55)
+        //firebase.database().ref("Config/kkkk/"+comandoTxt).set(comandoTxt)       //Salva no firebase com o destino Config/kkkk/Descrição/" + o comando reduzido (HD215:55)
         firebase.database().ref("Config/kkkk/Descrição/").push({                    //Salva no firebase com o destino Config/kkkk/Descrição/" com Uid único para cada novo agendamento
             nome: agendaValor,
             hora: hora1,
             comando: agendaTxt,
+            codigo: comandoTxt,
         })
         .then(() => {
-            alert("Salvo");
+            alert("Novo Agendamento Realizado");
         })
         .catch((error) => {
                 console.log(error);
@@ -360,19 +359,30 @@ function getForm(hora, valor){
 function SelectDataToAgenda() {
     firebase.database().ref("Config/kkkk/Descrição/").on('value',
         function (AgdRecords) {
+            while(agendaList.length){
+                //agendaList.shift(); 
+                agendaList.pop(); 
+            }
             AgdRecords.forEach(
                 function (CurrentAgdRecord) {
                     var Nome = CurrentAgdRecord.val().nome;
                     var Hora = CurrentAgdRecord.val().hora;
                     var Comando = CurrentAgdRecord.val().comando;
-                    AddItemsToAgenda(Nome, Hora, Comando)
+                    
+                    if(first = true){
+                        AddItemsToAgenda(Nome, Hora, Comando)
+                    }
+                    else{
+                        agendaList.push([Nome, Hora, Comando]);
+                    }
                 }
             );
+           first = false;
 
         });
 };
 
-window.onload = SelectDataToAgenda;
+
 
 function AddItemsToAgenda(Nome, Hora, Comando){
     var tbodyAgenda = document.getElementById('tbodyAgenda');
@@ -381,17 +391,20 @@ function AddItemsToAgenda(Nome, Hora, Comando){
     var td1 = document.createElement('td');
     var td2 = document.createElement('td');
     var td3 = document.createElement('td');
+    var td4 = document.createElement('td');
     
     agendaList.push([Nome, Hora, Comando]);
 
     td1.innerHTML = Nome;
     td2.innerHTML = Hora;
     td3.innerHTML = Comando;
+    td4.innerHTML = '<button type="button" class="btn btn-danger btn-sm"  data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir Agendamento" onclick="####("null")">Excluir</button>';
     IndexAgenda++
 
     trow.appendChild(td1);
     trow.appendChild(td2);
     trow.appendChild(td3);
+    trow.appendChild(td4);
 
     tbodyAgenda.appendChild(trow);
 }
