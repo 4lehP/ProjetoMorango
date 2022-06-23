@@ -51,6 +51,7 @@ FirebaseConfig config;
 FirebaseJson jsonL;
 FirebaseJson jsonD;
 FirebaseJson jsonS;
+FirebaseJson jsonCheck;
 FirebaseJson json;
 FirebaseData fbdo;
 FirebaseAuth auth;
@@ -74,6 +75,7 @@ uint32_t idleTimeForStream = 15000;
 #define DATABASE_SECRET "DATABASE_SECRET"
 
 static time_t hora;  // variavel para pegar a hora atual
+StaticJsonDocument<320> JSONbuffer;
 
 //----------------PROTÓTIPO DAS FUNÇÕES---------------------------------------------//
 
@@ -118,9 +120,9 @@ char              email[30];     // Rede email
 char              senha[30];       // Senha do email
 char              pw[30];       // Senha da Rede WiFi
 char              agendamento[5000];  //#sched# adendamento de rotinas
-char              configuracao[5000];
-char            horarioAtualiza[20];
-
+char              configuracao[5000]; //mostra as ultimas config
+char            horarioAtualiza[20]; // hora que vai dar o reboot no esp
+char              horarioCheck[20]; // hora que vai levar o relatorio para o fire
 // Funções Genéricas ------------------------------------
 
 
@@ -166,7 +168,7 @@ void  configReset() {
   strlcpy(agendamento, "0000", sizeof(agendamento)); //agendamento
   strlcpy(configuracao, " ", sizeof(configuracao));
   strlcpy(horarioAtualiza, "14:00", sizeof(horarioAtualiza));
-  strlcpy(horarioAtualiza, "14:00", sizeof(horarioAtualiza));
+  strlcpy(horarioCheck, "13:00", sizeof(horarioCheck));
 }
 
 boolean configRead() {
@@ -220,7 +222,7 @@ boolean configRead() {
     strlcpy(agendamento, jsonConfig["agendamento"]      | "", sizeof(agendamento));
     strlcpy(configuracao, jsonConfig["configuracao"]      | "", sizeof(configuracao));
     strlcpy(horarioAtualiza, jsonConfig["hora de reboot"]      | "", sizeof(horarioAtualiza));
-
+    strlcpy(horarioCheck, jsonConfig["hora de levar o relatorio pro Fire"]      | "", sizeof(horarioCheck));
 
 
     file.close();
@@ -255,6 +257,7 @@ boolean configSave() {
     jsonConfig["agendamento"] = agendamento;
     jsonConfig["configuracao"] = configuracao;
     jsonConfig["horario de reboot"] = horarioAtualiza;
+     jsonConfig["horario de enviar relatorio para o Fire"] = horarioCheck;
 
     serializeJsonPretty(jsonConfig, file);
     file.close();
@@ -731,49 +734,7 @@ void handleLogFileReset() {
   logFile(F("WebLogFileReset"), "Cliente: " + ipStr(server.client().remoteIP()));
  // }
 }
-void handleLogSet() {
-  if (chkWebAuth()) {
 
-    String s = server.arg("set");
-
-    if (s = "10") {
-      byte bFn;
-      String s = deviceID() +
-                 F(" - Log em Memoria\r\nData/Hora;Tipo;Mensagem\r\n");
-      for (bFn = logIndex; bFn < LOG_ENTRIES; bFn++) {
-        if (logStr[bFn] != "") {
-          s += logStr[bFn] + F("\r\n");
-        }
-      }
-      for (bFn = 0; bFn < logIndex; bFn++) {
-        if (logStr[bFn] != "") {
-          s += logStr[bFn] + F("\r\n");
-        }
-      }
-      server.sendHeader(F("Content-Disposition"), "filename=\"" +
-                        deviceID() + F("LogMemoria.csv\""));
-      server.send(200, F("text/csv"), s);
-      log(F("WebLogGet"), "Client: " + ipStr(server.client().remoteIP()));
-    } else {
-      server.send(500, F("text/plain"), F("LogFileGet - ERROR Bad parameter 500"));
-      log(F("WebLogFileGet"), F("ERRO parametro incorreto"));
-    }
-    
-    if (s = "11") {
-      logDelete();
-      // Send data
-      server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Log em Memória excluído.');window.location = 'log';</script></html>"));
-      log(F("WebLogReset"), "Cliente: " + ipStr(server.client().remoteIP()));
-      logFile(F("WebLogReset"), "Cliente: " + ipStr(server.client().remoteIP()));
-    } else if (s = "12") {
-      logFileDelete();
-      // Send data
-      server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Log em Arquivo excluído.');window.location = 'log';</script></html>"));
-      log(F("WebLogFileReset"), "Cliente: " + ipStr(server.client().remoteIP()));
-      logFile(F("WebLogFileReset"), "Cliente: " + ipStr(server.client().remoteIP()));
-    }
-  }
-}
 
 void handleCSS() {
   // Arquivo CSS
@@ -925,6 +886,25 @@ void FireBaseSetConfig() {
           log("");
         }
       }
+      if(mudanca.indexOf("horariocheck") > 0){
+        
+        strlcpy(horarioCheck, estado.c_str(), sizeof(horarioCheck));
+        Serial.println(horarioCheck);
+        StaticJsonDocument<JSON_SIZE> jsonConfig;
+
+        File file = SPIFFS.open(F("/Config.json"), "w+");
+        if (file) {
+          // Atribui valores ao JSON e grava
+          jsonConfig["horario de enviar o relatorio para o fire"] = horarioCheck;
+
+          serializeJsonPretty(jsonConfig, file);
+          file.close();
+
+          log(F("\nGravando config:"));
+          serializeJsonPretty(jsonConfig, Serial);
+          log("");
+        }
+      }
     }
   }
 }
@@ -975,7 +955,46 @@ void ConexaoFireBase() {
   }
 }
 
+void EnviarFire(){
+   hora = now();
+  String horas = "";
+  if (hour(hora) < 10) {
+    s += '0';
+  }
+  horas += String(hour(hora)) + ':';
+  if (minute(hora) < 10) {
+    s += '0';
+  }
+  horas += String(minute(hora));
+  
+  if (WiFi.status() == WL_CONNECTED && horas==horarioCheck) {
+  StaticJsonDocument<JSON_SIZE> JSONbuffer;
 
+  File file = SPIFFS.open(F("/Relatorio.json"), "w+");
+  if (file) {
+     byte bFn;
+  for (bFn = logIndex; bFn < LOG_ENTRIES; bFn++) {
+    if (logStr[bFn] != "") {
+      JSONbuffer["relatorio"]    = logStr[bFn];
+    }
+  }
+  for (bFn = 0; bFn < logIndex; bFn++) {
+    if (logStr[bFn] != "") {
+      JSONbuffer["relatorio"]    = logStr[bFn];
+    }
+  }
+   serializeJsonPretty(JSONbuffer, file);
+    file.close();
+
+    log(F("\nEnviado relatorio:"));
+    serializeJsonPretty(JSONbuffer, Serial);
+    log("");
+    }
+    jsonCheck.set("relatorio/", JSONbuffer);
+    Firebase.pushJSON(firebaseData, "/Config/Agendar" , jsonCheck);
+ 
+}
+}
 void ConfigSchedule() {
   //-------------------ParteDoAgendamento--------------------------------
 
@@ -1138,7 +1157,7 @@ void setup() {
   server.on(F("/Reconfig.htm")  , handleReconfig);
   server.on(F("/Reboot.htm")    , handleReboot);
   server.on(F("/Log.htm")         , handleLog);
-  server.on(F("/logSet")    , handleLogSet);
+//  server.on(F("/logSet")    , handleLogSet);
   server.on(F("/LogReset"), handleLogReset);
   server.on(F("/LogGet")      , handleLogGet);
   server.on(F("/LogFileGet")  , handleLogFileGet);
@@ -1194,8 +1213,9 @@ void loop() {
   FireBaseStatus();
   FireBaseSet();
   FireBaseSetConfig();
-  ConexaoFireBase();
-
+  //ConexaoFireBase();
+  EnviarFire();
+  
   for (int i = 0; i < RELAY_PIN; i++) {
     String s   = scheduleChk(schedule, relayGPIOsteste[i], StringPortax[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
     delay(500);
