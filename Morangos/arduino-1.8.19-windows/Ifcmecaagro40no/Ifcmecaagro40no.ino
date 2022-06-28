@@ -35,9 +35,9 @@ String relayCodigo[NUM_RELAYS] =       {"VAgua", "VRetAdb1", "VAdb1", "VRetAdb2"
 String relayCodigoTeste [NUM_RELAYS] = {"D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12"};
 
 static time_t horas;
-int atualizaAgenda=10;
+int atualizaAgenda = 10;
 int horaMais;
-
+int setflag=1;
 // Tamanho do Objeto JSON
 //const   size_t    JSON_SIZE            = 404; declarado em def.h
 
@@ -75,7 +75,7 @@ uint32_t idleTimeForStream = 15000;
 #define DATABASE_SECRET "DATABASE_SECRET"
 
 static time_t hora;  // variavel para pegar a hora atual
-StaticJsonDocument<320> JSONbuffer;
+
 
 //----------------PROTÓTIPO DAS FUNÇÕES---------------------------------------------//
 
@@ -250,14 +250,14 @@ boolean configSave() {
     jsonConfig["senha"]    = senha;
     jsonConfig["referencia"]    = referencia;
     //jsonConfig["fuso"]  = fuso;
-   // jsonConfig["horamanual"]  =  horamanual;
+    // jsonConfig["horamanual"]  =  horamanual;
     // jsonConfig["horamanual"]  =  horamanual;
     //jsonConfig["autenticacao"] = autenticacao;
     //jsonConfig["softap"] = softap;
     jsonConfig["agendamento"] = agendamento;
     jsonConfig["configuracao"] = configuracao;
     jsonConfig["horario de reboot"] = horarioAtualiza;
-     jsonConfig["horario de enviar relatorio para o Fire"] = horarioCheck;
+    jsonConfig["horario de enviar relatorio para o Fire"] = horarioCheck;
 
     serializeJsonPretty(jsonConfig, file);
     file.close();
@@ -487,14 +487,14 @@ void handleConfigSave() {
       s = email;
     }
     strlcpy(email, s.c_str(), sizeof(email));
- // Grava id
+    // Grava id
     s = server.arg("senha");
     s.trim();
     if (s == "") {
       s = senha;
     }
     strlcpy(email, s.c_str(), sizeof(email));
-    
+
 
     s.trim();
     if (s == "") {
@@ -529,15 +529,15 @@ void handleConfigSave() {
     }
 
     // Grava horamanual
-//    s = server.arg("horamanual");
-//    s.trim();
-//    if (s != "") {
-//      strlcpy(horamanual, s.c_str(), sizeof(horamanual));
-//    }
+    //    s = server.arg("horamanual");
+    //    s.trim();
+    //    if (s != "") {
+    //      strlcpy(horamanual, s.c_str(), sizeof(horamanual));
+    //    }
 
-//    fuso = server.arg("fuso").toInt();
-//    autenticacao = server.arg("autenticacao").toInt();
-//    softap = server.arg("softap").toInt();
+    //    fuso = server.arg("fuso").toInt();
+    //    autenticacao = server.arg("autenticacao").toInt();
+    //    softap = server.arg("softap").toInt();
 
     // Grava agendamento
     //    s = server.arg("agendamento");
@@ -594,43 +594,43 @@ void handleReboot() {
 void handleFileList() {
   // File list
   if (!pwdNeeded() || chkWebAuth()) {
-  File file = SPIFFS.open(F("/FileList.htm"), "r");
-  if (file) {
-    file.setTimeout(100);
-    String  s = file.readString(),
-            sort = "",
-            files[DIRECTORY_MAX_FILES];
-    file.close();
-    File dir = SPIFFS.open("/");   //   Dir dir = SPIFFS.openDir("/");
-    File file = dir.openNextFile();
-    byte b = 0;
-    while (file) {
-      files[b] = "<li>" + String(file.name()) + " - " + String(file.size() / 1024.0, 2) + "kb" + "</li>";
-      b++;
-      yield();
-      file = dir.openNextFile();
+    File file = SPIFFS.open(F("/FileList.htm"), "r");
+    if (file) {
+      file.setTimeout(100);
+      String  s = file.readString(),
+              sort = "",
+              files[DIRECTORY_MAX_FILES];
+      file.close();
+      File dir = SPIFFS.open("/");   //   Dir dir = SPIFFS.openDir("/");
+      File file = dir.openNextFile();
+      byte b = 0;
+      while (file) {
+        files[b] = "<li>" + String(file.name()) + " - " + String(file.size() / 1024.0, 2) + "kb" + "</li>";
+        b++;
+        yield();
+        file = dir.openNextFile();
+      }
+      // Sort entries
+      sortArray(files, sort);
+      // Replace markers
+      s.replace(F("#files#")   , "<ul>" + sort + F("</ul>"));
+      s.replace(F("#fsSpace#") , fsSpaceStr());
+      // Send data
+      server.send(200, F("text/html"), s);
+      log(F("WebFileList"), "Cliente: " + ipStr(server.client().remoteIP()));
+    } else {
+      server.send(500, F("text/plain"), F("FileList - ERROR 500"));
+      logFile(F("WebFileList"), F("ERRO lendo arquivo"), true);
     }
-    // Sort entries
-    sortArray(files, sort);
-    // Replace markers
-    s.replace(F("#files#")   , "<ul>" + sort + F("</ul>"));
-    s.replace(F("#fsSpace#") , fsSpaceStr());
-    // Send data
-    server.send(200, F("text/html"), s);
-    log(F("WebFileList"), "Cliente: " + ipStr(server.client().remoteIP()));
-  } else {
-    server.send(500, F("text/plain"), F("FileList - ERROR 500"));
-    logFile(F("WebFileList"), F("ERRO lendo arquivo"), true);
+
   }
-  
-   }
 }
 
 void handleLog() {
   // Log
   String files[DIRECTORY_MAX_FILES];
   String f;
- // if (chkWebAuth()) {
+  // if (chkWebAuth()) {
   File file = SPIFFS.open(F("/Log.htm"), "r");
   if (file) {
     file.setTimeout(500);
@@ -644,31 +644,31 @@ void handleLog() {
                  String(dir.size() / 1024.0, 2) + F("kb ") +
                  (logDay() == f.substring(3, 4).toInt() ? "(A)" : "") + F("</li>");
       b++;
-    }  
-      String sort;
-      if (files[0] == "") {
-        // No entries
-        sort = F("<li><i>Nenhum arquivo</i></li>");
-      } else {
-        // Sort entries
-        sortArray(files, sort);
-      }
-         // Replace markers
-      s.replace(F("#logFiles#"), "<ul>" + sort + F("</ul>"));
-      s.replace(F("#fsSpace#") , fsSpaceStr());
-      // Send data
-      server.send(200, F("text/html"), s);
-      log(F("WebLog"), "Client: " + ipStr(server.client().remoteIP()));
-    } else {
-      server.send(500, F("text/plain"), F("LogList - ERROR 500"));
-    logFile(F("WebLogList"), F("ERRO lendo arquivo"), true);
     }
+    String sort;
+    if (files[0] == "") {
+      // No entries
+      sort = F("<li><i>Nenhum arquivo</i></li>");
+    } else {
+      // Sort entries
+      sortArray(files, sort);
+    }
+    // Replace markers
+    s.replace(F("#logFiles#"), "<ul>" + sort + F("</ul>"));
+    s.replace(F("#fsSpace#") , fsSpaceStr());
+    // Send data
+    server.send(200, F("text/html"), s);
+    log(F("WebLog"), "Client: " + ipStr(server.client().remoteIP()));
+  } else {
+    server.send(500, F("text/plain"), F("LogList - ERROR 500"));
+    logFile(F("WebLogList"), F("ERRO lendo arquivo"), true);
+  }
   // }
 }
 
 void handleLogGet() {
   // Memory Log download
-   //if (chkWebAuth()) {
+  //if (chkWebAuth()) {
   byte bFn;
   String s = deviceID() +
              F(" - Log em Memoria\r\nData/Hora;Tipo;Mensagem\r\n");
@@ -686,41 +686,41 @@ void handleLogGet() {
                     deviceID() + F("LogMemoria.csv\""));
   server.send(200, F("text/csv"), s);
   log(F("WebLogGet"), "Client: " + ipStr(server.client().remoteIP()));
- // }
+  // }
 }
 
 void handleLogFileGet() {
   // File Log download
   //if (chkWebAuth()) {
-    String s = "1";
-    //if (s != "") {
-      File file = SPIFFS.open("/Log/Dia" + s + F(".csv"), "r");
-      if (file) {
-        server.sendHeader(F("Content-Disposition"), "filename=\"" +
-                          deviceID() + F("LogDia") + s + F(".csv\""));
-        server.streamFile(file, "text/csv");
-        file.close();
-        log(F("WebLogFileGet"), "Client: " + ipStr(server.client().remoteIP()));
-      } else {
-        server.send(500, F("text/plain"), F("LogFileGet - ERROR 500"));
-        log(F("WebLogFileGet"), F("ERRO lendo arquivo"));
-      }
-//    } else {
-//      server.send(500, F("text/plain"), F("LogFileGet - ERROR Bad parameter 500"));
-//      log(F("WebLogFileGet"), F("ERRO parametro incorreto"));
-//    }
- //}
+  String s = "1";
+  //if (s != "") {
+  File file = SPIFFS.open("/Log/Dia" + s + F(".csv"), "r");
+  if (file) {
+    server.sendHeader(F("Content-Disposition"), "filename=\"" +
+                      deviceID() + F("LogDia") + s + F(".csv\""));
+    server.streamFile(file, "text/csv");
+    file.close();
+    log(F("WebLogFileGet"), "Client: " + ipStr(server.client().remoteIP()));
+  } else {
+    server.send(500, F("text/plain"), F("LogFileGet - ERROR 500"));
+    log(F("WebLogFileGet"), F("ERRO lendo arquivo"));
+  }
+  //    } else {
+  //      server.send(500, F("text/plain"), F("LogFileGet - ERROR Bad parameter 500"));
+  //      log(F("WebLogFileGet"), F("ERRO parametro incorreto"));
+  //    }
+  //}
 }
 void handleLogReset() {
   // Memory Log reset
- // if (chkWebAuth()) {
+  // if (chkWebAuth()) {
   // Delete log
   logDelete();
   // Send data
   server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Log em Memória excluído.');window.location = 'log';</script></html>"));
   log(F("WebLogReset"), "Cliente: " + ipStr(server.client().remoteIP()));
   logFile(F("WebLogReset"), "Cliente: " + ipStr(server.client().remoteIP()));
- // }
+  // }
 }
 
 void handleLogFileReset() {
@@ -732,7 +732,7 @@ void handleLogFileReset() {
   server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Log em Arquivo excluído.');window.location = 'log';</script></html>"));
   log(F("WebLogFileReset"), "Cliente: " + ipStr(server.client().remoteIP()));
   logFile(F("WebLogFileReset"), "Cliente: " + ipStr(server.client().remoteIP()));
- // }
+  // }
 }
 
 
@@ -859,7 +859,7 @@ void FireBaseSetConfig() {
         strlcpy(configuracao, estado.c_str(), sizeof(configuracao));
       }
 
-      if (mudanca.indexOf("comando") > 0) {
+     if (mudanca.indexOf("operacao") > 0) {
         strlcpy(agendamento, estado.c_str(), sizeof(agendamento));
         schedule = agendamento;
         Serial.print(schedule);
@@ -886,8 +886,8 @@ void FireBaseSetConfig() {
           log("");
         }
       }
-      if(mudanca.indexOf("horariocheck") > 0){
-        
+      if (mudanca.indexOf("horariocheck") > 0) {
+
         strlcpy(horarioCheck, estado.c_str(), sizeof(horarioCheck));
         Serial.println(horarioCheck);
         StaticJsonDocument<JSON_SIZE> jsonConfig;
@@ -955,8 +955,10 @@ void ConexaoFireBase() {
   }
 }
 
-void EnviarFire(){
-   hora = now();
+void EnviarFire() {
+  hora = now();
+  byte bFn;
+  FirebaseJson json;
   String horas = "";
   if (hour(hora) < 10) {
     s += '0';
@@ -966,35 +968,46 @@ void EnviarFire(){
     s += '0';
   }
   horas += String(minute(hora));
-  
-  if (WiFi.status() == WL_CONNECTED && horas==horarioCheck) {
-  StaticJsonDocument<JSON_SIZE> JSONbuffer;
 
-  File file = SPIFFS.open(F("/Relatorio.json"), "w+");
-  if (file) {
-     byte bFn;
-  for (bFn = logIndex; bFn < LOG_ENTRIES; bFn++) {
-    if (logStr[bFn] != "") {
-      JSONbuffer["relatorio"]    = logStr[bFn];
-    }
-  }
-  for (bFn = 0; bFn < logIndex; bFn++) {
-    if (logStr[bFn] != "") {
-      JSONbuffer["relatorio"]    = logStr[bFn];
-    }
-  }
-   serializeJsonPretty(JSONbuffer, file);
-    file.close();
+  if (WiFi.status() == WL_CONNECTED && horas == horarioCheck ) {
+     FirebaseJson json;
+    FirebaseJsonArray arr;
+        //To set content
+    json.setJsonData("{\"relatorio\":relatorio}");
+    arr.setJsonArrayData("[relatorio]");   
 
-    log(F("\nEnviado relatorio:"));
-    serializeJsonPretty(JSONbuffer, Serial);
-    log("");
-    }
-    jsonCheck.set("relatorio/", JSONbuffer);
-    Firebase.pushJSON(firebaseData, "/Config/Agendar" , jsonCheck);
- 
+     
+//       for (bFn = logIndex; bFn < LOG_ENTRIES; bFn++) {
+//        if (logStr[bFn] != "") {
+//          arr.set("[8]", logStr[bFn]);
+//        }
+      //}
+      for (bFn = 0; bFn < logIndex; bFn++) {
+        if (logStr[bFn] != "") {
+          //s += logStr[bFn] + F("\r\n");
+          arr.set("[8]", logStr[bFn]);
+        }
+      }
+
+    json.set("relatorio/b", arr);
+
+    //To serialize json to serial
+    json.toString(Serial, true /* prettify option */);
+
+    //To serialize array to string
+    String str;
+    arr.toString(str, true /* prettify option */);
+
+    Serial.println("\n---------");
+    Serial.println(str);
+
+    Serial.println("\n---------");
+    Serial.println(json.raw()); //print raw string
+    Firebase.set(fbdo,"Config/Agendar/relatorio", json);
+    delay(30000);
+  }
 }
-}
+
 void ConfigSchedule() {
   //-------------------ParteDoAgendamento--------------------------------
 
@@ -1157,7 +1170,7 @@ void setup() {
   server.on(F("/Reconfig.htm")  , handleReconfig);
   server.on(F("/Reboot.htm")    , handleReboot);
   server.on(F("/Log.htm")         , handleLog);
-//  server.on(F("/logSet")    , handleLogSet);
+  //  server.on(F("/logSet")    , handleLogSet);
   server.on(F("/LogReset"), handleLogReset);
   server.on(F("/LogGet")      , handleLogGet);
   server.on(F("/LogFileGet")  , handleLogFileGet);
@@ -1202,7 +1215,7 @@ void loop() {
     reboot();
   } else if ( horas == horarioAtualiza ) {
     reboot();
-  }else if(WiFi.status() == WL_CONNECTED && timeStatus() != timeSet){
+  } else if (WiFi.status() == WL_CONNECTED && timeStatus() != timeSet) {
     reboot();
   }
 
@@ -1215,7 +1228,7 @@ void loop() {
   FireBaseSetConfig();
   //ConexaoFireBase();
   EnviarFire();
-  
+
   for (int i = 0; i < RELAY_PIN; i++) {
     String s   = scheduleChk(schedule, relayGPIOsteste[i], StringPortax[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
     delay(500);
@@ -1226,4 +1239,10 @@ void loop() {
       log(F("Agendamento"), lastEvent);
     }
   }
+//  int soma=int(minute(hora))+03;
+//  if(setflag==0){
+//    if(int(minute(hora))== soma){
+//     setflag=1; 
+//    }
+//  }
 }
