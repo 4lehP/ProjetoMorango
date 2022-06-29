@@ -336,7 +336,7 @@ function getForm(hora, valor){
     comandoTxt = txt+valor+hora;
     
     if (user.uid =! null) {
-        firebase.database().ref("Config/kkkk/comando/").push(comandoTxt)             //Escreve no firebase o comando reduzido do agendamento (HD215:55)           
+        firebase.database().ref("Config/kkkk/operacao/").push(comandoTxt)             //Escreve no firebase o comando reduzido do agendamento (HD215:55)           
         
         //firebase.database().ref("Config/kkkk/"+comandoTxt).set(comandoTxt)       //Salva no firebase com o destino Config/kkkk/Descrição/" + o comando reduzido (HD215:55)
         firebase.database().ref("Config/kkkk/Descrição/").push({                    //Salva no firebase com o destino Config/kkkk/Descrição/" com Uid único para cada novo agendamento
@@ -347,6 +347,7 @@ function getForm(hora, valor){
         })
         .then(() => {
             alert("Novo Agendamento Realizado");
+            location.reload();
         })
         .catch((error) => {
                 console.log(error);
@@ -359,8 +360,7 @@ function getForm(hora, valor){
 function SelectDataToAgenda() {
     firebase.database().ref("Config/kkkk/Descrição/").on('value',
         function (AgdRecords) {
-            while(agendaList.length){
-                //agendaList.shift(); 
+            while(agendaList.length){ 
                 agendaList.pop(); 
             }
             AgdRecords.forEach(
@@ -373,6 +373,7 @@ function SelectDataToAgenda() {
                         AddItemsToAgenda(Nome, Hora, Comando)
                     }
                     else{
+                        agendaList.pop();
                         agendaList.push([Nome, Hora, Comando]);
                     }
                 }
@@ -398,7 +399,7 @@ function AddItemsToAgenda(Nome, Hora, Comando){
     td1.innerHTML = Nome;
     td2.innerHTML = Hora;
     td3.innerHTML = Comando;
-    td4.innerHTML = '<button type="button" class="btn btn-danger btn-sm"  data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir Agendamento" onclick="####("null")">Excluir</button>';
+    td4.innerHTML = '<button type="button" class="btn btn-sm" id="deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir Agendamento" onclick="Apagar()"><i class="bi bi-trash3-fill"></i></button>';
     IndexAgenda++
 
     trow.appendChild(td1);
@@ -407,4 +408,9 @@ function AddItemsToAgenda(Nome, Hora, Comando){
     trow.appendChild(td4);
 
     tbodyAgenda.appendChild(trow);
+}
+
+function Apagar(){
+    firebase.database().ref('Config/kkkk/Descrição/').remove();
+    //firebase.database().ref('Config/kkkk/operacao/').remove();
 }
