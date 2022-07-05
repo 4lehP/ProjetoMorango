@@ -16,10 +16,20 @@ var UsuarioAtivo = document.getElementById('UsuarioAtivo');
 var ControladorAtivo = document.getElementById('ControladorAtivo');    
 var first = true;
 
+var agendaTxt;          // Texto com o estado para a tabela
+var agendaValor;        // Texto com o nome da válvula para a tabela
+var hora1;
+var comandoTxt;
+var cod = [];
+
+//var codiguin = [];
+var c;
+
 window.onload = SelectDataToTable('Digitais/',1);
 window.onload = AtualizaStatusDispositivo('Dispositivos/ESP32/') ;
 window.onload = SetDispOffline('Dispositivos/ESP32');
 window.onload = SelectDataToAgenda();
+window.onload = buscaCodigo();
 
 
 var user = firebase.auth().currentUser;
@@ -139,8 +149,6 @@ function AddItemsToTable(Nome, Descrição, Estado) {
 
 }
 
-
-
 var contOFFLINE=0;
 
 function AtualizaStatusDispositivo(colection) {
@@ -171,7 +179,6 @@ function SetDispOffline(colection) {
     firebase.database().ref(colection).set(isOfflineForDatabase);
     
 };
-
 
 
 function AttDigitais(IndexTable) {
@@ -265,11 +272,6 @@ logOutButton.addEventListener('click', (e)=> {
         });
 });
 
-var agendaTxt;          // Texto com o estado para a tabela
-var agendaValor;        // Texto com o nome da válvula para a tabela
-var hora1;
-var comandoTxt;
-
 // Pega os valores do formulário do agendamento e envia para o firebase 
 function getForm(hora, valor){
     user = firebase.auth().currentUser;
@@ -336,7 +338,7 @@ function getForm(hora, valor){
     comandoTxt = txt+valor+hora;
     
     if (user.uid =! null) {
-        firebase.database().ref("Config/kkkk/operacao/").push(comandoTxt)             //Escreve no firebase o comando reduzido do agendamento (HD215:55)           
+        //firebase.database().ref("Config/kkkk/operacao/").push(comandoTxt)             //Escreve no firebase o comando reduzido do agendamento (HD215:55)           
         
         //firebase.database().ref("Config/kkkk/"+comandoTxt).set(comandoTxt)       //Salva no firebase com o destino Config/kkkk/Descrição/" + o comando reduzido (HD215:55)
         firebase.database().ref("Config/kkkk/Descrição/").push({                    //Salva no firebase com o destino Config/kkkk/Descrição/" com Uid único para cada novo agendamento
@@ -354,8 +356,27 @@ function getForm(hora, valor){
         });
         
     }
-    
+
 }
+
+function buscaCodigo() {
+    firebase.database().ref("Config/kkkk/Descrição/").once('value',
+        function (CRecords) {
+            CRecords.forEach(
+                function (CurrentCRecord) {
+                    cod = CurrentCRecord.val().codigo.concat(';'+ cod);     //.concat() concatena os arrays 
+                    //cod = codiguin.concat(";"+cod);
+                    for (c = 0; c < cod.length; c++ ){
+                                          
+                        firebase.database().ref("Config/kkkk/Pull/").set(cod);
+                    }
+                    
+                }
+            );
+        });
+
+};
+
 
 function SelectDataToAgenda() {
     firebase.database().ref("Config/kkkk/Descrição/").on('value',
@@ -383,8 +404,6 @@ function SelectDataToAgenda() {
         });
 };
 
-
-
 function AddItemsToAgenda(Nome, Hora, Comando){
     var tbodyAgenda = document.getElementById('tbodyAgenda');
     var trow = document.createElement('tr');
@@ -392,25 +411,38 @@ function AddItemsToAgenda(Nome, Hora, Comando){
     var td1 = document.createElement('td');
     var td2 = document.createElement('td');
     var td3 = document.createElement('td');
-    var td4 = document.createElement('td');
+    //var td4 = document.createElement('td');
     
     agendaList.push([Nome, Hora, Comando]);
 
     td1.innerHTML = Nome;
     td2.innerHTML = Hora;
     td3.innerHTML = Comando;
-    td4.innerHTML = '<button type="button" class="btn btn-sm" id="deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir Agendamento" onclick="Apagar()"><i class="bi bi-trash3-fill"></i></button>';
+    //td4.innerHTML = '<button type="button" class="btn btn-sm" id="deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir Agendamento" onclick="deleteBTN()"><i class="bi bi-trash3-fill"></i></button>';
     IndexAgenda++
 
     trow.appendChild(td1);
     trow.appendChild(td2);
     trow.appendChild(td3);
-    trow.appendChild(td4);
+    //trow.appendChild(td4);
 
     tbodyAgenda.appendChild(trow);
 }
 
-function Apagar(){
-    firebase.database().ref('Config/kkkk/Descrição/').remove();
-    //firebase.database().ref('Config/kkkk/operacao/').remove();
+function deleteBTN(){
+    var excluir = confirm("Deseja excluir todos agendamentos?");
+    if (excluir == true) {
+        firebase.database().ref('Config/kkkk/Descrição/').remove();
+        //firebase.database().ref('Config/kkkk/operacao/').remove()
+        firebase.database().ref('Config/kkkk/Pull/').remove()
+            .then(() => {
+                location.reload();
+                alert("Agendamentos Excluidos");
+            });
+    }
+    
 }
+
+
+
+   
