@@ -13,7 +13,18 @@
 #include <FS.h>
 #include <ArduinoJson.h>
 #include "IeCESPReleV4Lib.h"
+#if defined(ESP32)
+#include <WiFi.h>
+#include <FirebaseESP32.h>
+#elif defined(ESP8266)
+#include <ESP8266WiFi.h>
+#include <FirebaseESP8266.h>
+#endif
+
+// Provide the token generation process info.
 #include <addons/TokenHelper.h>
+
+// Provide the RTDB payload printing info and other helper functions.
 #include <addons/RTDBHelper.h>
 
 #define RELAY_PIN 3
@@ -37,16 +48,18 @@ String relayCodigoTeste [NUM_RELAYS] = {"D1", "D2", "D3", "D4", "D5", "D6", "D7"
 static time_t horas;
 int atualizaAgenda = 10;
 int horaMais;
-int setflag=1;
+int setflag = 1;
 // Tamanho do Objeto JSON
 //const   size_t    JSON_SIZE            = 404; declarado em def.h
 
 //--------------------FIREBASE-----------------------------------------//
 FirebaseData firebaseData;
+FirebaseData firebaseDataRelatorio;
 FirebaseData stream;
 FirebaseData streamStatus;
 FirebaseData streamConfig;
 FirebaseData streamAgendamento;
+FirebaseData streamRelatorio;
 FirebaseConfig config;
 FirebaseJson jsonL;
 FirebaseJson jsonD;
@@ -55,7 +68,10 @@ FirebaseJson jsonCheck;
 FirebaseJson json;
 FirebaseData fbdo;
 FirebaseAuth auth;
-
+FirebaseData fare;
+unsigned long sendDataPrevMilli = 0;
+unsigned long countin = 0;
+byte bFn;
 int releSetFlag = 99;           //A flag para atualizar o status no firebase quando muda o estado no webserver local do esp32
 String fireStatus[NUM_RELAYS2] = {"Desligado", "Desligado"};
 unsigned long sendDataPrevMillis = 0;
@@ -228,6 +244,7 @@ boolean configRead() {
     file.close();
 
     log(F("\nLendo config:"));
+
     serializeJsonPretty(jsonConfig, Serial);
     log("");
 
@@ -263,6 +280,7 @@ boolean configSave() {
     file.close();
 
     log(F("\nGravando config:"));
+
     serializeJsonPretty(jsonConfig, Serial);
     log("");
 
@@ -300,9 +318,11 @@ void handleHome() {
     server.send(200, F("text/html"), s);
     log("Home - Cliente: " + ipStr(server.client().remoteIP()) +
         (server.uri() != "/" ? " [" + server.uri() + "]" : ""));
+
   } else {
     server.send(500, F("text/plain"), F("Home - ERROR 500"));
     log(F("Home - ERRO lendo arquivo"));
+
   }
 }
 
@@ -324,6 +344,7 @@ void handleRelay() {
     } else {
       server.send(500, F("text/plain"), F("Relay - ERROR 500"));
       logFile(F("WebRelay"), F("ERRO lendo arquivo"), true);
+
     }
   }
 }
@@ -374,6 +395,7 @@ void handleEmailSet() {
   else {
     server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Falha salvando configuração.');history.back()</script></html>"));
     log(F("ConfigSave - ERRO salvando Config"));
+
   }
   //ReconfigurarFirebase();
 }
@@ -423,6 +445,7 @@ void handleRelaySet() {   //Mudança de acordo com o botão
     server.send(200, "text/plain", String(digitalRead (relayGPIOs[IndexRele.toInt()])));
     log("WebRelaySet", "Cliente: " + ipStr(server.client().remoteIP()) +
         " [" + s + "]");
+
   }
 }
 
@@ -466,9 +489,11 @@ void handleConfig() {
     // Send data
     server.send(200, F("text/html"), s);
     log("Config - Cliente: " + ipStr(server.client().remoteIP()));
+
   } else {
     server.send(500, F("text/plain"), F("Config - ERROR 500"));
     log(F("Config - ERRO lendo arquivo"));
+
   }
 }
 
@@ -551,9 +576,11 @@ void handleConfigSave() {
     if (configSave()) {
       server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Configuração salva.');history.back()</script></html>"));
       log("ConfigSave - Cliente: " + ipStr(server.client().remoteIP()));
+
     } else {
       server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Falha salvando configuração.');history.back()</script></html>"));
       log(F("ConfigSave - ERRO salvando Config"));
+
     }
   } else {
     server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Erro de parâmetros.');history.back()</script></html>"));
@@ -570,9 +597,11 @@ void handleReconfig() {
   if (configSave()) {
     server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Configuração reiniciada.');window.location = '/'</script></html>"));
     log("Reconfig - Cliente: " + ipStr(server.client().remoteIP()));
+
   } else {
     server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Falha reiniciando configuração.');history.back()</script></html>"));
     log(F("Reconfig - ERRO reiniciando Config"));
+
   }
 }
 
@@ -583,11 +612,13 @@ void handleReboot() {
     server.streamFile(file, F("text/html"));
     file.close();
     log("Reboot - Cliente: " + ipStr(server.client().remoteIP()));
+
     delay(100);
     ESP.restart();
   } else {
     server.send(500, F("text/plain"), F("Reboot - ERROR 500"));
     log(F("Reboot - ERRO lendo arquivo"));
+
   }
 }
 
@@ -618,9 +649,11 @@ void handleFileList() {
       // Send data
       server.send(200, F("text/html"), s);
       log(F("WebFileList"), "Cliente: " + ipStr(server.client().remoteIP()));
+
     } else {
       server.send(500, F("text/plain"), F("FileList - ERROR 500"));
       logFile(F("WebFileList"), F("ERRO lendo arquivo"), true);
+
     }
 
   }
@@ -659,9 +692,11 @@ void handleLog() {
     // Send data
     server.send(200, F("text/html"), s);
     log(F("WebLog"), "Client: " + ipStr(server.client().remoteIP()));
+
   } else {
     server.send(500, F("text/plain"), F("LogList - ERROR 500"));
     logFile(F("WebLogList"), F("ERRO lendo arquivo"), true);
+
   }
   // }
 }
@@ -686,6 +721,7 @@ void handleLogGet() {
                     deviceID() + F("LogMemoria.csv\""));
   server.send(200, F("text/csv"), s);
   log(F("WebLogGet"), "Client: " + ipStr(server.client().remoteIP()));
+
   // }
 }
 
@@ -701,9 +737,11 @@ void handleLogFileGet() {
     server.streamFile(file, "text/csv");
     file.close();
     log(F("WebLogFileGet"), "Client: " + ipStr(server.client().remoteIP()));
+
   } else {
     server.send(500, F("text/plain"), F("LogFileGet - ERROR 500"));
     log(F("WebLogFileGet"), F("ERRO lendo arquivo"));
+
   }
   //    } else {
   //      server.send(500, F("text/plain"), F("LogFileGet - ERROR Bad parameter 500"));
@@ -745,12 +783,29 @@ void handleCSS() {
     server.streamFile(file, F("text/css"));
     file.close();
     log("CSS - Cliente: " + ipStr(server.client().remoteIP()));
+
   } else {
     server.send(500, F("text/plain"), F("CSS - ERROR 500"));
     log(F("CSS - ERRO lendo arquivo"));
+
   }
 }
 
+void logFire(const String &type, const String &msg) {
+  FirebaseJson jsonl;
+  FirebaseData fbdoo;
+  jsonl.add(String(countin), dateTimeStr(now()) + ";" + type + ";" + msg);
+  if (WiFi.status() == WL_CONNECTED  && Firebase.ready() )
+  {
+    //sendDataPrevMillis = millis();
+    if (countin == 0) {
+      Firebase.set(fbdoo, "Config/Agendar/Relatorio/json", jsonl);
+    } else {
+      Firebase.updateNode(fbdoo, "Config/Agendar/Relatorio/json", jsonl);
+    }
+  }
+  countin++;
+}
 //---------------------------FIREBASE--------------------------------
 
 
@@ -823,6 +878,7 @@ void  FireBaseStatus() {
 
 
 void FireBaseSetConfig() {
+  jsonS.set("Estado", "Online");
   if (Firebase.ready() && (millis() - sendDataPrevMillis > idleTimeForStream || sendDataPrevMillis == 0))
   {
     sendDataPrevMillis = millis();
@@ -859,7 +915,7 @@ void FireBaseSetConfig() {
         strlcpy(configuracao, estado.c_str(), sizeof(configuracao));
       }
 
-     if (mudanca.indexOf("operacao") > 0) {
+      if (mudanca.indexOf("comandos") > 0) {
         strlcpy(agendamento, estado.c_str(), sizeof(agendamento));
         schedule = agendamento;
         Serial.print(schedule);
@@ -867,6 +923,10 @@ void FireBaseSetConfig() {
         schedule.toUpperCase();
         scheduleSet(schedule);
       }
+      if (mudanca.indexOf("ESP32") > 0) {
+        Firebase.updateNode(firebaseData, "Config/ESP32", jsonS);
+      }
+
       if (mudanca.indexOf("horário") > 0) {
 
         strlcpy(horarioAtualiza, estado.c_str(), sizeof(horarioAtualiza));
@@ -955,58 +1015,6 @@ void ConexaoFireBase() {
   }
 }
 
-void EnviarFire() {
-  hora = now();
-  byte bFn;
-  FirebaseJson json;
-  String horas = "";
-  if (hour(hora) < 10) {
-    s += '0';
-  }
-  horas += String(hour(hora)) + ':';
-  if (minute(hora) < 10) {
-    s += '0';
-  }
-  horas += String(minute(hora));
-
-  if (WiFi.status() == WL_CONNECTED && horas == horarioCheck ) {
-     FirebaseJson json;
-    FirebaseJsonArray arr;
-        //To set content
-    json.setJsonData("{\"relatorio\":relatorio}");
-    arr.setJsonArrayData("[relatorio]");   
-
-     
-//       for (bFn = logIndex; bFn < LOG_ENTRIES; bFn++) {
-//        if (logStr[bFn] != "") {
-//          arr.set("[8]", logStr[bFn]);
-//        }
-      //}
-      for (bFn = 0; bFn < logIndex; bFn++) {
-        if (logStr[bFn] != "") {
-          //s += logStr[bFn] + F("\r\n");
-          arr.set("[8]", logStr[bFn]);
-        }
-      }
-
-    json.set("relatorio/b", arr);
-
-    //To serialize json to serial
-    json.toString(Serial, true /* prettify option */);
-
-    //To serialize array to string
-    String str;
-    arr.toString(str, true /* prettify option */);
-
-    Serial.println("\n---------");
-    Serial.println(str);
-
-    Serial.println("\n---------");
-    Serial.println(json.raw()); //print raw string
-    Firebase.set(fbdo,"Config/Agendar/relatorio", json);
-    delay(30000);
-  }
-}
 
 void ConfigSchedule() {
   //-------------------ParteDoAgendamento--------------------------------
@@ -1028,6 +1036,7 @@ void ConfigSchedule() {
                "\nIH" + "00:01" + StringPortax[i] + "\nIL" + "00:01" + StringPortax[i];
   }
   log(F("Boot"), F("Agendamento Ok"));
+  logFire(F("Boot"), F("Agendamento Ok"));
 }
 
 
@@ -1065,28 +1074,27 @@ void setup() {
     Serial.print("WiFi conected. IP: ");
     Serial.println(WiFi.localIP());
     log("WiFi conectado (" + String(WiFi.RSSI()) + ") IP " + ipStr(WiFi.localIP()));
+    Serial.printf("Firebase Client v%s\n\n", FIREBASE_CLIENT_VERSION);
 
+    /* Assign the api key (required) */
     config.api_key = API_KEY;
-    auth.user.email = USER_EMAIL ;
-    auth.user.password = USER_PASSWORD ;
+
+    /* Assign the user sign in credentials */
+    auth.user.email = USER_EMAIL;
+    auth.user.password = USER_PASSWORD;
+
+    /* Assign the RTDB URL (required) */
     config.database_url = DATABASE_URL;
 
-    Firebase.reconnectWiFi(true);
-    fbdo.setResponseSize(4096);
-    String base_path = "/UsersData/";
-    config.token_status_callback = tokenStatusCallback; //see addons/TokenHelper.h
-    config.max_token_generation_retry = 5;
+    /* Assign the callback function for the long running token generation task */
+    config.token_status_callback = tokenStatusCallback; // see addons/TokenHelper.h
+
     Firebase.begin(&config, &auth);
 
-    Serial.println("Getting User UID");
-    while ((auth.token.uid) == "") {
-      Serial.print('.');
-      delay(1000);
-    }
-    uid = auth.token.uid.c_str();
-    Serial.print("User UID: ");
-    Serial.print(uid);
+    // Comment or pass false value when WiFi reconnection will control by your code or third party library
+    Firebase.reconnectWiFi(true);
 
+    Firebase.setDoubleDigits(7);
     setSyncProvider(timeNTP);
     setSyncInterval(NTP_INT);
 
@@ -1103,6 +1111,7 @@ void setup() {
   // SPIFFS                     SPI Flash File System
   if (!SPIFFS.begin()) {
     log(F("SPIFFS ERRO"));
+
     while (true);
   }
 
@@ -1142,17 +1151,11 @@ void setup() {
   } else {
     Serial.println("sream válvulas begin complete");
   }
-  if (!Firebase.beginStream(streamStatus, "Dispositivos/ESP32/Estado")) {
-    Serial.printf("sream status begin error, %s\n\n", streamStatus.errorReason().c_str());
-  } else {
-    Serial.println("sream status begin complete");
-  }
   if (!Firebase.beginStream(streamConfig, "/Config/")) {
     Serial.printf("sream config begin error, %s\n\n", streamConfig.errorReason().c_str());
   } else {
     Serial.println("sream config begin complete");
   }
-
 
   //---------------------------------WATCHDOG---------------------------//
   //configureWatchdog();
@@ -1211,6 +1214,7 @@ void loop() {
     s += '0';
   }
   horas += String(minute(hora));
+
   if (WiFi.status() == WL_CONNECTED  && !Firebase.beginStream(stream, "/Digitais/") && !Firebase.beginStream(streamStatus, "Dispositivos/ESP32/Estado") && !Firebase.ready() ) {
     reboot();
   } else if ( horas == horarioAtualiza ) {
@@ -1223,11 +1227,11 @@ void loop() {
   dnsServer.processNextRequest();
 
   //Firebase pegando os status-----------------------
-  FireBaseStatus();
-  FireBaseSet();
-  FireBaseSetConfig();
-  //ConexaoFireBase();
-  EnviarFire();
+  FireBaseStatus(); // Mudança no estado da valvula do server local
+  FireBaseSet(); // requisição de aberto e fechado das válvulas do firebase
+  FireBaseSetConfig(); // configurar o horario de reboot, agendamento, se o esp ta online
+  //ConexaoFireBase(); // mensagem que o esp esta online
+  //EnviarFire(); // enviar o log para o firebase
 
   for (int i = 0; i < RELAY_PIN; i++) {
     String s   = scheduleChk(schedule, relayGPIOsteste[i], StringPortax[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
@@ -1237,12 +1241,7 @@ void loop() {
       lastEvent = (digitalRead(relayGPIOsteste[i]) ? "Ligado " : "Desligado ") +
                   s + " - " + dateTimeStr(now());
       log(F("Agendamento"), lastEvent);
+      logFire(F("Agendamento"), lastEvent);
     }
   }
-//  int soma=int(minute(hora))+03;
-//  if(setflag==0){
-//    if(int(minute(hora))== soma){
-//     setflag=1; 
-//    }
-//  }
 }
