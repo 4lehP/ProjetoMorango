@@ -45,7 +45,7 @@ const byte      LED_OFF                 = LOW;
 int relayGPIOs[NUM_RELAYS] =          {2, 13, 14, 27, 26, 25, 33, 32, 16, 17, 4, 15};
 String relayDescricao[NUM_RELAYS] =  {"Válvula Agua", "Válvula Retorno Adubo 1", "Válvula Adubo 1", "Válvula Retorno Adubo 2", "Válvula Adubo 2", "Válvula Canteiro 6", "Válvula Canteiro 1", "Válvula Canteiro 2", "Válvula Canteiro 3", "Válvula Canteiro 4", "Válvula Canteiro 5", "Bomba 1"};
 String relayCodigo[NUM_RELAYS] =       {"VAgua", "VRetAdb1", "VAdb1", "VRetAdb2", "VAdb2", "VL6", "VL1", "VL2", "VL3", "VL4", "VL5", "VBomba"};
-String relayCodigoTeste [NUM_RELAYS] = {"D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12"};
+String relayCodigo [NUM_RELAYS] = {"D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12"};
 
 static time_t horas;
 int atualizaAgenda = 10;
@@ -103,7 +103,6 @@ boolean configRead(); // Ler as configurações
 boolean configSave(); // Salvar as mudanças de configurações
 void handleHome(); // As info que vai ser mostradas na pagina Home
 void handleRelay(); //
-void handleEmailSet(); // Recebimento das mudanças das configurações
 void handleRelayStatus(); //Leitura dos estados dos Reles
 void handleRelaySet(); //Recebimento da mudança de estado dos reles
 void handleConfig(); //Era aonde acontecia a atualização dos dados da configuração
@@ -344,57 +343,7 @@ void handleRelay() {
     }
   }
 }
-void handleEmailSet() {
 
-
-  // Grava email
-  String s = server.arg("setEmail");
-  s.trim();
-  if (s != "") {
-    strlcpy(email, s.c_str(), sizeof(email));
-
-  }
-
-  // Grava senha
-  String m = server.arg("setSenha");
-  m.trim();
-  if (m != "") {
-    strlcpy(senha, m.c_str(), sizeof(senha));
-
-  }
-
-  // Grava SSID
-  String n = server.arg("setSSID");
-  n.trim();
-  if (n != "") {
-    strlcpy(ssid, n.c_str(), sizeof(senha));
-  }
-  // Grava pw
-  String o = server.arg("setPW");
-  o.trim();
-  if (o != "") {
-    strlcpy(pw, o.c_str(), sizeof(pw));
-  }
-  // Grava referencia
-  String p = server.arg("setReferencia");
-  p.trim();
-  if (p != "") {
-    strlcpy(referencia, p.c_str(), sizeof(referencia));
-  }
-
-
-  if (configSave()) {
-    server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Configuração salva.');history.back()</script></html>"));
-    log("ConfigSave - Cliente: " + ipStr(server.client().remoteIP()));
-
-  }
-  else {
-    server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Falha salvando configuração.');history.back()</script></html>"));
-    log(F("ConfigSave - ERRO salvando Config"));
-    logFire(F("ConfigSave"), F("ConfigSave - ERRO salvando Config"));
-  }
-  //ReconfigurarFirebase();
-}
 
 
 void handleRelayStatus() {   // Atualização dos status a cada 5 segundos no site
@@ -837,8 +786,9 @@ void FireBaseSet() {
                     stream.eventType().c_str(),
                     stream.stringData().c_str());
 
-      String estado = stream.stringData();
-      int i;
+      String caminho = stream.streamPath().c_str();
+      String mudanca = stream.dataPath().c_str();
+      String estado = stream.stringData().c_str();
 
       if (estado.length() < 40) {
         for ( int i = 0; i < NUM_RELAYS; i++) {
@@ -962,15 +912,15 @@ void ConfigSchedule() {
   time_t t = now() + 61;
 
   for (int i = 0; i < RELAY_PIN; i++) {
-    schedule = "SH" + dateTimeStr( t      , false).substring(0, 16) + StringPortax[i]  +
-               "\nSL" +  dateTimeStr( t + 60 , false).substring(0, 16) + StringPortax[i] +
-               "\nMH" + dateTimeStr( t + 120, false).substring(8, 16) + StringPortax[i] +
-               "\nML" + dateTimeStr( t + 180, false).substring(8, 16) + StringPortax[i] +
-               "\nWH" +    weekday( t + 240) + " " + dateTimeStr( t + 240, false).substring(11, 16) + StringPortax[i] +
-               "\nWL" +    weekday( t + 300) + " " + dateTimeStr( t + 300, false).substring(11, 16) + StringPortax[i] +
-               "\nDH" + dateTimeStr( t + 360, false).substring(11, 16) + StringPortax[i] +
-               "\nDL" +  dateTimeStr( t + 420, false).substring(11, 16) + StringPortax[i] +
-               "\nIH" + "00:01" + StringPortax[i] + "\nIL" + "00:01" + StringPortax[i];
+    schedule = "SH" + dateTimeStr( t      , false).substring(0, 16) + relayCodigo[i]  +
+               "\nSL" +  dateTimeStr( t + 60 , false).substring(0, 16) + relayCodigo[i] +
+               "\nMH" + dateTimeStr( t + 120, false).substring(8, 16) + relayCodigo[i] +
+               "\nML" + dateTimeStr( t + 180, false).substring(8, 16) + relayCodigo[i] +
+               "\nWH" +    weekday( t + 240) + " " + dateTimeStr( t + 240, false).substring(11, 16) + relayCodigo[i] +
+               "\nWL" +    weekday( t + 300) + " " + dateTimeStr( t + 300, false).substring(11, 16) + relayCodigo[i] +
+               "\nDH" + dateTimeStr( t + 360, false).substring(11, 16) + relayCodigo[i] +
+               "\nDL" +  dateTimeStr( t + 420, false).substring(11, 16) + relayCodigo[i] +
+               "\nIH" + "00:01" + relayCodigo[i] + "\nIL" + "00:01" + relayCodigo[i];
   }
   log(F("Boot"), F("Agendamento Ok"));
   logFire(F("Boot"), F("Agendamento Ok"));
@@ -1068,11 +1018,7 @@ void setup() {
     pinMode(relayGPIOs[i], OUTPUT);
 
   }
-  for (int i = 0; i <= RELAY_PIN; i++) {
-    pinMode(relayGPIOsteste[i], OUTPUT);
-
-  }
-
+  
   delay(500);
   for (int i = 0; i <= NUM_RELAYS; i++) {
     digitalWrite(relayGPIOs[i], ValvulaDesligada); //Inicia todas portas em HIGH pro sistema desligar os reles. HIGH relé DESLIGADO
@@ -1102,9 +1048,6 @@ void setup() {
   server.on(F("/Relay.htm")       , handleRelay);
   server.on(F("/relayStatus") , handleRelayStatus);
   server.on(F("/relaySet")    , handleRelaySet);
-
-  server.on(F("/atualizacaoSet")    , handleEmailSet);
-
   server.on(F("/Config.htm")    , handleConfig);
   server.on(F("/FileList.htm")    , handleFileList);
   server.on(F("/ConfigSave"), handleConfigSave);
@@ -1154,12 +1097,16 @@ void loop() {
   }
   horas += String(minute(hora));
 
-  if (WiFi.status() == WL_CONNECTED  && !Firebase.beginStream(stream, "/Digitais/") && !Firebase.beginStream(streamStatus, "/Config/ESP32/Estado") && !Firebase.ready() ) {
-    reboot();
+  if (WiFi.status() == WL_CONNECTED) {
+    if ( !Firebase.beginStream(stream, "/Digitais/") || !Firebase.ready() ) {
+      reboot();
+    }
   } else if ( horas == horarioAtualiza ) {
     reboot();
   } else if (WiFi.status() == WL_CONNECTED && timeStatus() != timeSet) {
     reboot();
+  }else if(WiFi.status() == WL_CONNECTED && !Firebase.beginStream(streamConfig, "/Config/") ){
+     reboot();
   }
 
   // DNS ---------------------------------------------
@@ -1171,11 +1118,11 @@ void loop() {
   FireBaseSetConfig(); // configurar o horario de reboot, agendamento, se o esp ta online
 
   for (int i = 0; i < RELAY_PIN; i++) {
-    String s   = scheduleChk(schedule, relayGPIOsteste[i], StringPortax[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
+    String s   = scheduleChk(schedule, relayGPIOs[i], relayCodigo[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
     delay(500);
     if (s != "") {
       // Event detected
-      lastEvent = (digitalRead(relayGPIOsteste[i]) ? "Ligado " : "Desligado ") +
+      lastEvent = (digitalRead(relayGPIOs[i]) ? "Ligado " : "Desligado ") +
                   s + " - " + dateTimeStr(now());
       log(F("Agendamento"), lastEvent);
       logFire(F("Agendamento"), lastEvent);
