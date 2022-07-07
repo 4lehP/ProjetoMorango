@@ -192,12 +192,14 @@ function SetDispOffline(colection) {
 function AttDigitais(IndexTable) {
     // var newPostKey = firebase.database().ref().child('Digitais/').push().key;
     user = firebase.auth().currentUser;
-
+    
     name = valveList[IndexTable][0];
     status = valveList[IndexTable][2];
     //console.log(status);
     //console.log(name);
-
+    if(user == null){
+        alert("OPERAÇÃO NÃO REALIZADA\n\nFaça login para continuar");
+    }
     if (user.uid != null) {
         if (status == "Desligado") {
             status = "Ligado";
@@ -283,7 +285,9 @@ logOutButton.addEventListener('click', (e)=> {
 // Pega os valores do formulário do agendamento e envia para o firebase 
 function getForm(hora, valor){
     user = firebase.auth().currentUser;
-
+    if(user == null){
+        alert("OPERAÇÃO NÃO REALIZADA\n\nFaça login para continuar");
+    }
     var status = document.forms[0];
     var txt;
     var i;
@@ -345,11 +349,12 @@ function getForm(hora, valor){
 
     comandoTxt = txt+valor+hora;
     
+    
     if (user.uid =! null) {
-        //firebase.database().ref("Config/kkkk/operacao/").push(comandoTxt)             //Escreve no firebase o comando reduzido do agendamento (HD215:55)           
+        //firebase.database().ref("Config/Agendamento/operacao/").push(comandoTxt)             //Escreve no firebase o comando reduzido do agendamento (HD215:55)           
         
-        //firebase.database().ref("Config/kkkk/"+comandoTxt).set(comandoTxt)       //Salva no firebase com o destino Config/kkkk/Descrição/" + o comando reduzido (HD215:55)
-        firebase.database().ref("Config/kkkk/Descrição/").push({                    //Salva no firebase com o destino Config/kkkk/Descrição/" com Uid único para cada novo agendamento
+        //firebase.database().ref("Config/Agendamento/"+comandoTxt).set(comandoTxt)       //Salva no firebase com o destino Config/Agendamento/Descrição/" + o comando reduzido (HD215:55)
+        firebase.database().ref("Config/Agendamento/Descrição/").push({                    //Salva no firebase com o destino Config/Agendamento/Descrição/" com Uid único para cada novo agendamento
             nome: agendaValor,
             hora: hora1,
             comando: agendaTxt,
@@ -368,7 +373,7 @@ function getForm(hora, valor){
 }
 
 function buscaCodigo() {
-    firebase.database().ref("Config/kkkk/Descrição/").once('value',
+    firebase.database().ref("Config/Agendamento/Descrição/").on('value',
         function (CRecords) {
             CRecords.forEach(
                 function (CurrentCRecord) {
@@ -376,7 +381,7 @@ function buscaCodigo() {
                     //cod = codiguin.concat(";"+cod);
                     for (c = 0; c < cod.length; c++ ){
                                           
-                        firebase.database().ref("Config/kkkk/Pull/").set(cod);
+                        firebase.database().ref("Config/Agendamento/Pull/").set(cod);
                     }
                     
                 }
@@ -387,7 +392,7 @@ function buscaCodigo() {
 
 
 function SelectDataToAgenda() {
-    firebase.database().ref("Config/kkkk/Descrição/").on('value',
+    firebase.database().ref("Config/Agendamento/Descrição/").on('value',
         function (AgdRecords) {
             while(agendaList.length){ 
                 agendaList.pop(); 
@@ -440,27 +445,32 @@ function AddItemsToAgenda(Nome, Hora, Comando){
 // ===== Exclui o agendamento escolhido ==== 
 
 function deleteBTN(IndexAgenda){
+    
     var newList = agendaList[IndexAgenda];
     console.log(newList);
     
-    //firebase.database().ref('Config/kkkk/Descrição/'+newList).remove();
+    //firebase.database().ref('Config/Agendamento/Descrição/'+newList).remove();
 
 }
 
 // ==== Exclui todos os agendamentos ====
   
 function deleteAllBTN(){
-    var excluir = confirm("Deseja excluir todos agendamentos?");
-    if (excluir == true) {
-        firebase.database().ref('Config/kkkk/Descrição/').remove();
-        //firebase.database().ref('Config/kkkk/operacao/').remove()
-        firebase.database().ref('Config/kkkk/Pull/').remove()
-            .then(() => {
-                location.reload();
-                alert("Agendamentos Excluidos");
-            });
+    if(user == null){
+        alert("OPERAÇÃO NÃO REALIZADA\n\nFaça login para continuar");
     }
-    
+    if (user.uid != null) {
+        var excluir = confirm("Deseja excluir todos agendamentos?");
+        if (excluir == true) {
+            firebase.database().ref('Config/Agendamento/Descrição/').remove();
+            //firebase.database().ref('Config/Agendamento/operacao/').remove()
+            firebase.database().ref('Config/Agendamento/Pull/').remove()
+                .then(() => {
+                    location.reload();
+                    alert("Agendamentos Excluidos");
+                });
+        }
+    }
 }
 
 function SelectDataToRelatorio() {
