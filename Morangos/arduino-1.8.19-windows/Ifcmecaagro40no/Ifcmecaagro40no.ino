@@ -20,6 +20,8 @@
 #include <ESP8266WiFi.h>
 #include <FirebaseESP8266.h>
 #endif
+#define ValvulaLigada LOW
+#define ValvulaDesligada HIGH
 
 // Provide the token generation process info.
 #include <addons/TokenHelper.h>
@@ -184,7 +186,7 @@ void  configReset() {
   strlcpy(agendamento, "0000", sizeof(agendamento)); //agendamento
   strlcpy(configuracao, " ", sizeof(configuracao));
   strlcpy(horarioAtualiza, "14:00", sizeof(horarioAtualiza));
-  
+
 }
 
 boolean configRead() {
@@ -238,11 +240,11 @@ boolean configRead() {
     strlcpy(agendamento, jsonConfig["agendamento"]      | "", sizeof(agendamento));
     strlcpy(configuracao, jsonConfig["configuracao"]      | "", sizeof(configuracao));
     strlcpy(horarioAtualiza, jsonConfig["hora de reboot"]      | "", sizeof(horarioAtualiza));
-   
+
     file.close();
 
     log(F("\nLendo config:"));
-    logFire(F("Config"),F("Lendo config:"));
+    logFire(F("Config"), F("Lendo config:"));
     serializeJsonPretty(jsonConfig, Serial);
     log("");
 
@@ -268,12 +270,12 @@ boolean configSave() {
     jsonConfig["agendamento"] = agendamento;
     jsonConfig["configuracao"] = configuracao;
     jsonConfig["horario de reboot"] = horarioAtualiza;
-  
+
     serializeJsonPretty(jsonConfig, file);
     file.close();
 
     log(F("\nGravando config:"));
-    logFire(F("Config"),F("Gravando config:"));
+    logFire(F("Config"), F("Gravando config:"));
     serializeJsonPretty(jsonConfig, Serial);
     log("");
 
@@ -311,11 +313,11 @@ void handleHome() {
     server.send(200, F("text/html"), s);
     log("Home - Cliente: " + ipStr(server.client().remoteIP()) +
         (server.uri() != "/" ? " [" + server.uri() + "]" : ""));
-    
+
   } else {
     server.send(500, F("text/plain"), F("Home - ERROR 500"));
     log(F("Home - ERRO lendo arquivo"));
-    logFire(F("Home"),F("Home - ERRO lendo arquivo"));
+    logFire(F("Home"), F("Home - ERRO lendo arquivo"));
   }
 }
 
@@ -334,7 +336,7 @@ void handleRelay() {
       // Send data
       server.send(200, F("text/html"), s);
       log(F("WebRelay"), "Cliente: " + ipStr(server.client().remoteIP()));
-    
+
     } else {
       server.send(500, F("text/plain"), F("Relay - ERROR 500"));
       logFile(F("WebRelay"), F("ERRO lendo arquivo"), true);
@@ -384,12 +386,12 @@ void handleEmailSet() {
   if (configSave()) {
     server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Configuração salva.');history.back()</script></html>"));
     log("ConfigSave - Cliente: " + ipStr(server.client().remoteIP()));
-   
+
   }
   else {
     server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Falha salvando configuração.');history.back()</script></html>"));
     log(F("ConfigSave - ERRO salvando Config"));
-    logFire(F("ConfigSave"),F("ConfigSave - ERRO salvando Config"));
+    logFire(F("ConfigSave"), F("ConfigSave - ERRO salvando Config"));
   }
   //ReconfigurarFirebase();
 }
@@ -411,7 +413,7 @@ void handleRelayStatus() {   // Atualização dos status a cada 5 segundos no si
 
     log(F("WebRelayStatus"), "Cliente: " + ipStr(server.client().remoteIP()) +
         " [" + s + "]"); //enviar todos reles em uma msg
-    
+
   }
 
 }
@@ -433,13 +435,13 @@ void handleRelaySet() {   //Mudança de acordo com o botão
 
     lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
 
-    
+
     releSetFlag = IndexRele.toInt();
 
     server.send(200, "text/plain", String(digitalRead (relayGPIOs[IndexRele.toInt()])));
     log("WebRelaySet", "Cliente: " + ipStr(server.client().remoteIP()) +
         " [" + s + "]");
-   
+
   }
 }
 
@@ -483,11 +485,11 @@ void handleConfig() {
     // Send data
     server.send(200, F("text/html"), s);
     log("Config - Cliente: " + ipStr(server.client().remoteIP()));
-    
+
   } else {
     server.send(500, F("text/plain"), F("Config - ERROR 500"));
     log(F("Config - ERRO lendo arquivo"));
-    logFire(F("Config"),F("Config - ERRO lendo arquivo"));
+    logFire(F("Config"), F("Config - ERRO lendo arquivo"));
   }
 }
 
@@ -570,12 +572,12 @@ void handleConfigSave() {
     if (configSave()) {
       server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Configuração salva.');history.back()</script></html>"));
       log("ConfigSave - Cliente: " + ipStr(server.client().remoteIP()));
-     
+
     } else {
       server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Falha salvando configuração.');history.back()</script></html>"));
       log(F("ConfigSave - ERRO salvando Config"));
-      logFire(F("ConfigSave"),F("ConfigSave - ERRO salvando Config"));
-     }
+      logFire(F("ConfigSave"), F("ConfigSave - ERRO salvando Config"));
+    }
   } else {
     server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Erro de parâmetros.');history.back()</script></html>"));
   }
@@ -591,12 +593,12 @@ void handleReconfig() {
   if (configSave()) {
     server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Configuração reiniciada.');window.location = '/'</script></html>"));
     log("Reconfig - Cliente: " + ipStr(server.client().remoteIP()));
-    
+
   } else {
     server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Falha reiniciando configuração.');history.back()</script></html>"));
     log(F("Reconfig - ERRO reiniciando Config"));
-    logFire(F("Reconfig"),F("Reconfig - ERRO reiniciando Config"));
-     }
+    logFire(F("Reconfig"), F("Reconfig - ERRO reiniciando Config"));
+  }
 }
 
 void handleReboot() {
@@ -611,7 +613,7 @@ void handleReboot() {
   } else {
     server.send(500, F("text/plain"), F("Reboot - ERROR 500"));
     log(F("Reboot - ERRO lendo arquivo"));
-    logFire(F("Reboot"),F("Reboot - ERRO lendo arquivo"));
+    logFire(F("Reboot"), F("Reboot - ERRO lendo arquivo"));
   }
 }
 
@@ -642,7 +644,7 @@ void handleFileList() {
       // Send data
       server.send(200, F("text/html"), s);
       log(F("WebFileList"), "Cliente: " + ipStr(server.client().remoteIP()));
-     
+
     } else {
       server.send(500, F("text/plain"), F("FileList - ERROR 500"));
       logFile(F("WebFileList"), F("ERRO lendo arquivo"), true);
@@ -723,7 +725,7 @@ void handleLogFileGet() {
   // File Log download
   //if (chkWebAuth()) {
   String s = "1";
-  String IP= ipStr(server.client().remoteIP());
+  String IP = ipStr(server.client().remoteIP());
   //if (s != "") {
   File file = SPIFFS.open("/Log/Dia" + s + F(".csv"), "r");
   if (file) {
@@ -732,7 +734,7 @@ void handleLogFileGet() {
     server.streamFile(file, "text/csv");
     file.close();
     log(F("WebLogFileGet"), "Client: " + ipStr(server.client().remoteIP()));
-    
+
   } else {
     server.send(500, F("text/plain"), F("LogFileGet - ERROR 500"));
     log(F("WebLogFileGet"), F("ERRO lendo arquivo"));
@@ -754,7 +756,7 @@ void handleLogReset() {
   server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Log em Memória excluído.');window.location = 'log';</script></html>"));
   log(F("WebLogReset"), "Cliente: " + ipStr(server.client().remoteIP()));
   logFile(F("WebLogReset"), "Cliente: " + ipStr(server.client().remoteIP()));
-  
+
   // }
 }
 
@@ -767,7 +769,7 @@ void handleLogFileReset() {
   server.send(200, F("text/html"), F("<html><meta charset='UTF-8'><script>alert('Log em Arquivo excluído.');window.location = 'log';</script></html>"));
   log(F("WebLogFileReset"), "Cliente: " + ipStr(server.client().remoteIP()));
   logFile(F("WebLogFileReset"), "Cliente: " + ipStr(server.client().remoteIP()));
- 
+
   // }
 }
 
@@ -781,7 +783,7 @@ void handleCSS() {
     server.streamFile(file, F("text/css"));
     file.close();
     log("CSS - Cliente: " + ipStr(server.client().remoteIP()));
-    } else {
+  } else {
     server.send(500, F("text/plain"), F("CSS - ERROR 500"));
     log(F("CSS - ERRO lendo arquivo"));
 
@@ -793,17 +795,17 @@ void handleCSS() {
 void logFire(const String &type, const String &msg) {
   FirebaseJson jsonl;
   FirebaseData fbdoo;
-  String dataDeAgora= dateTimeStr(now());
-  String hora= dataDeAgora.substring(11);
-  String dataCalendario = dataDeAgora.substring(0,11); 
-  
+  String dataDeAgora = dateTimeStr(now());
+  String hora = dataDeAgora.substring(11);
+  String dataCalendario = dataDeAgora.substring(0, 11);
+
   jsonl.add(hora, dataCalendario + ";" + type + ";" + msg);
   if (WiFi.status() == WL_CONNECTED  && Firebase.ready() )
   {
-      Firebase.updateNode(fbdoo, "Config/Relatorio/json", jsonl);
-    }
+    Firebase.updateNode(fbdoo, "Config/Relatorio/json", jsonl);
   }
- 
+}
+
 
 void FireBaseSet() {
 
@@ -841,8 +843,8 @@ void FireBaseSet() {
       if (estado.length() < 40) {
         for ( int i = 0; i < NUM_RELAYS; i++) {
           if (estado.indexOf(relayCodigo[i]) > 0) {
-            if (estado.indexOf("Desligado") > 0)digitalWrite(relayGPIOs[i] , LOW);
-            else if (estado.indexOf("Ligado") > 0)digitalWrite(relayGPIOs[i] , HIGH);
+            if (estado.indexOf("Desligado") > 0)digitalWrite(relayGPIOs[i] , ValvulaLigada);
+            else if (estado.indexOf("Ligado") > 0)digitalWrite(relayGPIOs[i] , ValvulaDesligada);
 
           }
         }
@@ -919,9 +921,12 @@ void FireBaseSetConfig() {
         schedule.toUpperCase();
         scheduleSet(schedule);
       }
-     if (mudanca.indexOf("ESP32") > 0) {
-      Firebase.updateNode(firebaseData, "Config/ESP32", jsonS);
-     }
+      if (millis() - sendDataPrevMilli > 15000 || sendDataPrevMilli == 0) {
+        sendDataPrevMilli = millis();
+        if (estado.indexOf("Offline") > 0) {
+          Firebase.updateNode(firebaseData, "Config/ESP32", jsonS);
+        }
+      }
 
       if (mudanca.indexOf("horário") > 0) {
 
@@ -1070,7 +1075,7 @@ void setup() {
 
   delay(500);
   for (int i = 0; i <= NUM_RELAYS; i++) {
-    digitalWrite(relayGPIOs[i], HIGH); //Inicia todas portas em HIGH pro sistema desligar os reles. HIGH relé DESLIGADO
+    digitalWrite(relayGPIOs[i], ValvulaDesligada); //Inicia todas portas em HIGH pro sistema desligar os reles. HIGH relé DESLIGADO
 
   }
 
@@ -1120,7 +1125,7 @@ void setup() {
 
   // Pronto
   log(F("Pronto"));
-  logFire(F("ESP32"),F("Pronto"));
+  logFire(F("ESP32"), F("Pronto"));
   //  timeNTP();
   //  hold(1000);
   ConfigSchedule();
@@ -1149,7 +1154,7 @@ void loop() {
   }
   horas += String(minute(hora));
 
-  if (WiFi.status() == WL_CONNECTED  && !Firebase.beginStream(stream, "/Digitais/") && !Firebase.beginStream(streamStatus, "Dispositivos/ESP32/Estado") && !Firebase.ready() ) {
+  if (WiFi.status() == WL_CONNECTED  && !Firebase.beginStream(stream, "/Digitais/") && !Firebase.beginStream(streamStatus, "/Config/ESP32/Estado") && !Firebase.ready() ) {
     reboot();
   } else if ( horas == horarioAtualiza ) {
     reboot();
