@@ -3,6 +3,10 @@ var IndexAgenda = 0;
 var agendaList = [];
 var tbodyAgenda = document.getElementById('tbodyAgenda');
 
+var tbodyRelatorio = document.getElementById('tbodyRelatorio');
+var IndexRelatorio = 0;
+var relatorioList = [];
+
 var valveList = [];
 var IndexTable = 0;
 var code = document.getElementById('code');
@@ -25,11 +29,13 @@ var cod = [];
 //var codiguin = [];
 var c;
 
+
+window.onload = AtualizaStatusDispositivo('Config/ESP32/') ;
+window.onload = SetDispOffline('Config/ESP32');
 window.onload = SelectDataToTable('Digitais/',1);
-window.onload = AtualizaStatusDispositivo('Dispositivos/ESP32/') ;
-window.onload = SetDispOffline('Dispositivos/ESP32');
 window.onload = SelectDataToAgenda();
 window.onload = buscaCodigo();
+window.onload = SelectDataToRelatorio();
 
 
 var user = firebase.auth().currentUser;
@@ -86,7 +92,7 @@ function ArmazenarDadosUsuario(user){
 
 timerDisp = setInterval(ftimerDisp , 10000);//
 function ftimerDisp(){
-    SetDispOffline('Dispositivos/ESP32/'); 
+    SetDispOffline('Config/ESP32'); 
 }
 
 function SelectDataToTable(colection, first) {
@@ -155,7 +161,9 @@ function AtualizaStatusDispositivo(colection) {
     firebase.database().ref(colection).on('value',    //  .on() define que a função ocorrerá sempre que um dado for alterado na tabela
         function (Record) {
             var Estado = Record.val().Estado;
-            if (Estado == "Offline") contOFFLINE++;
+            if (Estado == "Offline"){
+                contOFFLINE++;
+            } 
             if (Estado == "Online") {
                 contOFFLINE = 0;
 
@@ -228,7 +236,7 @@ var isOfflineForDatabase = {
 };
 
 var isOnlineForDatabase = {
-    state: 'online',
+    state: 'online', 
     last_changed: firebase.database.ServerValue.TIMESTAMP,
 };
 
@@ -411,25 +419,37 @@ function AddItemsToAgenda(Nome, Hora, Comando){
     var td1 = document.createElement('td');
     var td2 = document.createElement('td');
     var td3 = document.createElement('td');
-    //var td4 = document.createElement('td');
+    var td4 = document.createElement('td');
     
     agendaList.push([Nome, Hora, Comando]);
 
     td1.innerHTML = Nome;
     td2.innerHTML = Hora;
     td3.innerHTML = Comando;
-    //td4.innerHTML = '<button type="button" class="btn btn-sm" id="deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir Agendamento" onclick="deleteBTN()"><i class="bi bi-trash3-fill"></i></button>';
+    td4.innerHTML = '<button type="button" class="btn btn-sm" id="deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir Agendamento" onclick="deleteBTN('+IndexAgenda+')"><i class="bi bi-trash3-fill"></i></button>';
     IndexAgenda++
 
     trow.appendChild(td1);
     trow.appendChild(td2);
     trow.appendChild(td3);
-    //trow.appendChild(td4);
+    trow.appendChild(td4);
 
     tbodyAgenda.appendChild(trow);
 }
 
-function deleteBTN(){
+// ===== Exclui o agendamento escolhido ==== 
+
+function deleteBTN(IndexAgenda){
+    var newList = agendaList[IndexAgenda];
+    console.log(newList);
+    
+    //firebase.database().ref('Config/kkkk/Descrição/'+newList).remove();
+
+}
+
+// ==== Exclui todos os agendamentos ====
+  
+function deleteAllBTN(){
     var excluir = confirm("Deseja excluir todos agendamentos?");
     if (excluir == true) {
         firebase.database().ref('Config/kkkk/Descrição/').remove();
@@ -443,6 +463,44 @@ function deleteBTN(){
     
 }
 
+function SelectDataToRelatorio() {
+    firebase.database().ref("Config/Relatorio/json").on('value',
+        function (RelRecords) {
+            while(relatorioList.length){ 
+                relatorioList.pop(); 
+            }
+            RelRecords.forEach(
+                function (CurrentRelRecord) {
+                    var childJson = CurrentRelRecord.key;
+                    var valJson = CurrentRelRecord.val();
 
+                    var Info =  childJson.concat(": " +valJson);
+                                          
+                    if(first = true){
+                        AddItemsToRelatorio(Info)
+                    }
+                    else{
+                        relatorioList.pop();
+                        relatorioList.push({Info});
+                    }
+                }
+            );
 
-   
+        });
+};
+
+function AddItemsToRelatorio(Info){
+    var tbodyRelatorio = document.getElementById('tbodyRelatorio');
+    var trow = document.createElement('tr');
+
+    var td1 = document.createElement('td');
+    
+    relatorioList.push([Info]);
+
+    td1.innerHTML = Info;
+
+    trow.appendChild(td1);
+
+    tbodyRelatorio.appendChild(trow);
+}
+  

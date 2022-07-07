@@ -79,4 +79,13 @@ body {
 }
 #deleteBtn{
   box-shadow: 5px 5px 5px rgba(0,0,0,0.3);
+  border: 1px solid #c70606;
+}
+
+#containerRelatorio{
+  border: 3px solid #158cba;
+  background-color: #b3e1f39f;
+  height: 250px;
+  overflow-y: auto;
+  padding: 10px;
 }

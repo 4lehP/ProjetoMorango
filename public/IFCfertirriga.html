@@ -172,7 +172,7 @@
                           <br>
 
                           <p class="text-center">
-                            <input type="button" class="btn btn-lg btn-block btn-primary" data-bs-toggle="tooltip"
+                            <input type="button" class="btn btn-md btn-block btn-primary" data-bs-toggle="tooltip"
                               data-bs-placement="top" title="Novo Agendamento" onclick="getForm(horaAgenda.value, codigoAgenda.value), buscaCodigo()" value="Agendar">
                           </p>
                         </form>
@@ -209,7 +209,7 @@
                         </div>
                         <p class="text-center">
                           <input type="button" class="btn btn-md btn-block btn-danger" id="deleteBtn" data-bs-toggle="tooltip"
-                           data-bs-placement="top" title="Excluirá todos agendamentos" onclick="deleteBTN()" value="Excluir">
+                           data-bs-placement="top" title="Excluirá todos agendamentos" onclick="deleteAllBTN()" value="Excluir">
                         </p>
                       </div>
                     </div>
@@ -220,7 +220,6 @@
             </div>
             <br>
             
-        
             <div class="d-flex justify-content">
               <table class="table align-middle">
                 <thead>
@@ -234,7 +233,33 @@
                 <tbody id="tbody">
               </table>
             </div>
+            <br>
 
+            <!-- Tabela Relatório -->
+            
+            <div class="container" id="containerRelatorio">
+              <div class="col-md-12">
+                <div class="relatorioForm">
+                  <div class="col justify-content-md-center">
+                    <div class="d-flex justify-content">
+                        <table class="table align-middle table-striped table-hover">
+                          <thead>
+                            <tr>
+                              <th scope="col">Relatório</th>
+                            </tr>
+                          </thead>
+                          <tbody id="tbodyRelatorio">
+                            
+                          </tbody>
+                        </table>
+                      
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            
           </div>
         </div>
 
