@@ -51,7 +51,7 @@
               </div>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="/public/authentication.html" id="logOutButton">
+              <a class="nav-link active"  id="logOutButton" href="/authentication.html">  <!-- adicionar /public para funcionar em teste, deletar para funcionar online -->
                 <i class="bi bi-door-open"></i> Sair
                 <span class="visually-hidden">(current)</span>
               </a>
@@ -92,7 +92,7 @@
   <div id="area_da_tabela">
     <div class="container">
       <div class="row justify-content-md-center">
-        <div class="col-md-8">
+        <div class="col-md-12">
           <h4 class="text-center" id="UsuarioAtivo"> </h4>
 
           <h4 class="text-center" id="ControladorAtivo"> </h4>
@@ -102,7 +102,7 @@
 
 
       <div class="row justify-content-md-center">
-        <div class="col-md-8">
+        <div class="col-md-12">
           <div class="cat">
             <p id="diagrama"><img src="Imagens/Diagrama.jpg" class="img-fluid"></p>
           </div>
@@ -122,9 +122,9 @@
                 <!-- Agendamento -->
 
                 <div class="box-cell agendamento">
-                  <div class="col-md-12">
+                  <div class="col-md-16">
                     <div class="agendaForm">
-                      <div class="col justify-content-md-center">
+                      <div class="col justify-content-md-center" id ="containerAgendamento">
                         <h4 class="text-center">Agendamento</h4>
 
                         <form id="novoAgendamento" class="form" >

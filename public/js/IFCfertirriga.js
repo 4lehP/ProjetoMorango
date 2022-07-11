@@ -211,17 +211,13 @@ function AttDigitais(IndexTable) {
             status = "Desligado";
         }
        // console.log("depois");
-       // console.log(status);
+        //console.log(status);
 
         // Get a key for a new Post.
 
         var updates = {};
         updates['Digitais/' + name + '/Estado'] = status;
         firebase.database().ref().update(updates);
-    }
-    else{
-        // NÃO ESTÁ FUNCIONANDO !!!!!
-        alert('Falha ao executar, faça login antes de continuar.');
     }
 
   //return 0;
@@ -294,11 +290,11 @@ function getForm(hora, valor){
     }
     var status = document.forms[0];
     var txt;
-    var i;
+    var g;
     hora1 = hora;
-    for(i=0; i < status.length; i++){     //Busca o valor selecionado nos checks 
-        if(status[i].checked){
-            txt = status[i].value ;
+    for(g=0; g < status.length; g++){     //Busca o valor selecionado nos checks 
+        if(status[g].checked){
+            txt = status[g].value ;
         }
 
     }
@@ -411,7 +407,6 @@ function SelectDataToAgenda() {
                         AddItemsToAgenda(Nome, Hora, Comando)
                     }
                     else{
-                        agendaList.pop();
                         agendaList.push([Nome, Hora, Comando]);
                     }
                 }

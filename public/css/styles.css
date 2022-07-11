@@ -62,7 +62,7 @@ body {
 }
 
 .container .box .box-cell {
-  width: 400px;
+  width: 500px;
   display:table-cell;
   padding:10px;
   border-radius: 10%;
