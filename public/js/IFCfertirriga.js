@@ -30,8 +30,10 @@ var cod = [];
 var c;
 
 
-window.onload = AtualizaStatusDispositivo('Config/ESP32/') ;
-window.onload = SetDispOffline('Config/ESP32');
+//window.onload = AtualizaStatusDispositivo('Config/ESP32/') ;
+window.onload = AtualizaStatusDispositivo('Dispositivos/ESP32/') ;
+//window.onload = SetDispOffline('Config/ESP32');
+window.onload = SetDispOffline('Dispositivos/ESP32');
 window.onload = SelectDataToTable('Digitais/',1);
 window.onload = SelectDataToAgenda();
 window.onload = buscaCodigo();
@@ -39,7 +41,7 @@ window.onload = SelectDataToRelatorio();
 
 
 var user = firebase.auth().currentUser;
-timerUser = setInterval(ftimer , 2000);
+timerUser = setInterval(ftimer , 1000);
 
 function ftimer(){
     user = firebase.auth().currentUser;
@@ -90,9 +92,11 @@ function ArmazenarDadosUsuario(user){
     
 };
 
-timerDisp = setInterval(ftimerDisp , 10000);//
+timerDisp = setInterval(ftimerDisp , 20000);//
+
 function ftimerDisp(){
-    SetDispOffline('Config/ESP32'); 
+    //SetDispOffline('Config/ESP32'); 
+    SetDispOffline('Dispositivos/ESP32'); 
 }
 
 function SelectDataToTable(colection, first) {
@@ -200,7 +204,7 @@ function AttDigitais(IndexTable) {
     if(user == null){
         alert("OPERAÇÃO NÃO REALIZADA\n\nFaça login para continuar");
     }
-    if (user.uid != null) {
+    if (user.uid != null ) {
         if (status == "Desligado") {
             status = "Ligado";
         } else {
@@ -276,7 +280,7 @@ logOutButton.addEventListener('click', (e)=> {
            
             displayName.innerText = 'Você não está autenticado';
             alert('Você se deslogou');
-            window.location.href = '/public/authentication.html';
+            window.location.href = '/authentication.html';  // adicionar /public para funcionar em teste, deletar para funcionar online
         }).catch((error) =>{ 
             console.error(error);
         });
@@ -348,8 +352,9 @@ function getForm(hora, valor){
     //console.log(agendaValor, agendaTxt);
 
     comandoTxt = txt+valor+hora;
+    alert("OPERAÇÃO NÃO REALIZADA");
     
-    
+    /*
     if (user.uid =! null) {
         //firebase.database().ref("Config/Agendamento/operacao/").push(comandoTxt)             //Escreve no firebase o comando reduzido do agendamento (HD215:55)           
         
@@ -369,7 +374,7 @@ function getForm(hora, valor){
         });
         
     }
-
+    */
 }
 
 function buscaCodigo() {
@@ -378,7 +383,6 @@ function buscaCodigo() {
             CRecords.forEach(
                 function (CurrentCRecord) {
                     cod = CurrentCRecord.val().codigo.concat(';'+ cod);     //.concat() concatena os arrays 
-                    //cod = codiguin.concat(";"+cod);
                     for (c = 0; c < cod.length; c++ ){
                                           
                         firebase.database().ref("Config/Agendamento/Pull/").set(cod);
@@ -445,25 +449,25 @@ function AddItemsToAgenda(Nome, Hora, Comando){
 // ===== Exclui o agendamento escolhido ==== 
 
 function deleteBTN(IndexAgenda){
-    
+    alert("OPERAÇÃO NÃO REALIZADA");
     var newList = agendaList[IndexAgenda];
     console.log(newList);
-    
-    //firebase.database().ref('Config/Agendamento/Descrição/'+newList).remove();
 
 }
 
 // ==== Exclui todos os agendamentos ====
   
 function deleteAllBTN(){
+    alert("OPERAÇÃO NÃO REALIZADA");
+    /*
     if(user == null){
         alert("OPERAÇÃO NÃO REALIZADA\n\nFaça login para continuar");
     }
+    
     if (user.uid != null) {
         var excluir = confirm("Deseja excluir todos agendamentos?");
         if (excluir == true) {
             firebase.database().ref('Config/Agendamento/Descrição/').remove();
-            //firebase.database().ref('Config/Agendamento/operacao/').remove()
             firebase.database().ref('Config/Agendamento/Pull/').remove()
                 .then(() => {
                     location.reload();
@@ -471,6 +475,7 @@ function deleteAllBTN(){
                 });
         }
     }
+    */
 }
 
 function SelectDataToRelatorio() {
@@ -513,4 +518,3 @@ function AddItemsToRelatorio(Info){
 
     tbodyRelatorio.appendChild(trow);
 }
-  

@@ -23,7 +23,7 @@ function ftimer(){
     if (user.uid) {
         //LinkFertirriga.innerHTML='  <a class="text-center" id="LinkFertirriga" href="#">Acesso Liberado ao Controle de Válvulas</a> '; 
         displayName.innerText = 'Bem vindo, ' + user.displayName;
-        window.location.href = "/public/UserLogado.html";
+        window.location.href = "/UserLogado.html";     // adicionar /public para funcionar em teste, deletar para funcionar online
 
         //console.log(user.uid);
         //console.log(user.displayName);
