@@ -13,7 +13,7 @@ var code = document.getElementById('code');
 var description = document.getElementById('description');
 var SwitchEstado = document.getElementById('SwitchEstado'); 
 var Vadb1label = document.getElementById('Vadb1label');
-var tbody = document.getElementById('tbody');
+var tbodyVal = document.getElementById('tbodyVal');
 var IMGphotoURL = document.getElementById('photoURL');
 var logOutButton = document.getElementById('logOutButton');
 var UsuarioAtivo = document.getElementById('UsuarioAtivo');
@@ -35,9 +35,9 @@ window.onload = AtualizaStatusDispositivo('Dispositivos/ESP32/') ;
 //window.onload = SetDispOffline('Config/ESP32');
 window.onload = SetDispOffline('Dispositivos/ESP32');
 window.onload = SelectDataToTable('Digitais/',1);
-window.onload = SelectDataToAgenda();
-window.onload = buscaCodigo();
-window.onload = SelectDataToRelatorio();
+//window.onload = SelectDataToAgenda();
+//window.onload = buscaCodigo();
+//window.onload = SelectDataToRelatorio();
 
 
 var user = firebase.auth().currentUser;
@@ -132,7 +132,7 @@ function SelectDataToTable(colection, first) {
 function AddItemsToTable(Nome, Descrição, Estado) {
     user = firebase.auth().currentUser;
 
-    var tbody = document.getElementById('tbody');
+    var tbodyVal = document.getElementById('tbodyVal');
 
     var trow = document.createElement('tr');
 
@@ -154,7 +154,7 @@ function AddItemsToTable(Nome, Descrição, Estado) {
     trow.appendChild(td3);
     trow.appendChild(td4);
 
-    tbody.appendChild(trow);
+    tbodyVal.appendChild(trow);
 
 
 }
@@ -390,7 +390,7 @@ function buscaCodigo() {
 
 };
 
-
+/*
 function SelectDataToAgenda() {
     firebase.database().ref("Config/Agendamento/Descrição/").on('value',
         function (AgdRecords) {
@@ -420,23 +420,23 @@ function AddItemsToAgenda(Nome, Hora, Comando){
     var tbodyAgenda = document.getElementById('tbodyAgenda');
     var trow = document.createElement('tr');
 
-    var td1 = document.createElement('td');
-    var td2 = document.createElement('td');
-    var td3 = document.createElement('td');
-    var td4 = document.createElement('td');
+    var ta1 = document.createElement('td');
+    var ta2 = document.createElement('td');
+    var ta3 = document.createElement('td');
+    var ta4 = document.createElement('td');
     
     agendaList.push([Nome, Hora, Comando]);
 
-    td1.innerHTML = Nome;
-    td2.innerHTML = Hora;
-    td3.innerHTML = Comando;
-    td4.innerHTML = '<button type="button" class="btn btn-sm" id="deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir Agendamento" onclick="deleteBTN('+IndexAgenda+')"><i class="bi bi-trash3-fill"></i></button>';
+    ta1.innerHTML = Nome;
+    ta2.innerHTML = Hora;
+    ta3.innerHTML = Comando;
+    ta4.innerHTML = '<button type="button" class="btn btn-sm" id="deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir Agendamento" onclick="deleteBTN('+IndexAgenda+')"><i class="bi bi-trash3-fill"></i></button>';
     IndexAgenda++
 
-    trow.appendChild(td1);
-    trow.appendChild(td2);
-    trow.appendChild(td3);
-    trow.appendChild(td4);
+    trow.appendChild(ta1);
+    trow.appendChild(ta2);
+    trow.appendChild(ta3);
+    trow.appendChild(ta4);
 
     tbodyAgenda.appendChild(trow);
 }
@@ -470,7 +470,7 @@ function deleteAllBTN(){
                 });
         }
     }
-    */
+    
 }
 
 function SelectDataToRelatorio() {
@@ -513,3 +513,4 @@ function AddItemsToRelatorio(Info){
 
     tbodyRelatorio.appendChild(trow);
 }
+*/
