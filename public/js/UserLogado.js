@@ -148,7 +148,7 @@ logOutButton.addEventListener('click', (e)=> {
            
             displayName.innerText = 'Você não está autenticado';
             alert('Você se deslogou');
-            window.location.href = '/authentication.html';      //adicionar /public para funcionar em teste, deletar para funcionar online
+            window.location.href = '/public/authentication.html';      //adicionar /public para funcionar em teste, deletar para funcionar online
         }).catch((error) =>{ 
             //console.error(error);
         });

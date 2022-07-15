@@ -13,7 +13,7 @@ var code = document.getElementById('code');
 var description = document.getElementById('description');
 var SwitchEstado = document.getElementById('SwitchEstado'); 
 var Vadb1label = document.getElementById('Vadb1label');
-var tbodyVal = document.getElementById('tbodyVal');
+var tbody = document.getElementById('tbody');
 var IMGphotoURL = document.getElementById('photoURL');
 var logOutButton = document.getElementById('logOutButton');
 var UsuarioAtivo = document.getElementById('UsuarioAtivo');
@@ -35,9 +35,9 @@ window.onload = AtualizaStatusDispositivo('Dispositivos/ESP32/') ;
 //window.onload = SetDispOffline('Config/ESP32');
 window.onload = SetDispOffline('Dispositivos/ESP32');
 window.onload = SelectDataToTable('Digitais/',1);
-//window.onload = SelectDataToAgenda();
-//window.onload = buscaCodigo();
-//window.onload = SelectDataToRelatorio();
+window.onload = SelectDataToAgenda();
+window.onload = buscaCodigo();
+window.onload = SelectDataToRelatorio();
 
 
 var user = firebase.auth().currentUser;
@@ -118,7 +118,7 @@ function SelectDataToTable(colection, first) {
                         
 
                     }
-                    document.querySelectorAll("tbody td:nth-child(4)")[i].innerText = Estado;
+                    document.querySelectorAll('tbody td:nth-child(4)')[i].innerText = Estado;
                              
                              //console.log(i +" "+Estado);
                              i++;
@@ -132,7 +132,7 @@ function SelectDataToTable(colection, first) {
 function AddItemsToTable(Nome, Descrição, Estado) {
     user = firebase.auth().currentUser;
 
-    var tbodyVal = document.getElementById('tbodyVal');
+    var tbody = document.getElementById('tbody');
 
     var trow = document.createElement('tr');
 
@@ -145,7 +145,7 @@ function AddItemsToTable(Nome, Descrição, Estado) {
 
     td1.innerHTML = Nome;
     td2.innerHTML = Descrição;
-    td3.innerHTML = '<button type="button" class="btn btn-primary my-2"   onclick="AttDigitais(' + IndexTable + ')">On/Off</button>';
+    td3.innerHTML = '<div class="form-check form-switch"><input class="form-check-input " type="checkbox" role="switch" onclick="AttDigitais(' + IndexTable + ')" ></div>';
     td4.innerHTML = Estado;
     IndexTable++
 
@@ -154,7 +154,7 @@ function AddItemsToTable(Nome, Descrição, Estado) {
     trow.appendChild(td3);
     trow.appendChild(td4);
 
-    tbodyVal.appendChild(trow);
+    tbody.appendChild(trow);
 
 
 }
@@ -276,7 +276,7 @@ logOutButton.addEventListener('click', (e)=> {
            
             displayName.innerText = 'Você não está autenticado';
             alert('Você se deslogou');
-            window.location.href = '/authentication.html';  // adicionar /public para funcionar em teste, deletar para funcionar online
+            window.location.href = '/public/authentication.html';  // adicionar /public para funcionar em teste, deletar para funcionar online
         }).catch((error) =>{ 
             console.error(error);
         });
@@ -350,7 +350,7 @@ function getForm(hora, valor){
     comandoTxt = txt+valor+hora;
     alert("OPERAÇÃO NÃO REALIZADA");
     
-    /*
+    
     if (user.uid =! null) {
         //firebase.database().ref("Config/Agendamento/operacao/").push(comandoTxt)             //Escreve no firebase o comando reduzido do agendamento (HD215:55)           
         
@@ -370,7 +370,7 @@ function getForm(hora, valor){
         });
         
     }
-    */
+    
 }
 
 function buscaCodigo() {
@@ -379,8 +379,7 @@ function buscaCodigo() {
             CRecords.forEach(
                 function (CurrentCRecord) {
                     cod = CurrentCRecord.val().codigo.concat(';'+ cod);     //.concat() concatena os arrays 
-                    for (c = 0; c < cod.length; c++ ){
-                                          
+                    for (c = 0; c < cod.length; c++ ){                  
                         firebase.database().ref("Config/Agendamento/Pull/").set(cod);
                     }
                     
@@ -389,8 +388,8 @@ function buscaCodigo() {
         });
 
 };
+var keyAgd;
 
-/*
 function SelectDataToAgenda() {
     firebase.database().ref("Config/Agendamento/Descrição/").on('value',
         function (AgdRecords) {
@@ -398,7 +397,8 @@ function SelectDataToAgenda() {
                 agendaList.pop(); 
             }
             AgdRecords.forEach(
-                function (CurrentAgdRecord) {
+                function (CurrentAgdRecord) { 
+                    keyAgd = CurrentAgdRecord.key;
                     var Nome = CurrentAgdRecord.val().nome;
                     var Hora = CurrentAgdRecord.val().hora;
                     var Comando = CurrentAgdRecord.val().comando;
@@ -409,6 +409,7 @@ function SelectDataToAgenda() {
                     else{
                         agendaList.push([Nome, Hora, Comando]);
                     }
+                    //console.log(keyAgd);
                 }
             );
            first = false;
@@ -420,23 +421,23 @@ function AddItemsToAgenda(Nome, Hora, Comando){
     var tbodyAgenda = document.getElementById('tbodyAgenda');
     var trow = document.createElement('tr');
 
+    var ta0 = document.createElement('td');
     var ta1 = document.createElement('td');
     var ta2 = document.createElement('td');
     var ta3 = document.createElement('td');
-    var ta4 = document.createElement('td');
     
     agendaList.push([Nome, Hora, Comando]);
 
-    ta1.innerHTML = Nome;
-    ta2.innerHTML = Hora;
-    ta3.innerHTML = Comando;
-    ta4.innerHTML = '<button type="button" class="btn btn-sm" id="deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir Agendamento" onclick="deleteBTN('+IndexAgenda+')"><i class="bi bi-trash3-fill"></i></button>';
+    ta0.innerHTML = Nome;
+    ta1.innerHTML = Hora;
+    ta2.innerHTML = Comando;
+    ta3.innerHTML = '<button type="button" class="btn btn-sm" id="deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir Agendamento" onclick="deleteBTN('+IndexAgenda+')"><i class="bi bi-trash3-fill"></i></button>';
     IndexAgenda++
 
+    trow.appendChild(ta0);
     trow.appendChild(ta1);
     trow.appendChild(ta2);
     trow.appendChild(ta3);
-    trow.appendChild(ta4);
 
     tbodyAgenda.appendChild(trow);
 }
@@ -445,16 +446,28 @@ function AddItemsToAgenda(Nome, Hora, Comando){
 
 function deleteBTN(IndexAgenda){
     alert("OPERAÇÃO NÃO REALIZADA");
+    /*
+    SelectDataToAgenda(keyAgd);
+    getForm(codigo);
     var newList = agendaList[IndexAgenda];
     console.log(newList);
-
+    while(newList.length){
+        newList.pop();
+    }
+    console.log(newList);
+    //console.log(agendaList);
+    agendaList = {
+        Nome: agendaList[IndexAgenda][0],
+        Hora: agendaList[IndexAgenda][1],
+        Comando: agendaList[IndexAgenda][2],
+    };
+    firebase.database().ref('Config/Agendamento/Descrição/'+keyAgd).update(agendaList);
+    */
 }
 
 // ==== Exclui todos os agendamentos ====
   
 function deleteAllBTN(){
-    alert("OPERAÇÃO NÃO REALIZADA");
-    /*
     if(user == null){
         alert("OPERAÇÃO NÃO REALIZADA\n\nFaça login para continuar");
     }
@@ -513,4 +526,3 @@ function AddItemsToRelatorio(Info){
 
     tbodyRelatorio.appendChild(trow);
 }
-*/

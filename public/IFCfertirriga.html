@@ -51,7 +51,8 @@
               </div>
             </li>
             <li class="nav-item">
-              <a class="nav-link active"  id="logOutButton" href="/authentication.html">  <!-- adicionar /public para funcionar em teste, deletar para funcionar online -->
+              <a class="nav-link active" id="logOutButton" href="/public/authentication.html">
+                <!-- adicionar /public para funcionar em teste, deletar para funcionar online -->
                 <i class="bi bi-door-open"></i> Sair
                 <span class="visually-hidden">(current)</span>
               </a>
@@ -106,12 +107,31 @@
           <div class="cat">
             <p id="diagrama"><img src="Imagens/Diagrama.jpg" class="img-fluid"></p>
           </div>
-          
+
           <hr>
-            <h1 class="text-center">Agendamento</h1>
-            <h4 class="text-center text-danger">NÃO OPERACIONAL</h4>
-            <h6 class="text-center text-danger">Necessária atualização do painel</h6>
-            <h6 class="text-center text-danger">Por Favor não executar nenhuma operação</h6>
+          <h1 class="text-center">Comandos Individuais</h1>
+          <hr>
+
+          <div class="d-flex justify-content">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th scope="col">Código</th>
+                  <th scope="col">Descrição</th>
+                  <th scope="col">Chave</th>
+                  <th scope="col">Estado</th>
+                </tr>
+              </thead>
+              <tbody id="tbody">
+            </table>
+          </div>
+          <br>
+
+          <hr>
+          <h1 class="text-center">Agendamento</h1>
+          <h4 class="text-center text-danger">NÃO OPERACIONAL</h4>
+          <h6 class="text-center text-danger">Necessária atualização do painel</h6>
+          <h6 class="text-center text-danger">Por Favor não executar nenhuma operação</h6>
           <hr>
           <!-- ----Container Agendamento Agenda---- -->
 
@@ -124,10 +144,10 @@
                 <div class="box-cell agendamento">
                   <div class="col-md-16">
                     <div class="agendaForm">
-                      <div class="col justify-content-md-center" id ="containerAgendamento">
+                      <div class="col justify-content-md-center" id="containerAgendamento">
                         <h4 class="text-center">Agendamento</h4>
 
-                        <form id="novoAgendamento" class="form" >
+                        <form id="novoAgendamento" class="form">
                           <div class="input-group mb-3">
 
                             <label class="input-group-text" for="inputGroupSelect01" data-bs-toggle="tooltip"
@@ -144,12 +164,12 @@
                               <option value="D7">Válvula Canteiro 3</option>
                               <option value="D8">Válvula Canteiro 4</option>
                               <option value="D9">Válvula Canteiro 5</option>
-                              <option value="D10">Válvula Canteiro 6</option> 
+                              <option value="D10">Válvula Canteiro 6</option>
                               <option value="D11">Válvula de Retorno Adubo 1</option>
                               <option value="D12">Válvula de Retorno Adubo 2</option>
                             </select>
                           </div>
-                           
+
                           <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="status" id="Ligar"
                               data-bs-toggle="tooltip" data-bs-placement="top" title="Selecione" value="H" checked>
@@ -159,7 +179,7 @@
                           </div>
 
                           <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="status" id="Desligar"
+                            <input class="form-check-input " type="radio" name="status" id="Desligar"
                               data-bs-toggle="tooltip" data-bs-placement="top" title="Selecione" value="L">
                             <label class="form-check-label" for="exampleRadios2">
                               Desligar
@@ -176,7 +196,8 @@
 
                           <p class="text-center">
                             <input type="button" class="btn btn-md btn-block btn-primary" data-bs-toggle="tooltip"
-                              data-bs-placement="top" title="Novo Agendamento" onclick="getForm(horaAgenda.value, codigoAgenda.value), buscaCodigo()" value="Agendar">
+                              data-bs-placement="top" title="Novo Agendamento"
+                              onclick="getForm(horaAgenda.value, codigoAgenda.value), buscaCodigo()" value="Agendar">
                           </p>
                         </form>
 
@@ -188,7 +209,7 @@
 
                 <!-- Agenda -->
 
-                <div class="box-cell agenda" >
+                <div class="box-cell agenda">
                   <div class="col-md-12">
                     <div class="agendaForm">
                       <div class="col justify-content-md-center">
@@ -205,40 +226,22 @@
                                 </tr>
                               </thead>
                               <tbody id="tbodyAgenda">
-                                
+
                               </tbody>
                             </table>
                           </div>
                         </div>
                         <p class="text-center">
-                          <input type="button" class="btn btn-md btn-block btn-danger" id="deleteBtn" data-bs-toggle="tooltip"
-                           data-bs-placement="top" title="Excluir todos agendamentos" onclick="deleteAllBTN()" value="Excluir">
+                          <input type="button" class="btn btn-md btn-block btn-danger" id="deleteBtn"
+                            data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir todos agendamentos"
+                            onclick="deleteAllBTN()" value="Excluir">
                         </p>
                       </div>
                     </div>
-                    
+
                   </div>
                 </div>
               </div>
-            </div>
-            <br>
-            
-            <hr>
-            <h1 class="text-center">Comandos Individuais</h1>
-            <hr>
-
-            <div class="d-flex justify-content">
-              <table class="table align-middle">
-                <thead>
-                  <tr>
-                    <th scope="col">Código</th>
-                    <th scope="col">Descrição</th>
-                    <th scope="col">Chave</th>
-                    <th scope="col">Estado</th>
-                  </tr>
-                </thead>
-                <tbody id="tbodyVal">
-              </table>
             </div>
             <br>
 
@@ -246,44 +249,28 @@
             <h2 class="text-center">Registro de Atividade</h2>
             <hr>
             <!-- Tabela Relatório -->
-            
+
             <div class="container" id="containerRelatorio">
               <div class="col-md-12">
                 <div class="relatorioForm">
                   <div class="col justify-content-md-center">
                     <div class="d-flex justify-content">
-                        <table class="table align-middle table-striped table-hover">
-                          <thead>
-                            <tr>
-                              <th scope="col">Relatório</th>
-                            </tr>
-                          </thead>
-                          <tbody id="tbodyRelatorio">
-                            
-                          </tbody>
-                        </table>
-                      
+                      <table class="table align-middle table-striped table-hover">
+                        <thead>
+                          <tr>
+                            <th scope="col">Relatório</th>
+                          </tr>
+                        </thead>
+                        <tbody id="tbodyRelatorio">
+
+                        </tbody>
+                      </table>
+
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            
-
-            <!-- Card Relatório  -->
-          <!--
-            <div class="card mb-3" id = "cardRelatório">
-              <div class="card-header" id="headerRelat">Relatório</div>
-              <div class="card-body">
-                <table class="table align-middle table-striped table-hover">
-                  
-                  <tbody id="tbodyRelatorio">
-                    
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          --> 
 
           </div>
         </div>
