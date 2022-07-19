@@ -44,8 +44,13 @@ const byte      LED_OFF                 = LOW;
 
 int relayGPIO[NUM_RELAYS] =          {2, 13, 14, 27, 26, 25, 33, 32, 16, 17, 4, 15};
 String relayDescricao[NUM_RELAYS] =  {"Válvula Agua", "Válvula Retorno Adubo 1", "Válvula Adubo 1", "Válvula Retorno Adubo 2", "Válvula Adubo 2", "Válvula Canteiro 6", "Válvula Canteiro 1", "Válvula Canteiro 2", "Válvula Canteiro 3", "Válvula Canteiro 4", "Válvula Canteiro 5", "Bomba 1"};
+<<<<<<< HEAD
 String relayCodigo[NUM_RELAYS] =       {"VAgua", "VRetAdb1", "VAdb1", "VRetAdb2", "VAdb2", "VL6", "VL1", "VL2", "VL3", "VL4", "VL5", "VBomba"};
 String relayCodigoDX[NUM_RELAYS] = {"D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12"};
+=======
+String relayCodigos[NUM_RELAYS] =       {"VAgua", "VRetAdb1", "VAdb1", "VRetAdb2", "VAdb2", "VL6", "VL1", "VL2", "VL3", "VL4", "VL5", "VBomba"};
+String relayCodigo [NUM_RELAYS] = {"D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12"};
+>>>>>>> a63899a68d924a5364862d0003e17f6bdedb79a0
 
 static time_t horas;
 int atualizaAgenda = 10;
@@ -871,13 +876,16 @@ void FireBaseSetConfig() {
         schedule.toUpperCase();
         scheduleSet(schedule);
       }
+<<<<<<< HEAD
       if (1) {
         
+=======
+   
+>>>>>>> a63899a68d924a5364862d0003e17f6bdedb79a0
         if (estado.indexOf("Offline") > 0) {
           Firebase.updateNode(firebaseData, "Config/ESP32/", jsonS);
         }
-      }
-
+      
       if (mudanca.indexOf("horário") > 0) {
 
         strlcpy(horarioAtualiza, estado.c_str(), sizeof(horarioAtualiza));
