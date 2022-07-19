@@ -1,6 +1,6 @@
 
 
-/*************ln("sream begin error, %s\n\n", stream.errorReason().c_str());E COISAS
+/*************ln("sream begin error, %s\n\n", .errorReason().c_str());E COISAS
    Configuracao com JSON e SPIFFS
    Multiplataforma ESP32 e ESP8266
    12/2019 - Andre Michelon
@@ -20,8 +20,8 @@
 #include <ESP8266WiFi.h>
 #include <FirebaseESP8266.h>
 #endif
-#define ValvulaLigada LOW
-#define ValvulaDesligada HIGH
+#define ValvulaLigada 0
+#define ValvulaDesligada 1
 
 // Provide the token generation process info.
 #include <addons/TokenHelper.h>
@@ -42,10 +42,10 @@ const byte      LED_OFF                 = LOW;
 #define NUM_RELAYS  12
 #define NUM_RELAYS2  2
 
-int relayGPIOs[NUM_RELAYS] =          {2, 13, 14, 27, 26, 25, 33, 32, 16, 17, 4, 15};
+int relayGPIO[NUM_RELAYS] =          {2, 13, 14, 27, 26, 25, 33, 32, 16, 17, 4, 15};
 String relayDescricao[NUM_RELAYS] =  {"Válvula Agua", "Válvula Retorno Adubo 1", "Válvula Adubo 1", "Válvula Retorno Adubo 2", "Válvula Adubo 2", "Válvula Canteiro 6", "Válvula Canteiro 1", "Válvula Canteiro 2", "Válvula Canteiro 3", "Válvula Canteiro 4", "Válvula Canteiro 5", "Bomba 1"};
 String relayCodigo[NUM_RELAYS] =       {"VAgua", "VRetAdb1", "VAdb1", "VRetAdb2", "VAdb2", "VL6", "VL1", "VL2", "VL3", "VL4", "VL5", "VBomba"};
-String relayCodigo [NUM_RELAYS] = {"D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12"};
+String relayCodigoDX[NUM_RELAYS] = {"D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12"};
 
 static time_t horas;
 int atualizaAgenda = 10;
@@ -251,8 +251,8 @@ boolean configRead() {
   }
 }
 
-boolean configSave() {
-  // Grava configuração
+boolean configSave() { // Grava configuração na SPIFFS
+  
   StaticJsonDocument<JSON_SIZE> jsonConfig;
 
   File file = SPIFFS.open(F("/Config.json"), "w+");
@@ -284,7 +284,7 @@ boolean configSave() {
 }
 
 // Requisições Web --------------------------------------
-void handleHome() {
+void handleHome() { //Trata requisição da página Home
   // Home
   File file = SPIFFS.open(F("/Home.htm"), "r");
   if (file) {
@@ -322,7 +322,7 @@ void handleHome() {
 
 //--------------------Relays-Server--------------------------------------
 
-void handleRelay() {
+void handleRelay() {  //Trata requisição da página de reles
   // Relay
   if (!pwdNeeded() || chkWebAuth()) {
     File file = SPIFFS.open(F("/Relay.htm"), "r");
@@ -346,14 +346,14 @@ void handleRelay() {
 
 
 
-void handleRelayStatus() {   // Atualização dos status a cada 5 segundos no site
+void handleRelayStatus() {   // Atualização dos status dos relés no WebServer a cada 5 segundos 
   // Relay status
   if (!pwdNeeded() || chkWebAuth()) {
 
     String s = dateTimeStr(now())   + "&" ;
 
     for (int i = 0; i < NUM_RELAYS; i++) {
-      s += String(digitalRead(relayGPIOs[i]))  + "&" ; //Leitura de todas as Válvulas
+      s += String(digitalRead(relayGPIO[i]))  + "&" ; //Leitura de todas as Válvulas
 
     }
     s += lastEvent;
@@ -368,26 +368,26 @@ void handleRelayStatus() {   // Atualização dos status a cada 5 segundos no si
 }
 
 
-void handleRelaySet() {   //Mudança de acordo com o botão
+void handleRelaySet() {   //Mudança de estado do Rele pelo WbServer
   // Set Relay status
   if (!pwdNeeded() || chkWebAuth()) {
     String s = server.arg("set");
     String LigarDesligar = s.substring(1, 2);//primeira parte para liga/desliga = 0 e 1
     String IndexRele = s.substring(2); //Qual a posição do vetor
     if (LigarDesligar.toInt()) {
-      digitalWrite(relayGPIOs[IndexRele.toInt()] , 0);
+      digitalWrite(relayGPIO[IndexRele.toInt()] , 0);
     } else {
-      digitalWrite(relayGPIOs[IndexRele.toInt()] , 1);
+      digitalWrite(relayGPIO[IndexRele.toInt()] , 1);
 
 
     }
 
-    lastEvent = " " + dateTimeStr(now()) + " " + relayGPIOs[IndexRele.toInt()]  + " " + LigarDesligar + " ";
+    lastEvent = " " + dateTimeStr(now()) + " " + relayGPIO[IndexRele.toInt()]  + " " + LigarDesligar + " ";
 
 
     releSetFlag = IndexRele.toInt();
 
-    server.send(200, "text/plain", String(digitalRead (relayGPIOs[IndexRele.toInt()])));
+    server.send(200, "text/plain", String(digitalRead (relayGPIO[IndexRele.toInt()])));
     log("WebRelaySet", "Cliente: " + ipStr(server.client().remoteIP()) +
         " [" + s + "]");
 
@@ -765,7 +765,7 @@ void FireBaseSet() {
   }
   if (Firebase.ready())
   {
-    if (!Firebase.readStream(stream)) Serial.printf("sream read error, %s\n\n", stream.errorReason().c_str());
+    if (!Firebase.readStream(stream)) Serial.printf("(stream)sream read error, %s\n\n", stream.errorReason().c_str());
 
     if (stream.streamTimeout())
     {
@@ -793,8 +793,8 @@ void FireBaseSet() {
       if (estado.length() < 40) {
         for ( int i = 0; i < NUM_RELAYS; i++) {
           if (estado.indexOf(relayCodigo[i]) > 0) {
-            if (estado.indexOf("Desligado") > 0)digitalWrite(relayGPIOs[i] , ValvulaLigada);
-            else if (estado.indexOf("Ligado") > 0)digitalWrite(relayGPIOs[i] , ValvulaDesligada);
+            if (estado.indexOf("Desligado") > 0)digitalWrite(relayGPIO[i] , ValvulaDesligada);
+            else if (estado.indexOf("Ligado") > 0)digitalWrite(relayGPIO[i] , ValvulaLigada);
 
           }
         }
@@ -813,10 +813,10 @@ void  FireBaseStatus() {
     int i = releSetFlag;
 
 
-    if (digitalRead(relayGPIOs[i]) == 0) {
-      Firebase.updateNode(firebaseData, "/Digitais/" + relayCodigo[i] , jsonD);
+    if (digitalRead(relayGPIO[i]) == ValvulaLigada) {
+      Firebase.updateNode(firebaseData, "/Digitais/" + relayCodigo[i] , jsonL);
     } else {
-      Firebase.updateNode(firebaseData, "/Digitais/" + relayCodigo[i], jsonL);
+      Firebase.updateNode(firebaseData, "/Digitais/" + relayCodigo[i], jsonD);
     }
 
 
@@ -834,7 +834,7 @@ void FireBaseSetConfig() {
   }
   if (Firebase.ready())
   {
-    if (!Firebase.readStream(streamConfig)) Serial.printf("sream read error, %s\n\n", streamConfig.errorReason().c_str());
+    if (!Firebase.readStream(streamConfig)) Serial.printf("(streamConfig)sream read error, %s\n\n", streamConfig.errorReason().c_str());
 
     if (streamConfig.streamTimeout())
     {
@@ -871,10 +871,10 @@ void FireBaseSetConfig() {
         schedule.toUpperCase();
         scheduleSet(schedule);
       }
-      if (millis() - sendDataPrevMilli > 15000 || sendDataPrevMilli == 0) {
-        sendDataPrevMilli = millis();
+      if (1) {
+        
         if (estado.indexOf("Offline") > 0) {
-          Firebase.updateNode(firebaseData, "Config/ESP32", jsonS);
+          Firebase.updateNode(firebaseData, "Config/ESP32/", jsonS);
         }
       }
 
@@ -937,7 +937,7 @@ void setup() {
   //------------------ Configura WiFi para ESP32---------------------//
 
   WiFi.setHostname(deviceID().c_str());
-  WiFi.softAP(deviceID().c_str(), "ESP32ESP32");
+  WiFi.softAP(deviceID().c_str(), "ESP32ESP32"); //Senha password webserver ip 192.168.4.1
   log("WiFi AP " + deviceID() + " - IP " + ipStr(WiFi.softAPIP()));
 
   // Habilita roteamento DNS
@@ -1014,35 +1014,36 @@ void setup() {
 
   // LED
 
-  for (int i = 0; i <= NUM_RELAYS; i++) {
-    pinMode(relayGPIOs[i], OUTPUT);
+ 
+ for (int i = 0; i <= NUM_RELAYS; i++) {
+    pinMode(relayGPIO[i], OUTPUT);
 
   }
   
   delay(500);
-  for (int i = 0; i <= NUM_RELAYS; i++) {
-    digitalWrite(relayGPIOs[i], ValvulaDesligada); //Inicia todas portas em HIGH pro sistema desligar os reles. HIGH relé DESLIGADO
-
+   for (int i = 0; i <= NUM_RELAYS; i++) {
+    digitalWrite(relayGPIO[i], ValvulaDesligada); //Inicia todas portas em HIGH pro sistema desligar os reles. HIGH relé DESLIGADO
   }
+ 
 
 
 
   //---------------------FIREBASE-------------------------------------------
 
 
-  if (!Firebase.beginStream(stream, "/Digitais/")) {
-    Serial.printf("sream válvulas begin error, %s\n\n", stream.errorReason().c_str());
-  } else {
-    Serial.println("sream válvulas begin complete");
+ if (!Firebase.beginStream(stream, "/Digitais/")) {
+   Serial.printf("sream válvulas begin error, %s\n\n", stream.errorReason().c_str());
+ } else {
+   Serial.println("sream válvulas begin complete");
   }
-  if (!Firebase.beginStream(streamConfig, "/Config/")) {
+  if (!Firebase.beginStream(streamConfig, "/Config/Agendamento/Pull")) {
     Serial.printf("sream config begin error, %s\n\n", streamConfig.errorReason().c_str());
   } else {
     Serial.println("sream config begin complete");
   }
 
   //---------------------------------WATCHDOG---------------------------//
-  //configureWatchdog();
+ //configureWatchdog();
 
   // WebServer
   server.on(F("/Relay.htm")       , handleRelay);
@@ -1097,17 +1098,22 @@ void loop() {
   }
   horas += String(minute(hora));
 
-  if (WiFi.status() == WL_CONNECTED) {
-    if ( !Firebase.beginStream(stream, "/Digitais/") || !Firebase.ready() ) {
+//  if (WiFi.status() == WL_CONNECTED) {
+//    if ( !Firebase.beginStream(stream, "/Digitais/") || !Firebase.ready() ) {
+//      reboot();
+//    }
+//}else if ( horas == horarioAtualiza ) {
+//    reboot();
+//  } else if (WiFi.status() == WL_CONNECTED && timeStatus() != timeSet) {
+//    reboot();
+//  }else if(WiFi.status() == WL_CONNECTED && !Firebase.beginStream(streamConfig, "/Config/") ){
+//     reboot();
+//  }
+
+  if (WiFi.status() != WL_CONNECTED) {
+    
       reboot();
     }
-  } else if ( horas == horarioAtualiza ) {
-    reboot();
-  } else if (WiFi.status() == WL_CONNECTED && timeStatus() != timeSet) {
-    reboot();
-  }else if(WiFi.status() == WL_CONNECTED && !Firebase.beginStream(streamConfig, "/Config/") ){
-     reboot();
-  }
 
   // DNS ---------------------------------------------
   dnsServer.processNextRequest();
@@ -1117,12 +1123,12 @@ void loop() {
   FireBaseSet(); // requisição de aberto e fechado das válvulas do firebase
   FireBaseSetConfig(); // configurar o horario de reboot, agendamento, se o esp ta online
 
-  for (int i = 0; i < RELAY_PIN; i++) {
-    String s   = scheduleChk(schedule, relayGPIOs[i], relayCodigo[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
+  for (int i = 0; i < NUM_RELAYS; i++) {
+    String s   = scheduleChk(schedule, relayGPIO[i], relayCodigoDX[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
     delay(500);
     if (s != "") {
       // Event detected
-      lastEvent = (digitalRead(relayGPIOs[i]) ? "Ligado " : "Desligado ") +
+      lastEvent = (digitalRead(relayGPIO[i]) ? "Ligado " : "Desligado ") +
                   s + " - " + dateTimeStr(now());
       log(F("Agendamento"), lastEvent);
       logFire(F("Agendamento"), lastEvent);
