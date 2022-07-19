@@ -379,12 +379,14 @@ function buscaCodigo() {
             CRecords.forEach(
                 function (CurrentCRecord) {
                     cod = CurrentCRecord.val().codigo.concat(';'+ cod);     //.concat() concatena os arrays 
-                    for (c = 0; c < cod.length; c++ ){                  
-                        firebase.database().ref("Config/Agendamento/Pull/").set(cod);
-                    }
+                    //for (c = 0; c < cod.length; c++ ){                  
+                        
+                    //}
                     
                 }
+                
             );
+            firebase.database().ref("Config/Agendamento/Pull/").set(cod);
         });
 
 };
