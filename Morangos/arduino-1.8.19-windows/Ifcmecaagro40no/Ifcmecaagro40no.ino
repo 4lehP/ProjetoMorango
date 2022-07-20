@@ -52,6 +52,7 @@ static time_t horas;
 int atualizaAgenda = 10;
 int horaMais;
 int setflag = 1;
+int minutoPrimeiraConexao=0;
 // Tamanho do Objeto JSON
 //const   size_t    JSON_SIZE            = 404; declarado em def.h
 
@@ -244,7 +245,7 @@ boolean configRead() {
     file.close();
 
     log(F("\nLendo config:"));
-    logFire(F("Config"), F("Lendo config:"));
+    //logFire(F("Config"), F("Lendo config:"));
     serializeJsonPretty(jsonConfig, Serial);
     log("");
 
@@ -742,17 +743,19 @@ void handleCSS() {
 }
 //---------------------------FIREBASE--------------------------------
 
-void logFire(const String &type, const String &msg) {
+void logFire( const String &type,  String &msg) {
   FirebaseJson jsonl;
   FirebaseData fbdoo;
   String dataDeAgora = dateTimeStr(now());
   String hora = dataDeAgora.substring(11);
   String dataCalendario = dataDeAgora.substring(0, 11);
 
-  jsonl.add(hora, dataCalendario + ";" + type + ";" + msg);
+  jsonl.add(dataCalendario + ";" + type + ";" + msg);
   if (WiFi.status() == WL_CONNECTED  && Firebase.ready() )
   {
-    Firebase.updateNode(fbdoo, "Config/Relatorio/json", jsonl);
+   Firebase.push(fbdoo, "Config/Relatorio/json", hora + ";" dataCalendario + ";" + type + ";" + msg); //Firebase.updateNode(fbdoo, "Config/Relatorio/json", jsonl);   
+  // template <typename T1 = const char *, typename T2>
+  // bool push(FirebaseData &fbdo, T1 path, T2 value) { return RTDB.push(&fbdo, path, value); }
   }
 }
 
@@ -931,7 +934,7 @@ void ConfigSchedule() {
 // ---------------------Setup -------------------------------------------
 
 void setup() {
-
+ 
   // Velocidade para ESP32
   Serial.begin(115200);
 
@@ -992,7 +995,8 @@ void setup() {
   } else {
     // Soft AP mode, ignore date/time
     log(F("Boot"), F("Data/Hora nao definida"));
-    logFire(F("Boot"), F("Data/Hora nao definida"));
+    //logFire(F("Boot"), F("Data/Hora nao definida"));
+    
     log(F("WiFi não conectado"));
   }
 
@@ -1005,7 +1009,7 @@ void setup() {
   }
 
   // Lê configuração
-  configRead();
+  //if (configRead())
 
   // Incrementa contador de inicializações
   bootCount++;
@@ -1070,13 +1074,14 @@ void setup() {
 
   // Pronto
   log(F("Pronto"));
-  logFire(F("ESP32"), F("Pronto"));
+
+  logFire(F("DispositivoPronto"), "Confg ok");
+ 
   //  timeNTP();
   //  hold(1000);
   ConfigSchedule();
+  
 }
-
-
 
 // ------------------Loop --------------------------------------------
 
@@ -1110,10 +1115,9 @@ void loop() {
 //  }else if(WiFi.status() == WL_CONNECTED && !Firebase.beginStream(streamConfig, "/Config/") ){
 //     reboot();
 //  }
-
-  if (WiFi.status() != WL_CONNECTED) {
-    
-      reboot();
+  minutoPrimeiraConexao = minute(hora);
+  if (WiFi.status() != WL_CONNECTED && minute(hora)>minutoPrimeiraConexao+15) {
+     reboot();
     }
 
   // DNS ---------------------------------------------
