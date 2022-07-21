@@ -30,10 +30,10 @@ var cod = [];
 var c;
 
 
-//window.onload = AtualizaStatusDispositivo('Config/ESP32/') ;
-window.onload = AtualizaStatusDispositivo('Dispositivos/ESP32/') ;
-//window.onload = SetDispOffline('Config/ESP32');
-window.onload = SetDispOffline('Dispositivos/ESP32');
+window.onload = AtualizaStatusDispositivo('Config/ESP32') ;
+//window.onload = AtualizaStatusDispositivo('Dispositivos/ESP32/') ;
+window.onload = SetDispOffline('Config/ESP32');
+//window.onload = SetDispOffline('Dispositivos/ESP32');
 window.onload = SelectDataToTable('Digitais/',1);
 window.onload = SelectDataToAgenda();
 window.onload = buscaCodigo();
@@ -95,8 +95,8 @@ function ArmazenarDadosUsuario(user){
 timerDisp = setInterval(ftimerDisp , 20000);//
 
 function ftimerDisp(){
-    //SetDispOffline('Config/ESP32'); 
-    SetDispOffline('Dispositivos/ESP32'); 
+    SetDispOffline('Config/ESP32'); 
+    //SetDispOffline('Dispositivos/ESP32'); 
 }
 
 function SelectDataToTable(colection, first) {
