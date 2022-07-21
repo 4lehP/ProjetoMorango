@@ -145,7 +145,8 @@ function AddItemsToTable(Nome, Descrição, Estado) {
 
     td1.innerHTML = Nome;
     td2.innerHTML = Descrição;
-    td3.innerHTML = '<div class="form-check form-switch"><input class="form-check-input " type="checkbox" role="switch" onclick="AttDigitais(' + IndexTable + ')" ></div>';
+    td3.innerHTML = '<button type="button" class="btn btn-primary my-2"   onclick="AttDigitais(' + IndexTable + ')">On/Off</button>';
+    //td3.innerHTML = '<div class="form-check form-switch"><input class="form-check-input " type="checkbox" role="switch" onclick="AttDigitais(' + IndexTable + ')" ></div>';
     td4.innerHTML = Estado;
     IndexTable++
 
@@ -276,7 +277,7 @@ logOutButton.addEventListener('click', (e)=> {
            
             displayName.innerText = 'Você não está autenticado';
             alert('Você se deslogou');
-            window.location.href = '/public/authentication.html';  // adicionar /public para funcionar em teste, deletar para funcionar online
+            window.location.href = '/authentication.html';  // adicionar /public para funcionar em teste, deletar para funcionar online
         }).catch((error) =>{ 
             console.error(error);
         });
@@ -285,6 +286,8 @@ logOutButton.addEventListener('click', (e)=> {
 // Pega os valores do formulário do agendamento e envia para o firebase 
 function getForm(hora, valor){
     user = firebase.auth().currentUser;
+    alert("OPERAÇÃO NÃO REALIZADA");
+    /*
     if(user == null){
         alert("OPERAÇÃO NÃO REALIZADA\n\nFaça login para continuar");
     }
@@ -348,7 +351,8 @@ function getForm(hora, valor){
     //console.log(agendaValor, agendaTxt);
 
     comandoTxt = txt+valor+hora;
-    alert("OPERAÇÃO NÃO REALIZADA");
+
+    
     
     
     if (user.uid =! null) {
@@ -370,7 +374,7 @@ function getForm(hora, valor){
         });
         
     }
-    
+    */
 }
 
 function buscaCodigo() {
@@ -470,6 +474,8 @@ function deleteBTN(IndexAgenda){
 // ==== Exclui todos os agendamentos ====
   
 function deleteAllBTN(){
+    alert("OPERAÇÃO NÃO REALIZADA");
+    /*
     if(user == null){
         alert("OPERAÇÃO NÃO REALIZADA\n\nFaça login para continuar");
     }
@@ -485,7 +491,7 @@ function deleteAllBTN(){
                 });
         }
     }
-    
+    */
 }
 
 function SelectDataToRelatorio() {
@@ -496,17 +502,17 @@ function SelectDataToRelatorio() {
             }
             RelRecords.forEach(
                 function (CurrentRelRecord) {
-                    var childJson = CurrentRelRecord.key;
+                    //var childJson = CurrentRelRecord.key;
                     var valJson = CurrentRelRecord.val();
 
-                    var Info =  childJson.concat(": " +valJson);
+                    //var Info =  childJson.concat(": " +valJson);
                                           
                     if(first = true){
-                        AddItemsToRelatorio(Info)
+                        AddItemsToRelatorio(valJson)
                     }
                     else{
                         relatorioList.pop();
-                        relatorioList.push({Info});
+                        relatorioList.push({valJson});
                     }
                 }
             );
@@ -514,15 +520,15 @@ function SelectDataToRelatorio() {
         });
 };
 
-function AddItemsToRelatorio(Info){
+function AddItemsToRelatorio(valJson){
     var tbodyRelatorio = document.getElementById('tbodyRelatorio');
     var trow = document.createElement('tr');
 
     var td1 = document.createElement('td');
     
-    relatorioList.push([Info]);
+    relatorioList.push([valJson]);
 
-    td1.innerHTML = Info;
+    td1.innerHTML = valJson;
 
     trow.appendChild(td1);
 
