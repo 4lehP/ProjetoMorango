@@ -833,13 +833,7 @@ void  FireBaseStatus() {
 void FireBaseSetConfig() {
  
   jsonS.set("Estado/", "Online");
-  if (Firebase.ready() && (millis() - sendDataPrevMillis > idleTimeForStream || sendDataPrevMillis == 0))
-  {
-    sendDataPrevMillis = millis();
-    count++;
-  }
-
- 
+  
   if (Firebase.ready())
   { 
     
@@ -869,6 +863,9 @@ void FireBaseSetConfig() {
       String mudanca = streamAgendamento.dataPath().c_str();
       String Agenda = streamAgendamento.stringData().c_str();
 
+
+   // if (caminho.indexOf("Agenda") != -1) 
+    
       if (Agenda.length() > 1) {
         strlcpy(configuracao, Agenda.c_str(), sizeof(configuracao));
 
@@ -959,14 +956,29 @@ void FireBaseSetConfig() {
                  "\nDL" +  dateTimeStr( t + 420, false).substring(11, 16) + relayCodigo[i] +
                  "\nIH" + "00:01" + relayCodigo[i] + "\nIL" + "00:01" + relayCodigo[i];
     }
-    log(F("Boot"), F("Agendamento Ok"));
-    logFire(F("Boot"), F("Agendamento Ok"));
+    //log(F("Boot"), F("Agendamento Ok"));
+    //logFire(F("Boot"), F("Agendamento Ok"));
   }
 
 
   // ---------------------Setup -------------------------------------------
 
   void setup() {
+
+ // Configura Digitais
+
+
+    for (int i = 0; i <= NUM_RELAYS; i++) {
+      pinMode(relayGPIO[i], OUTPUT);
+
+    }
+
+    delay(500);
+    for (int i = 0; i <= NUM_RELAYS; i++) {
+      digitalWrite(relayGPIO[i], ValvulaDesligada); //Inicia todas portas em HIGH pro sistema desligar os reles. HIGH relé DESLIGADO
+    }
+
+
 
     // Velocidade para ESP32
     Serial.begin(115200);
@@ -1042,7 +1054,7 @@ void FireBaseSetConfig() {
     }
 
     // Lê configuração
-    //if (configRead())
+    //configRead();
 
     // Incrementa contador de inicializações
     bootCount++;
@@ -1050,19 +1062,7 @@ void FireBaseSetConfig() {
     // Salva configuração
 
 
-    // LED
-
-
-    for (int i = 0; i <= NUM_RELAYS; i++) {
-      pinMode(relayGPIO[i], OUTPUT);
-
-    }
-
-    delay(500);
-    for (int i = 0; i <= NUM_RELAYS; i++) {
-      digitalWrite(relayGPIO[i], ValvulaDesligada); //Inicia todas portas em HIGH pro sistema desligar os reles. HIGH relé DESLIGADO
-    }
-
+   
 
     
 
@@ -1137,8 +1137,11 @@ void FireBaseSetConfig() {
 
     // Pronto
     log(F("Pronto"));
-
-    logFire(F("DispositivoPronto"), F("Confg ok"));
+    if (WiFi.status() != WL_CONNECTED && !Firebase.ready()){
+       logFire(F("DispositivoPronto"), F("Confg ok"));
+    }else{Serial.println("Erro - WiFi.status() != WL_CONNECTED && !Firebase.ready()");}
+    
+   
 
     //  timeNTP();
     //  hold(1000);
@@ -1178,8 +1181,12 @@ void FireBaseSetConfig() {
     //  }else if(WiFi.status() == WL_CONNECTED && !Firebase.beginStream(streamAgendamento, "/Config/") ){
     //     reboot();
     //  }
-    minutoPrimeiraConexao = minute(hora);
-    if (WiFi.status() != WL_CONNECTED && minute(hora) > minutoPrimeiraConexao + 15) {
+    
+    if (WiFi.status() != WL_CONNECTED) {
+      reboot();
+    }
+     if (!Firebase.ready())
+     {
       reboot();
     }
 
