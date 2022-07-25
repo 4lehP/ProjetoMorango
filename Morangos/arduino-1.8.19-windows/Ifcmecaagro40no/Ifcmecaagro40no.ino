@@ -1137,9 +1137,14 @@ void FireBaseSetConfig() {
 
     // Pronto
     log(F("Pronto"));
-    if (WiFi.status() != WL_CONNECTED && !Firebase.ready()){
+    if (WiFi.status() == WL_CONNECTED && Firebase.ready()){
        logFire(F("DispositivoPronto"), F("Confg ok"));
-    }else{Serial.println("Erro - WiFi.status() != WL_CONNECTED && !Firebase.ready()");}
+      
+    }else{
+      Serial.println("Erro - WiFi.status() != WL_CONNECTED && !Firebase.ready()");
+      delay(10000);
+      reboot();
+      }
     
    
 
@@ -1181,14 +1186,16 @@ void FireBaseSetConfig() {
     //  }else if(WiFi.status() == WL_CONNECTED && !Firebase.beginStream(streamAgendamento, "/Config/") ){
     //     reboot();
     //  }
+
     
-    if (WiFi.status() != WL_CONNECTED) {
+     if (WiFi.status() == WL_CONNECTED && Firebase.ready()){
+       //logFire(F("DispositivoPronto"), F("Confg ok"));
+      
+    }else{
+      Serial.println("Erro - WiFi.status() != WL_CONNECTED && !Firebase.ready()");
+      delay(10000);
       reboot();
-    }
-     if (!Firebase.ready())
-     {
-      reboot();
-    }
+      }
 
     // DNS ---------------------------------------------
     dnsServer.processNextRequest();
