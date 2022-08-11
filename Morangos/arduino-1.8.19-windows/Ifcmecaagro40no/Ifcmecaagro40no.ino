@@ -751,7 +751,7 @@ void logFire(const String &type, const String &msg) {
   jsonl.add(dataCalendario,  hora + ";" + type + ";" + msg);
   if (WiFi.status() == WL_CONNECTED  && Firebase.ready() )
   {
-    Firebase.push(fbdoo, "Config/Relatorio/json", dataCalendario + " " +  hora + ";" + type + ";" + msg);
+    Firebase.push(fbdoo, "Dispositivos/Relatorio/json", dataCalendario + " " +  hora + ";" + type + ";" + msg);
   }
 }
 
@@ -767,9 +767,9 @@ void  FireBaseStatus() {
 
 
     if (digitalRead(relayGPIOs[i]) == 0) {
-      Firebase.updateNode(firebaseData, "/Digitais/" + relayCodigo[i] , jsonD);
+      Firebase.updateNode(firebaseData, "/Config/Digitais/" + relayCodigo[i] , jsonD);
     } else {
-      Firebase.updateNode(firebaseData, "/Digitais/" + relayCodigo[i], jsonL);
+      Firebase.updateNode(firebaseData, "/Config/Digitais/" + relayCodigo[i], jsonL);
     }
 
 
@@ -1025,7 +1025,7 @@ void loop() {
 
   for (int i = 0; i < RELAY_PIN; i++) {
     String s   = scheduleChk(schedule, relayGPIOsteste[i], StringPortax[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
-    delay(500);
+  delay(500);
     if (s != "") {
       // Event detected
       lastEvent = (digitalRead(relayGPIOsteste[i]) ? "Ligado " : "Desligado ") +
