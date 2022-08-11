@@ -319,7 +319,7 @@ String fsSpaceStr() {
           String((SPIFFS.totalBytes() - SPIFFS.usedBytes()) / 1024.0, 1) + F("kb<br>");
 }
 
-time_t timeNTP() {
+time_t timeNTP() {    //NTP o horário é pego pelo server online
   // Return time_t from NTP Server
   if (WiFi.status() != WL_CONNECTED ) {
     // No WiFi connection
@@ -357,7 +357,7 @@ time_t timeNTP() {
     udp.read(ntp, NTP_PACKET_SIZE);
     l = word(ntp[40], ntp[41]) << 16 | word(ntp[42], ntp[43]);
     l -= 2208988800UL;      // Calculate from 1900 to 1970
-    l += -3 * 3600; // Adjust time zone (+- timeZone * 60m * 60s)
+    l += -3 * 3600; // Adjust time zone (- 3 * 60m * 60s)  
     logStr[logIndex] = dateTimeStr(l) + F(";NTP;Ok");
   } else {
     //Error
@@ -721,7 +721,7 @@ String hhmmStr(const time_t &t) {
   return s;
 }
 
-String scheduleChk(const String &schedule, const byte &pin,const String &dPorta) {
+String scheduleChk(const String &schedule, const byte &pin,const String &dPorta) {      //função do agendamento, funcionando apenas para ligar/desligar todos os dias
   // Schedule System Main Function
 
   // Local variables
@@ -826,7 +826,7 @@ String scheduleChk(const String &schedule, const byte &pin,const String &dPorta)
   s = "H"+ dPorta + dt ;
   if (schedule.indexOf(s) != -1) {
     event = s;
-    relay = HIGH;
+    relay = LOW; // pois o relé funciona ao contrário 
     goto process;
   }
 
@@ -834,7 +834,7 @@ String scheduleChk(const String &schedule, const byte &pin,const String &dPorta)
   s = "L" + dPorta + dt ;
   if (schedule.indexOf(s) != -1) {
     event = s;
-    relay = LOW;
+    relay = HIGH; // pois o relé funciona ao contrário
     goto process;
   }
 
@@ -872,7 +872,7 @@ String scheduleChk(const String &schedule, const byte &pin,const String &dPorta)
 }
 
 
-boolean scheduleSet(const String &schedule) {
+boolean scheduleSet(const String &schedule) {   //escreve o agendamento na memória do ESP32
   // Save Schedule entries
   File file = SPIFFS.open(F("/Schedule.txt"), "w+");
   if (file) {
@@ -884,7 +884,7 @@ boolean scheduleSet(const String &schedule) {
   return false;
 }
 
-String scheduleGet() {
+String scheduleGet() {      //lê o que foi salvo toda vez que o ESP é ligado
   // Get Schedule entries
   String s = "";
   File file = SPIFFS.open(F("/Schedule.txt"), "r");
