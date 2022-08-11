@@ -33,7 +33,7 @@
 
 int relayGPIOsteste[RELAY_PIN] = {15, 13, 2};
 String StringPortax[RELAY_PIN] = {"D1", "D2", "D3"};
-String relayCodigoT[RELAY_PIN] =       {"VAgua", "VRetAdb1", "VAdb1"};
+String relayCodigoT[RELAY_PIN] =  {"VAgua", "VRetAdb1", "VAdb1"};
 //---------PARTE DAS CONFIGURAÇÕES DAS ENTRADAS DAS VálvulaS----------//
 
 const byte      LED_ON                  = HIGH;
@@ -60,8 +60,6 @@ FirebaseData firebaseDataRelatorio;
 FirebaseData stream;
 FirebaseData streamStatus;
 FirebaseData streamConfig;
-FirebaseData streamAgendamento;
-FirebaseData streamRelatorio;
 FirebaseConfig config;
 FirebaseJson jsonL;
 FirebaseJson jsonD;
@@ -751,7 +749,7 @@ void logFire(const String &type, const String &msg) {
   jsonl.add(dataCalendario,  hora + ";" + type + ";" + msg);
   if (WiFi.status() == WL_CONNECTED  && Firebase.ready() )
   {
-    Firebase.push(fbdoo, "Config/Relatorio/json", dataCalendario + " " +  hora + ";" + type + ";" + msg);
+    Firebase.push(fbdoo, "/Dispositivos/Relatorio/json", dataCalendario + " " +  hora + ";" + type + ";" + msg);
   }
 }
 
@@ -767,9 +765,9 @@ void  FireBaseStatus() {
 
 
     if (digitalRead(relayGPIOs[i]) == 0) {
-      Firebase.updateNode(firebaseData, "/Digitais/" + relayCodigo[i] , jsonD);
+      Firebase.updateNode(firebaseData, "/Config/Digitais/" + relayCodigo[i] , jsonD);
     } else {
-      Firebase.updateNode(firebaseData, "/Digitais/" + relayCodigo[i], jsonL);
+      Firebase.updateNode(firebaseData, "/Config/Digitais/" + relayCodigo[i], jsonL);
     }
 
 
@@ -777,7 +775,52 @@ void  FireBaseStatus() {
   }
 }
 
+void FireBaseSet() {
 
+  if (Firebase.ready() && (millis() - sendDataPrevMillis > idleTimeForStream || sendDataPrevMillis == 0))
+  {
+    sendDataPrevMillis = millis();
+    count++;
+  }
+  if (Firebase.ready())
+  {
+    if (!Firebase.readStream(stream)) Serial.printf("sream read error, %s\n\n", stream.errorReason().c_str());
+
+    if (stream.streamTimeout())
+    {
+      Serial.println("stream timed out, resuming...\n");
+
+      if (!stream.httpConnected()) {
+        Serial.printf("error code: %d, reason: %s\n\n", stream.httpCode(), stream.errorReason().c_str());
+      }
+
+    }
+    if (stream.streamAvailable())
+    {
+
+      Serial.printf("sream path, %s\nevent path, %s\ndata type, %s\nevent type, %s\nvalue, %s\n\n",
+                    stream.streamPath().c_str(),
+                    stream.dataPath().c_str(),
+                    stream.dataType().c_str(),
+                    stream.eventType().c_str(),
+                    stream.stringData().c_str());
+
+     
+      String caminho = stream.streamPath().c_str();
+      String mudanca = stream.dataPath().c_str();
+      String estado = stream.stringData().c_str();
+
+      if (estado.length() < 40) {
+         for ( int i = 0; i < RELAY_PIN; i++) {
+        if (mudanca.indexOf(relayCodigoT[i]) > 0) {
+          if (estado.indexOf("Desligado") > 0)digitalWrite(relayGPIOsteste[i] , ValvulaLigada);
+          else if (estado.indexOf("Ligado") > 0)digitalWrite(relayGPIOsteste[i] , ValvulaDesligada);
+        }
+      }
+      }
+    }
+  }
+}
 void FireBaseConfig() {
   jsonS.set("Estado", "Online");
   if (Firebase.ready() && (millis() - sendDataPrevMillis > idleTimeForStream || sendDataPrevMillis == 0))
@@ -812,13 +855,7 @@ void FireBaseConfig() {
       String mudanca = streamConfig.dataPath().c_str();
       String estado = streamConfig.stringData().c_str();
 
-      for ( int i = 0; i < NUM_RELAYS; i++) {
-        if (mudanca.indexOf(relayCodigo[i]) > 0) {
-          if (estado.indexOf("Desligado") > 0)digitalWrite(relayGPIOs[i] , LOW);
-          else if (estado.indexOf("Ligado") > 0)digitalWrite(relayGPIOs[i] , HIGH);
-
-        }
-      }
+     
       if (mudanca.indexOf("Pull") > 0) {
         strlcpy(agendamento, estado.c_str(), sizeof(agendamento));
         schedule = agendamento;
@@ -832,7 +869,6 @@ void FireBaseConfig() {
       if (estado.indexOf("Offline") > 0) {
         Firebase.updateNode(firebaseData, "Config/ESP32", jsonS);
       }
-
     }
   }
 }
@@ -917,6 +953,18 @@ void setup() {
     Firebase.reconnectWiFi(true);
 
     Firebase.setDoubleDigits(7);
+    //---------------------FIREBASE-------------------------------------------
+
+  if (!Firebase.beginStream(streamConfig, "/Config/")) {
+    Serial.printf("sream config begin error, %s\n\n", streamConfig.errorReason().c_str());
+  } else {
+    Serial.println("sream config begin complete");
+  }
+  if (!Firebase.beginStream(stream, "/Digitais/")) {
+    Serial.printf("sream digitais begin error, %s\n\n", stream.errorReason().c_str());
+  } else {
+    Serial.println("sream digitais begin complete");
+  }
     setSyncProvider(timeNTP);
     setSyncInterval(NTP_INT);
 
@@ -962,13 +1010,7 @@ void setup() {
 
 
 
-  //---------------------FIREBASE-------------------------------------------
-
-  if (!Firebase.beginStream(streamConfig, "/Config/")) {
-    Serial.printf("sream config begin error, %s\n\n", streamConfig.errorReason().c_str());
-  } else {
-    Serial.println("sream config begin complete");
-  }
+ 
 
   //---------------------------------WATCHDOG---------------------------//
   //configureWatchdog();
@@ -1022,7 +1064,8 @@ void loop() {
   //Firebase pegando os status-----------------------
   FireBaseStatus(); // Mudança no estado da valvula do server local
   FireBaseConfig(); // configurar o horario de reboot, agendamento, se o esp ta online
-
+  FireBaseSet();
+  
   for (int i = 0; i < RELAY_PIN; i++) {
     String s   = scheduleChk(schedule, relayGPIOsteste[i], StringPortax[i]); //StringPortax[i] //StringPortax[i] String que contem o nome da porta testada no schedule
     delay(500);
