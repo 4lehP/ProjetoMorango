@@ -13,7 +13,7 @@ var code = document.getElementById('code');
 var description = document.getElementById('description');
 var SwitchEstado = document.getElementById('SwitchEstado'); 
 var Vadb1label = document.getElementById('Vadb1label');
-var tbody = document.getElementById('tbody');
+var tbodyVal = document.getElementById('tbodyVal');
 var IMGphotoURL = document.getElementById('photoURL');
 var logOutButton = document.getElementById('logOutButton');
 var UsuarioAtivo = document.getElementById('UsuarioAtivo');
@@ -34,7 +34,7 @@ window.onload = AtualizaStatusDispositivo('Config/ESP32') ;
 //window.onload = AtualizaStatusDispositivo('Dispositivos/ESP32/') ;
 window.onload = SetDispOffline('Config/ESP32');
 //window.onload = SetDispOffline('Dispositivos/ESP32');
-window.onload = SelectDataToTable('Digitais/',1);
+window.onload = SelectDataToTable('Config/Digitais/',1);
 window.onload = SelectDataToAgenda();
 window.onload = buscaCodigo();
 window.onload = SelectDataToRelatorio();
@@ -120,7 +120,7 @@ function SelectDataToTable(colection, first) {
                     }
                     document.querySelectorAll('tbody td:nth-child(4)')[i].innerText = Estado;
                              
-                             //console.log(i +" "+Estado);
+                             console.log(i +" "+Estado);
                              i++;
                         
                 }
@@ -132,7 +132,7 @@ function SelectDataToTable(colection, first) {
 function AddItemsToTable(Nome, Descrição, Estado) {
     user = firebase.auth().currentUser;
 
-    var tbody = document.getElementById('tbody');
+    var tbodyVal= document.getElementById('tbodyVal');
 
     var trow = document.createElement('tr');
 
@@ -146,7 +146,6 @@ function AddItemsToTable(Nome, Descrição, Estado) {
     td1.innerHTML = Nome;
     td2.innerHTML = Descrição;
     td3.innerHTML = '<button type="button" class="btn btn-primary my-2"   onclick="AttDigitais(' + IndexTable + ')">On/Off</button>';
-    //td3.innerHTML = '<div class="form-check form-switch"><input class="form-check-input " type="checkbox" role="switch" onclick="AttDigitais(' + IndexTable + ')" ></div>';
     td4.innerHTML = Estado;
     IndexTable++
 
@@ -155,7 +154,7 @@ function AddItemsToTable(Nome, Descrição, Estado) {
     trow.appendChild(td3);
     trow.appendChild(td4);
 
-    tbody.appendChild(trow);
+    tbodyVal.appendChild(trow);
 
 
 }
@@ -217,7 +216,7 @@ function AttDigitais(IndexTable) {
         // Get a key for a new Post.
 
         var updates = {};
-        updates['Digitais/' + name + '/Estado'] = status;
+        updates['Config/Digitais/' + name + '/Estado'] = status;
         firebase.database().ref().update(updates);
     }
 
@@ -282,6 +281,7 @@ logOutButton.addEventListener('click', (e)=> {
             console.error(error);
         });
 });
+
 
 // Pega os valores do formulário do agendamento e envia para o firebase 
 function getForm(hora, valor){
@@ -424,6 +424,7 @@ function SelectDataToAgenda() {
 };
 
 function AddItemsToAgenda(Nome, Hora, Comando){
+    
     var tbodyAgenda = document.getElementById('tbodyAgenda');
     var trow = document.createElement('tr');
 
@@ -446,6 +447,7 @@ function AddItemsToAgenda(Nome, Hora, Comando){
     trow.appendChild(ta3);
 
     tbodyAgenda.appendChild(trow);
+    
 }
 
 // ===== Exclui o agendamento escolhido ==== 
@@ -495,7 +497,7 @@ function deleteAllBTN(){
 }
 
 function SelectDataToRelatorio() {
-    firebase.database().ref("Config/Relatorio/json").on('value',
+    firebase.database().ref("Dispositivos/Relatorio/json").on('value',
         function (RelRecords) {
             while(relatorioList.length){ 
                 relatorioList.pop(); 
@@ -514,6 +516,7 @@ function SelectDataToRelatorio() {
                         relatorioList.pop();
                         relatorioList.push({valJson});
                     }
+                   // console.log(childJson);
                 }
             );
 
